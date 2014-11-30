@@ -269,7 +269,8 @@ Form.window.ShowFormSave = function(config) {
     config = config || {};
     
     Ext.applyIf(config, {
-    	autoHeight	: true,
+    	autoHeight	: false,
+    	height		: 500,
     	width		: 800,
         title 		: _('form.form') + ': ' + config.record.name,
 	    labelAlign	: 'left',
