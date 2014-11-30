@@ -1,0 +1,39 @@
+Form.panel.Home = function(config) {
+	config = config || {};
+	
+    Ext.apply(config, {
+        id			: 'form-panel-home',
+        cls			: 'container',
+        defaults	: {
+        	collapsible	: false,
+        	autoHeight	: true,
+        	border 		: false
+        },
+        items		: [{
+            html		: '<h2>'+_('form')+'</h2>',
+            id			: 'form-header',
+            cls			: 'modx-page-header'
+        }, {
+        	layout		: 'form',
+        	border 		: true,
+            defaults	: {
+            	autoHeight	: true,
+            	border		: false
+            },
+            items		: [{
+            	html			: '<p>' + _('form.formsave_desc') + '</p>',
+                bodyCssClass	: 'panel-desc'
+            }, {
+                xtype			: 'form-grid-formsave',
+                cls				: 'main-wrapper',
+                preventRender	: true
+            }]
+        }]
+    });
+
+	Form.panel.Home.superclass.constructor.call(this, config);
+};
+
+Ext.extend(Form.panel.Home, MODx.FormPanel);
+
+Ext.reg('form-panel-home', Form.panel.Home);
