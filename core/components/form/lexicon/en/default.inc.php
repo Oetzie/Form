@@ -85,7 +85,9 @@
 	$_lang['form.error_betweendate']						= 'This field can only be between [[+minDate]] and [[+maxDate]].';
 	
 	$_lang['form.error_extension_email']					= 'E-mail could not be send to "[[+emails]]", please try again.';
-	$_lang['form.error_extension_newsletter']				= 'An error occurred during subscribing for the newsletter, try it again.';
-	$_lang['form.error_extension_newsletter_confirm']		= 'An error occurred during confirming your subscribing for the newsletter, try again.';
+	$_lang['form.error_extension_newsletter_subscribe']				= 'An error occurred during subscribing for the newsletter, try it again.';
+	$_lang['form.error_extension_newsletter_subscribe_confirm']		= 'An error occurred during confirming your subscribing for the newsletter, try again.';
+	$_lang['form.error_extension_newsletter_unsubscribe']			= 'An error occurred during unsubscribing for the newsletter, try it again.';
+	$_lang['form.error_extension_newsletter_unsubscribe_confirm']	= 'An error occurred during confirming your unsubscribing for the newsletter, try again.';
 	
 ?>

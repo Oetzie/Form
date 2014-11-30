@@ -85,7 +85,9 @@
 	$_lang['form.error_betweendate']						= 'Dit veld moet tussen [[+minDate]] en [[+maxDate]] zijn.';
 	
 	$_lang['form.error_extension_email']					= 'E-mail kon niet verstuurd worden naar "[[+emails]]", probeer het nog een keer.';
-	$_lang['form.error_extension_newsletter']				= 'Er is een fout opgetreden tijdens het inschrijven voor de nieuwsbrief, probeer het nog een keer.';
-	$_lang['form.error_extension_newsletter_confirm']		= 'Er is een fout opgetreden tijdens het bevestigen van uw inschrijving voor de nieuwsbrief, probeer het nog een keer.';
+	$_lang['form.error_extension_newsletter_subscribe']				= 'Er is een fout opgetreden tijdens het inschrijven voor de nieuwsbrief, probeer het nog een keer.';
+	$_lang['form.error_extension_newsletter_subscribe_confirm']		= 'Er is een fout opgetreden tijdens het bevestigen van uw inschrijving voor de nieuwsbrief, probeer het nog een keer.';
+	$_lang['form.error_extension_newsletter_unsubscribe']			= 'Er is een fout opgetreden tijdens het uitschrijven voor de nieuwsbrief, probeer het nog een keer.';
+	$_lang['form.error_extension_newsletter_unsubscribe_confirm']	= 'Er is een fout opgetreden tijdens het bevestigen van uw uitschrijving voor de nieuwsbrief, probeer het nog een keer.';
 	
 ?>
