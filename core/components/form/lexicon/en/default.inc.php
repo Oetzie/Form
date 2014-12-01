@@ -61,6 +61,7 @@
 	$_lang['form.form']										= 'Form';
 	$_lang['form.valid']									= 'Complete';
 	$_lang['form.notvalid']									= 'Incomplete';
+	$_lang['form.empty']									= 'Not filled';
 	
 	$_lang['form.error_validate']							= 'The\'re a few errors occurred in the form, fill out the form and try again. ';
 	$_lang['form.error_required']							= 'This field is required.';

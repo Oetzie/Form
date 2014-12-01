@@ -270,7 +270,7 @@ Form.window.ShowFormSave = function(config) {
     
     Ext.applyIf(config, {
     	autoHeight	: false,
-    	height		: 500,
+    	height		: 360,
     	width		: 800,
         title 		: _('form.form') + ': ' + config.record.name,
 	    labelAlign	: 'left',
@@ -284,6 +284,7 @@ Form.window.ShowFormSave = function(config) {
         	items		: [{
 	        	columnWidth	: .4,
 	        	labelWidth	: 125,
+	        	style		: 'padding-right: 15px; border-right: 1px solid #f0f0f0;',
 	        	items		: [{
 			        element		: 'label',
 			        style		: 'padding: 7px 0;',
@@ -325,7 +326,7 @@ Form.window.ShowFormSave = function(config) {
 	        }, {
 		        columnWidth	: .6,
 		        labelWidth	: 175,
-		        style		: 'padding-left: 15px; border-left: 1px solid #f0f0f0; margin-right: 0;',
+		        style		: 'margin-right: 0;',
 		        items		: this.formData(config.record.data)
 	        }]	
 	    }]
@@ -343,7 +344,8 @@ Ext.extend(Form.window.ShowFormSave, MODx.Window, {
 				element		: 'label',
 			    style		: 'padding: 7px 0;',
 		        fieldLabel	: data[i].label,
-		        html 		: Ext.util.Format.nl2br(data[i].value)
+		        html 		: (1 == parseInt(data[i].valid) || data[i].valid ? '' : _('form.notvalid') + ': ') + ('' == data[i].value ? _('form.empty') : Ext.util.Format.nl2br(data[i].value)),
+		        cls			: 1 == parseInt(data[i].valid) || data[i].valid ? '' : 'red'
 		    });
 		}
 		

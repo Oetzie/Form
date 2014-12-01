@@ -197,7 +197,7 @@
 							return implode(', ', array_keys($value));
 						}, $emails))))));
 						
-						$this->modx->log(modX::LOG_LEVEL_ERROR, '[Form] Could not send form email ('.$prefix.')');
+						$this->modx->log(modX::LOG_LEVEL_ERROR, '[Form] Could not send form email ('.$prefix.') because "'.$mail->mailer->ErrorInfo.'"');
 					}
 				} else {
 					$this->modx->log(modX::LOG_LEVEL_ERROR, '[Form] Could not send form email ('.$prefix.') because class "mail.modPHPMailer" could not be loaded.');
@@ -228,7 +228,8 @@
 					
 					$elements[$key] = array(
 						'label'	=> $element[1],
-						'value'	=> is_array($value) ? implode(',', $value) : $value
+						'value'	=> is_array($value) ? implode(',', $value) : $value,
+						'valid'	=> false === $this->form->getValidator()->getError($element[0]) ? true : false
 					);
 				}
 				

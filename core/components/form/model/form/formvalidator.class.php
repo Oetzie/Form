@@ -754,6 +754,8 @@
 				'error'		=> $error
 			), $properties);
 			
+			$this->errors['validate'] = $error; 
+			
 			$this->modx->setPlaceholders(array(
 				'error'			=> $this->form->getTpl($this->form->scriptProperties['tplBulkWrapper'], array_merge($properties, array('error' => $error))),
 				'error.message'	=> $error

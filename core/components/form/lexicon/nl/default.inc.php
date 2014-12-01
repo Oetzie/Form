@@ -61,6 +61,7 @@
 	$_lang['form.form']										= 'Formulier';
 	$_lang['form.valid']									= 'Compleet';
 	$_lang['form.notvalid']									= 'Incompleet';
+	$_lang['form.empty']									= 'Niet ingevuld';
 	
 	$_lang['form.error_validate']							= 'Er zijn een aantal fouten in het formulier opgetreden, vul het formulier aan en probeer nog een keer.';
 	$_lang['form.error_required']							= 'Dit veld is verplicht.';
