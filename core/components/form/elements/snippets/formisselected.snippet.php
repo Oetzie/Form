@@ -33,6 +33,6 @@
 		}
 	}
 
-	return;
+	return ' ';
 	
 ?>
