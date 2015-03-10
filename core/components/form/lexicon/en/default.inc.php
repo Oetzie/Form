@@ -90,5 +90,6 @@
 	$_lang['form.error_extension_newsletter_subscribe_confirm']		= 'An error occurred during confirming your subscribing for the newsletter, try again.';
 	$_lang['form.error_extension_newsletter_unsubscribe']			= 'An error occurred during unsubscribing for the newsletter, try it again.';
 	$_lang['form.error_extension_newsletter_unsubscribe_confirm']	= 'An error occurred during confirming your unsubscribing for the newsletter, try again.';
+	$_lang['form.error_extension_captcha']					= 'The code has not been adopted.';
 	
 ?>

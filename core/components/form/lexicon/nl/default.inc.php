@@ -90,5 +90,6 @@
 	$_lang['form.error_extension_newsletter_subscribe_confirm']		= 'Er is een fout opgetreden tijdens het bevestigen van uw inschrijving voor de nieuwsbrief, probeer het nog een keer.';
 	$_lang['form.error_extension_newsletter_unsubscribe']			= 'Er is een fout opgetreden tijdens het uitschrijven voor de nieuwsbrief, probeer het nog een keer.';
 	$_lang['form.error_extension_newsletter_unsubscribe_confirm']	= 'Er is een fout opgetreden tijdens het bevestigen van uw uitschrijving voor de nieuwsbrief, probeer het nog een keer.';
+	$_lang['form.error_extension_captcha']					= 'De code is niet juist overgenomen.';
 	
 ?>

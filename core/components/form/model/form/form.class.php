@@ -288,10 +288,21 @@
 		
 		/**
 		 * @acces public.
+		 * @param Boolean $string.
 		 * @return Array.
 		 */
-		public function getValues() {
-			return $this->values;
+		public function getValues($string = false) {
+			$values = $this->values;
+			
+			if ($string) {
+				foreach ($values as $key => $value) {
+					if (is_array($value)) {
+						$values[$key] = implode(',', $value);
+					}
+				}
+			}
+			
+			return $values;
 		}
 		
 		/**

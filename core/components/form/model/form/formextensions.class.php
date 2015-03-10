@@ -73,6 +73,39 @@
 			
 			return true;
 		}
+		
+		/**
+		 * @acces protected.
+		 * @return Boolean.
+		 */
+		protected function _captchaBefore() {
+			$captcha = substr(str_shuffle($this->modx->getOption('captchaChars', $this->form->extensionScriptProperties, '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ')), 0, $this->modx->getOption('captchaLength', $this->form->extensionScriptProperties, 5));
+			$lastCaptcha = isset($_SESSION[$this->form->getPlaceholderKey('captcha')]) ? array_pop($_SESSION[$this->form->getPlaceholderKey('captcha')]) : $captcha;
+			
+			$this->modx->setPlaceholder($this->form->getPlaceholderKey('captcha.code'), $captcha);
+			
+			$_SESSION[$this->form->getPlaceholderKey('captcha')] = array($lastCaptcha, $captcha);
+			
+			return true;
+		}
+		
+		/**
+		 * @acces protected.
+		 * @return Boolean.
+		 */
+		protected function _captchaAfter() {
+			if (isset($_SESSION[$this->form->getPlaceholderKey('captcha')])) {
+				$captcha = $_SESSION[$this->form->getPlaceholderKey('captcha')];
+				
+				if ($this->form->getValue($this->modx->getOption('captchaKey', $this->form->extensionScriptProperties, 'captcha')) == array_shift($captcha)) {
+					return true;
+				}
+			}
+			
+			$this->form->getValidator()->setError('captcha', 'extension_captcha');
+			
+			return false;	
+		}
 
 		/**
 		 * @acces protected.
