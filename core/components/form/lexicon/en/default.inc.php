@@ -79,6 +79,7 @@
 	$_lang['form.error_email']								= 'This field is not a valid emailadress.';
 	$_lang['form.error_ip']									= 'This field is not a valid IP number';
 	$_lang['form.error_number']								= 'This field can only be numeric characters.';
+	$_lang['form.error_phone']								= 'This field is not a valid phonenumber.';
 	$_lang['form.error_string']								= 'This field can only be alphabetic characters.';
 	$_lang['form.error_date']								= 'This field is not a valid date.';
 	$_lang['form.error_mindate']							= 'This field must be greater than [[+minDate]].';

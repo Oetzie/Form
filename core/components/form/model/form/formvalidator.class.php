@@ -452,7 +452,7 @@
 
 			if ('string' == gettype($value)) {
 				if (!preg_match($param, $value)) {
-					return $this->setError($element, trim(__FUNCTION__, '_'));
+					return $this->setError($element, trim(__FUNCTION__, '_'), $properties);
 				}
 			}
 			
@@ -536,6 +536,27 @@
 
 			if ('string' == gettype($value)) {
 				if (!is_numeric(str_replace(',', '.', $value))) {
+					return $this->setError($element, trim(__FUNCTION__, '_'));
+				}
+			}
+			
+			return true;
+		}
+		
+		/**
+		 * @acces protected.
+		 * @param String $element.
+		 * @return Boolean.
+		 */
+		protected function _phone($element) {
+			$value = $this->form->getValue($element);
+			
+			if (empty($value)) {
+				return true;	
+			}
+			
+			if ('string' == gettype($value)) {
+				if (!preg_match('/^([\d\s?\-?]){10,11}$/', $value)) {
 					return $this->setError($element, trim(__FUNCTION__, '_'));
 				}
 			}

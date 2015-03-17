@@ -78,6 +78,7 @@
 	$_lang['form.error_regex']								= 'Dit veld moet voldoen aan "[[+regex]]".';
 	$_lang['form.error_email']								= 'Dit veld is geen geldig e-mailadres.';
 	$_lang['form.error_ip']									= 'Dit veld is geen geldig IP nummer.';
+	$_lang['form.error_phone']								= 'Dit veld is geen geldig telefoonnummer.';
 	$_lang['form.error_number']								= 'Dit veld mag alleen getallen bevatten.';
 	$_lang['form.error_string']								= 'Dit veld mag alleen letters bevatten.';
 	$_lang['form.error_date']								= 'Dit veld is geen geldige datum.';
