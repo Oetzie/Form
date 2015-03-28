@@ -213,7 +213,7 @@
 					$mail->set(modMail::MAIL_FROM, $fromEmail['email']);
 					$mail->set(modMail::MAIL_FROM_NAME, $fromEmail['name']);
 					$mail->set(modMail::MAIL_SUBJECT, $this->form->getTpl('@INLINE:'.$subject));
-					$mail->set(modMail::MAIL_BODY, $this->form->getTpl($tpl, $this->form->getValues()));
+					$mail->set(modMail::MAIL_BODY, $this->form->getTpl($tpl, $this->form->getValues(true)));
 
 					$types = array($prefix.'To' => 'to', $prefix.'ReplyTo' => 'reply-to', $prefix.'CC' => 'cc', $prefix.'BCC' => 'bcc');
 					
