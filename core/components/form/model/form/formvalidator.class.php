@@ -43,6 +43,12 @@
 		
 		/**
 		 * @acces public.
+		 * @var String.
+		 */
+		public $message;
+		
+		/**
+		 * @acces public.
 		 * @param Object $modx.
 		 * @param Object $form.
 		 */
@@ -794,13 +800,21 @@
 		
 		/**
 		 * @acces public.
+		 * @param String $message.
+		 */
+		public function setBulkOutput($message) {
+			$this->message = $message;
+		}
+		
+		/**
+		 * @acces public.
 		 * @return String.
 		 */
 		public function getBulkOutput() {
 			$errors = array();
 			
 			$i = 0;
-			
+
 			foreach ($this->output as $error) {
 				$class = array();
 				
@@ -822,7 +836,7 @@
 			}
 
 			return $this->form->getTemplate($this->form->properties['tplBulkWrapper'], array(
-				'error'		=> $this->modx->lexicon('form.error_bulk'),
+				'error'		=> null == $this->message ? $this->modx->lexicon('form.error_bulk') : $this->message,
 				'total'		=> count($this->errors),
 				'output' 	=> implode(PHP_EOL, $errors)
 			));

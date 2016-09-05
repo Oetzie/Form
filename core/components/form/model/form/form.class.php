@@ -217,7 +217,6 @@
 		 * @return String.
 		 */
 		public function setForm() {
-			//DIT NOG WIJZIGEN??
 			$this->modx->lexicon->load('form:default');
 			
 			$this->setValues($this->modx->request->getParameters(array(), 'POST'));
@@ -230,7 +229,7 @@
 						$output[rtrim($this->properties['placeholder'], '.').'.extensions.'.$key] = $value;
 					}
 					
-					if ($this->getMethod('POST', $this->getValues())) {
+					if ($this->getMethod('POST', $this->getValues(true))) {
 						$validator->validate();
 
 						$output[rtrim($this->properties['placeholder'], '.').'.submit'] = true;
@@ -364,10 +363,23 @@
 		
 		/**
 		 * @acces public.
+		 * @return Boolean $all.
 		 * @return Array.
 		 */
-		public function getValues() {
-			return $this->values;
+		public function getValues($all = false) {
+			if ($all) {
+				return $this->values;
+			}
+			
+			$values = array();
+			
+			foreach ($this->values as $key => $value) {
+				if ($key != $this->properties['submit']) {
+					$values[$key] = $value;
+				}
+			}
+			
+			return $values;
 		}
 		
 		/**
