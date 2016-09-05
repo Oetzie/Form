@@ -3,7 +3,7 @@
 	/**
 	 * Form
 	 *
-	 * Copyright 2014 by Oene Tjeerd de Bruin <info@oetzie.nl>
+	 * Copyright 2016 by Oene Tjeerd de Bruin <info@oetzie.nl>
 	 *
 	 * This file is part of Form, a real estate property listings component
 	 * for MODX Revolution.
@@ -22,11 +22,28 @@
 	 * Suite 330, Boston, MA 02111-1307 USA
 	 */
 
-	require_once $modx->getOption('form.core_path', null, $modx->getOption('core_path').'components/form/').'/model/form/form.class.php';
+    $values = $modx->fromJSON($options);
+    
+	if (is_string($input)) {
+		if (isset($values[$input])) {
+			return $values[$input];
+		}
+		
+		$input = explode(',', $input);
+	}
 
-	$form = new Form($modx);
-	$form->setScriptProperties($scriptProperties);
+	if (is_array($input)) {
+	    $output = array();
+	    
+	    foreach ($input as $value) {
+	        if (isset($values[$value])) {
+		    	$output[] = $values[$value];
+		    }
+	    }
 
-	$form->getRequest();
+        return implode(', ', $output);
+	}
+
+	return;
 	
 ?>

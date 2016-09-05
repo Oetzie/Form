@@ -3,7 +3,7 @@
 	/**
 	 * Form
 	 *
-	 * Copyright 2014 by Oene Tjeerd de Bruin <info@oetzie.nl>
+	 * Copyright 2016 by Oene Tjeerd de Bruin <info@oetzie.nl>
 	 *
 	 * This file is part of Form, a real estate property listings component
 	 * for MODX Revolution.
@@ -39,65 +39,60 @@
 		 * @acces public.
 		 * @var Array.
 		 */
-		public $scriptProperties = array();
+		public $properties = array();
 		
 		/**
 		 * @acces public.
-		 * @var Array.
+		 * @var Object.
 		 */
-		public $extensionScriptProperties = array();
+		public $validator = null;
+		
+		/**
+		 * @acces public.
+		 * @var Object.
+		 */
+		public $extensions = null;
 		
 		/**
 		 * @acces public.
 		 * @var Array.
 		 */
 		public $values = array();
-		
-		/**
-		 * @acces public.
-		 * @var Object.
-		 */
-		public $validator;
-		
-		/**
-		 * @acces public.
-		 * @var Object.
-		 */
-		public $extensions;
-		
+
 		/**
 		 * @acces public.
 		 * @param Object $modx.
 		 * @param Array $config.
-		*/
-		function __construct(modX &$modx, array $config = array()) {
+		 */
+		public function __construct(modX &$modx, array $config = array()) {
 			$this->modx =& $modx;
-		
+
 			$corePath 		= $this->modx->getOption('form.core_path', $config, $this->modx->getOption('core_path').'components/form/');
 			$assetsUrl 		= $this->modx->getOption('form.assets_url', $config, $this->modx->getOption('assets_url').'components/form/');
 			$assetsPath 	= $this->modx->getOption('form.assets_path', $config, $this->modx->getOption('assets_path').'components/form/');
 		
 			$this->config = array_merge(array(
-				'basePath'				=> $corePath,
-				'corePath' 				=> $corePath,
-				'modelPath' 			=> $corePath.'model/',
-				'processorsPath' 		=> $corePath.'processors/',
-				'elementsPath' 			=> $corePath.'elements/',
-				'chunksPath' 			=> $corePath.'elements/chunks/',
-				'snippetsPath' 			=> $corePath.'elements/snippets/',
-				'templatesPath' 		=> $corePath.'templates/',
-				'assetsPath' 			=> $assetsPath,
-				'jsUrl' 				=> $assetsUrl.'js/',
-				'cssUrl' 				=> $assetsUrl.'css/',
-				'assetsUrl' 			=> $assetsUrl,
-				'connectorUrl'			=> $assetsUrl.'connector.php',
-				'helpurl'				=> 'form',
-				'placeholderKey'		=> 'form',
-				'dateFormat'			=> '%d-%m-%Y',
-				'context'				=> 2 == $this->modx->getCount('modContext') ? 0 : 1
+				'namespace'				=> $this->modx->getOption('namespace', $config, 'form'),
+				'helpurl'				=> $this->modx->getOption('helpurl', $config, 'form'),
+				'language'				=> 'form:default',
+				'base_path'				=> $corePath,
+				'core_path' 			=> $corePath,
+				'model_path' 			=> $corePath.'model/',
+				'processors_path' 		=> $corePath.'processors/',
+				'elements_path' 		=> $corePath.'elements/',
+				'chunks_path' 			=> $corePath.'elements/chunks/',
+				'cronjobs_path' 		=> $corePath.'elements/cronjobs/',
+				'plugins_path' 			=> $corePath.'elements/plugins/',
+				'snippets_path' 		=> $corePath.'elements/snippets/',
+				'assets_path' 			=> $assetsPath,
+				'js_url' 				=> $assetsUrl.'js/',
+				'css_url' 				=> $assetsUrl.'css/',
+				'assets_url' 			=> $assetsUrl,
+				'connector_url'			=> $assetsUrl.'connector.php',
+				'context'				=> $this->getContexts()
 			), $config);
-		
-			$this->modx->addPackage('form', $this->config['modelPath']);
+			
+			$this->modx->addPackage('form', $this->config['model_path']);
 		}
 		
 		/**
@@ -109,112 +104,203 @@
 		}
 		
 		/**
-		 * @acces public.
+		 * @acces private.
+		 * @return Boolean.
+		 */
+		private function getContexts() {
+			$context = array();
+			
+			foreach ($this->modx->getCollection('modContext') as $value) {
+				if ('mgr' != $value->key) {
+					$context[] = $value->toArray();
+				}
+			}
+			
+			return 1 == count($context) ? 0 : 1;
+		}
+				
+		/**
+		 * @acces protected.
 		 * @param String $tpl.
 		 * @param Array $properties.
 		 * @param String $type.
 		 * @return String.
 		 */
-		public function getTpl($tpl, $properties = array(), $type = 'chunk') {
-		  	if (0 === strpos($tpl, '@')) {
-			  	$type 	= substr($tpl, 1, strpos($tpl, ':') - 1);
-			  	$tpl	= substr($tpl, strpos($tpl, ':') + 1, strlen($tpl));
-		  	}
-  
-		  	switch (strtolower($type)) {
-			  	case 'inline':
-				  	$chunk = $this->modx->newObject('modChunk', array('name' => sprintf('form-%s', uniqid())));
-  
-				  	$chunk->setCacheable(false);
-  
-				  	$output = $chunk->process($properties, $tpl);
-  
-				  	break;
-			  	case 'chunk':
-				  	$output = $this->modx->getChunk($tpl, $properties);
-  
-				  	break;
-		  	}
-  
-		  	return $output;
-	  	}
+		public function getTemplate($template, $properties = array(), $type = 'CHUNK') {
+			if (0 === strpos($template, '@')) {
+				$type 		= substr($template, 1, strpos($template, ':') - 1);
+				$template	= substr($template, strpos($template, ':') + 1, strlen($template));
+			}
+			
+			switch (strtoupper($type)) {
+				case 'INLINE':
+					$chunk = $this->modx->newObject('modChunk', array(
+						'name' => $this->config['namespace'].uniqid()
+					));
+				
+					$chunk->setCacheable(false);
+				
+					$output = $chunk->process($properties, ltrim($template));
+				
+					break;
+				case 'CHUNK':
+					$output = $this->modx->getChunk(ltrim($template), $properties);
+				
+					break;
+			}
+			
+			return $output;
+		}
+		
+		/**
+		 * @acces public.
+		 * @param Array $scriptProperties.
+		 * @return Boolean.
+		 */
+		public function setScriptProperties($scriptProperties = array()) {
+			$this->properties = array_merge(array(
+				'dateFormat'		=> '%d-%m-%Y',
+				'extensions'		=> '',
+				'placeholder' 		=> 'form',
+				'submit'			=> 'submit',
+				'tplBulkError'		=> '@INLINE:<li class="[[+class]]">[[+error]]</li>',
+				'tplBulkWrapper'	=> '@INLINE:<p class="error-notices">[[+error]]</p>',
+				'tplError'			=> '@INLINE:<div class="error-notice-desc"><span class="error-notice-desc-inner">[[+error]]</div>',
+				'type'				=> 'set',
+				'validate'			=> '{}'
+			), $scriptProperties);
+			
+			return $this->setDefaultProperties();
+		}
+				
+		/**
+		 * @acces protected.
+		 * @return Boolean.
+		 */
+		protected function setDefaultProperties() {
+			if (is_string($this->properties['validate'])) {
+				$this->properties['validate'] = $this->modx->fromJSON($this->properties['validate']);
+				
+				foreach ($this->properties['validate'] as $key => $value) {
+					if (!is_array($value)) {
+						$this->properties['validate'][$key] = array(
+							$value => 'true'	
+						);
+					}
+				}
+			}
+			
+			if (is_string($this->properties['extensions'])) {
+				$this->properties['extensions'] = explode(',', $this->properties['extensions']);
+			}
+			
+			return true;
+		}
 		
 		/**
 		 * @acces public.
 		 * @param Array $properties.
+		 * @return String.
 		 */
-		public function setScriptProperties($scriptProperties = array()) {
-			foreach ($scriptProperties as $key => $value) {
-				if (array_key_exists($key, $this->config)) {
-					$this->config[$key] = $value;
-				} else if (in_array($key, array('extensions', 'validate', 'redirect', 'tplError', 'tplBulkError', 'tplBulkWrapper'))) {
-					$this->scriptProperties[$key] = $value;
-				} else {
-					$this->extensionScriptProperties[$key] = $value;
-				}
+		public function run($properties = array()) {
+			$this->setScriptProperties($properties);
+			
+			if ('set' == $this->properties['type']) {
+				return $this->setForm();
+			} else if ('get' == $this->properties['type']) {
+				return $this->getForm();
 			}
 		}
 		
 		/**
 		 * @acces public.
-		 * @return Array.
+		 * @return String.
 		 */
-		public function getExtensionScriptProperties() {
-			return $this->extensionScriptProperties;
-		}
-		
-		/**
-		 * @acces public.
-		 * @param Array $request.
-		 * @return Boolean.
-		 */
-		public function setRequest($request, $method = 'POST') {
-			$this->setValues($request);
-
-			if (false !== ($validator = $this->setValidator())) {
-				if (false !== ($extensions = $this->setExtensions())) {
-					$extensions->setExtensions('Before');
+		public function setForm() {
+			//DIT NOG WIJZIGEN??
+			$this->modx->lexicon->load('form:default');
+			
+			$this->setValues($this->modx->request->getParameters(array(), 'POST'));
+			
+			if ($validator = $this->getValidator()) {
+				if ($extensions = $this->getExtensions()) {
+					$output = array();
 					
-					if ($this->getRequestMethod($method)) {
-						if ($validator->validate()) {
-							$this->setCacheForm();
+					foreach ($extensions->setExtentions('Before') as $key => $value) {
+						$output[rtrim($this->properties['placeholder'], '.').'.extensions.'.$key] = $value;
+					}
+					
+					if ($this->getMethod('POST', $this->getValues())) {
+						$validator->validate();
+
+						$output[rtrim($this->properties['placeholder'], '.').'.submit'] = true;
+							
+						foreach ($this->getValues() as $key => $value) {
+							if (is_array($value)) {
+								$value = implode(',', $value);
+							}
+							
+							$output[rtrim($this->properties['placeholder'], '.').'.'.$key] = $value;
+						}
+
+						foreach ($extensions->setExtentions('After') as $key => $value) {
+							$output[rtrim($this->properties['placeholder'], '.').$key] = $value;
 						}
 						
-						if ($extensions->setExtensions('After')) {
-							$this->redirect();
+						$this->setCacheForm($output);
+
+						if (!$validator->isValid()) {
+							$output[rtrim($this->properties['placeholder'], '.').'.error'] = $validator->getBulkOutput();
+						
+							foreach ($validator->getOutput() as $key => $value) {
+								$output[rtrim($this->properties['placeholder'], '.').'.error.'.$key] = $this->getTemplate($this->properties['tplError'], $value);
+							}
+						} else {
+							if (isset($this->properties['redirect'])) {
+								$this->modx->sendRedirect($this->modx->makeUrl($this->properties['redirect'], null, null, 'full'));
+							}
+							
+							if (isset($this->properties['tplValidated'])) {
+								return $this->getTemplate($this->properties['tplValidated'], $output);
+							}
 						}
 					}
+					
+					return $this->getTemplate($this->properties['tpl'], $output);
 				}
 			}
+
+			return '';
 		}
 		
 		/**
 		 * @acces public.
-		 * @return Boolean.
+		 * @return String.
 		 */
-		public function getRequest() {
-			if (false !== ($request = $this->getCacheForm())) {
-				$this->setValues($request);
+		public function getForm() {
+			if ($values = $this->getCacheForm()) {
+				$this->modx->setPlaceholders($values);
 			} else {
-				$this->redirect();
+				if (!isset($this->properties['redirect'])) {
+					$this->modx->sendRedirect($this->modx->makeUrl($this->modx->resource->parent, null, null, 'full'));
+				} else {
+					$this->modx->sendRedirect($this->modx->makeUrl($this->properties['redirect'], null, null, 'full'));
+				}
 			}
 			
-			return false;
+			return '';
 		}
 		
 		/**
-		 * @acces public.
-		 * @return Boolean.
+		 * @acces protected.
 		 */
-		public function setValidator() {
-			if ($this->modx->loadClass('form.FormValidator', $this->config['modelPath'], true, true)) {
-				$this->validator = new FormValidator($this->modx, $this);
-				
-				return $this->validator;
-			} else {
-				$this->modx->log(modX::LOG_LEVEL_ERROR, '[Form] Could not load "form.FormValidator" class.');
-				
-				return false;
+		protected function setValidator() {
+			if ($this->modx->loadClass('FormValidator', $this->modx->getOption('form.core_path', null, $this->modx->getOption('core_path').'components/form/').'model/form/', true, true)) {
+		        $validator = new FormValidator($this->modx, $this);
+		        
+		        if ($validator instanceOf FormValidator) {
+			    	$this->validator = $validator;
+				}
 			}
 		}
 		
@@ -223,7 +309,7 @@
 		 * @return Object.
 		 */
 		public function getValidator() {
-			if (null === $this->validator) {
+			if (null == $this->validator) {
 				$this->setValidator();
 			}
 			
@@ -231,18 +317,15 @@
 		}
 		
 		/**
-		 * @acces public.
-		 * @return Boolean.
+		 * @acces protected.
 		 */
-		public function setExtensions() {
-			if ($this->modx->loadClass('form.FormExtensions', $this->config['modelPath'], true, true)) {
-				$this->extensions = new FormExtensions($this->modx, $this);
-				
-				return $this->extensions;
-			} else {
-				$this->modx->log(modX::LOG_LEVEL_ERROR, '[Form] Could not load "form.FormExtensions" class.');
-				
-				return false;
+		protected function setExtensions() {
+			if ($this->modx->loadClass('FormExtensions', $this->modx->getOption('form.core_path', null, $this->modx->getOption('core_path').'components/form/').'model/form/', true, true)) {
+		        $extensions = new FormExtensions($this->modx, $this);
+		        
+		        if ($extensions instanceOf FormExtensions) {
+			    	$this->extensions = $extensions;
+				}
 			}
 		}
 		
@@ -251,7 +334,7 @@
 		 * @return Object.
 		 */
 		public function getExtensions() {
-			if (null === $this->extensions) {
+			if (null == $this->extensions) {
 				$this->setExtensions();
 			}
 			
@@ -259,108 +342,69 @@
 		}
 		
 		/**
-		 * @acces public.
-		 * @param String $prefix.
-		 * @return String.
-		 */
-		public function getPlaceholderKey($prefix = '') {
-			return $this->config['placeholderKey'].'.'.$prefix;
-		}
-		
-		/**
-		 * @acces procted.
-		 * @param String $method.
+		 * @acces protected.
+		 * @param String $type.
+		 * @param Array $values.
 		 * @return Boolean.
 		 */
-		protected function getRequestMethod($method) {
-			return strtoupper($method) == strtoupper($_SERVER['REQUEST_METHOD']);
+		protected function getMethod($type, $values = array()) {
+			return strtoupper($type) == strtoupper($_SERVER['REQUEST_METHOD']) && isset($values[$this->properties['submit']]);
 		}
 		
 		/**
 		 * @acces public.
-		 * @param Array $request.
+		 * @param Array $values.
+		 * @return null.
 		 */
-		protected function setValues($request) {
-			foreach ($request as $key => $value) {
+		public function setValues($values) {
+			foreach ($values as $key => $value) {
 				$this->setValue($key, $value);
 			}
 		}
 		
 		/**
 		 * @acces public.
-		 * @param Boolean $string.
 		 * @return Array.
 		 */
-		public function getValues($string = false) {
-			$values = $this->values;
-			
-			if ($string) {
-				foreach ($values as $key => $value) {
-					if (is_array($value)) {
-						$values[$key] = implode(',', $value);
-					}
-				}
-			}
-			
-			return $values;
+		public function getValues() {
+			return $this->values;
 		}
 		
 		/**
 		 * @acces public.
 		 * @param String $key.
 		 * @param String|Array $value.
+		 * @return boolean.
 		 */
 		public function setValue($key, $value) {
 			switch (gettype($value)) {
 				case 'array':
 					$value = array_filter($value);
+					
 					break;
 				case 'string':
 					$value = trim($value);
+					
 					break;	
 			}
 			
 			$this->values[$key] = $value;
 			
-			$this->modx->setPlaceholder($this->getPlaceholderKey().$key, is_array($value) ? implode(',', $value) : $value);
+			return true;
 		}
 		
 		/**
 		 * @acces public.
-		 * @param String $key.
+		 * param String $key.
 		 * @return String|Array.
 		 */
-		public function getValue($key) {
-			if (array_key_exists($key, $this->values)) {
+		public function getValue($key, $default = false) {
+			if (isset($this->values[$key])) {
 				return $this->values[$key];
 			}
 			
-			return false;
+			return $default;
 		}
-		
-		/**
-		 * @acces public.
-		 * @return Boolean.
-		 */
-		public function isValid() {
-			if (null !== ($validator = $this->getValidator())) {
-				return $validator->isValid();
-			}
-			
-			return false;
-		}
-		
-		/**
-		 * @acces protected.
-		 */
-		protected function redirect() {
-			if (false !== ($redirect = $this->modx->getOption('redirect', $this->scriptProperties, false))) {
-				$this->modx->sendRedirect($this->modx->makeUrl($redirect, null, null, 'full'));
-			}
-			
-			return false;
-		}
-		
 		
 		/**
 		 * @acces public.
@@ -374,7 +418,7 @@
 				xPDO::OPT_CACHE_EXPIRES => 60
 			);
 			
-			if (array_key_exists($option, $options)) {
+			if (isset($options[$option])) {
 				return $options[$option];
 			}
 			
@@ -382,36 +426,46 @@
 		}
 		
 		/**
-		 * @acces public.
-		 * @return Boolean.
+		 * @acces protected.
+		 * @return String.
 		 */
-		public function setCacheForm() {
-			$_SESSION[$this->getCacheOptions(xPDO::OPT_CACHE_KEY)] = $cacheKey = $this->getPlaceholderKey(time());
-				
-			if (false !== ($cache = $this->modx->cacheManager->set($cacheKey, $this->getValues(), $this->getCacheOptions(xPDO::OPT_CACHE_EXPIRES), $this->getCacheOptions()))) {
-				return $cache;
-			} else {
-				$this->modx->log(modX::LOG_LEVEL_ERROR, '[Form] Could not save form ('.$cacheKey.')');
+		protected function setCacheKey() {
+			return $_SESSION[$this->getCacheOptions(xPDO::OPT_CACHE_KEY)] = rtrim($this->properties['placeholder'], '.').'.'.time();
+		}
+		
+		/**
+		 * @acces protected.
+		 * @return String.
+		 */
+		protected function getCacheKey() {
+			if (!isset($_SESSION[$this->getCacheOptions(xPDO::OPT_CACHE_KEY)])) {
+				return $this->setCacheKey();
 			}
 			
-			return false;
+			return $_SESSION[$this->getCacheOptions(xPDO::OPT_CACHE_KEY)];
 		}
 		
 		/**
 		 * @acces public.
 		 * @return Boolean.
 		 */
-		public function getCacheForm() {
-			if (array_key_exists($this->getCacheOptions(xPDO::OPT_CACHE_KEY), $_SESSION)) {
-				if (null !== ($cache = $this->modx->cacheManager->get($_SESSION[$this->getCacheOptions(xPDO::OPT_CACHE_KEY)], $this->getCacheOptions()))) {
-					$this->modx->cacheManager->clearCache(array($this->getCacheOptions(xPDO::OPT_CACHE_KEY)));
-					
-					return $cache;
-				}
+		protected function setCacheForm($output) {			
+			return $this->modx->cacheManager->set($this->getCacheKey(), $output, $this->getCacheOptions(xPDO::OPT_CACHE_EXPIRES), $this->getCacheOptions());
+		}
+		
+		/**
+		 * @acces public.
+		 * @return Boolean.
+		 */
+		protected function getCacheForm() {
+			if (null !== ($cache = $this->modx->cacheManager->get($this->getCacheKey(), $this->getCacheOptions()))) {
+				$this->modx->cacheManager->clearCache(array($this->getCacheOptions(xPDO::OPT_CACHE_KEY)));
+				
+				return $cache;
 			}
 			
 			return false;
 		}
 	}
-	
+
 ?>

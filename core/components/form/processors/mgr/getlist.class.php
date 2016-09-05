@@ -3,7 +3,7 @@
 	/**
 	 * Form
 	 *
-	 * Copyright 2014 by Oene Tjeerd de Bruin <info@oetzie.nl>
+	 * Copyright 2016 by Oene Tjeerd de Bruin <info@oetzie.nl>
 	 *
 	 * This file is part of Form, a real estate property listings component
 	 * for MODX Revolution.
@@ -55,16 +55,22 @@
 		
 		/**
 		 * @acces public.
+		 * @var Object.
+		 */
+		public $form;
+		
+		/**
+		 * @acces public.
 		 * @return Mixed.
 		 */
 		public function initialize() {
-			$initialized = parent::initialize();
+			$this->form = $this->modx->getService('form', 'Form', $this->modx->getOption('form.core_path', null, $this->modx->getOption('core_path').'components/form/').'model/form/');
 			
 			$this->setDefaultProperties(array(
-				'dateFormat' => '%b %d, %Y %I:%M %p',
+				'dateFormat' => $this->modx->getOption('manager_date_format') .', '. $this->modx->getOption('manager_time_format')
 			));
 			
-			return $initialized;
+			return parent::initialize();
 		}
 		
 		/**
@@ -85,7 +91,7 @@
 			
 			$status = $this->getProperty('status');
 			
-			if (null !== $status) {
+			if (!empty($status)) {
 				$c->where(array(
 					'FormSave.active' => $status
 				));
@@ -117,14 +123,30 @@
 				'resource_name_alias' 	=> (empty($object->resource_longtitle) ? $object->resource_pagetitle : $object->resource_longtitle).' ('.$object->resource_id.')',
 				'data'					=> unserialize($object->data),
 				'data_formatted'		=> implode(', ', array_map(function($value) {
-					return sprintf('<strong>%s</strong>: %s', $value['label'], $value['value']);
+					if (is_array($value['value'])) {
+						$output = array();
+						
+						foreach ($value['value'] as $key) {
+							if (isset($value['values'][$key])) {
+								$output[] = $value['values'][$key];
+							}
+						}
+						
+						$output = implode(', ', $output);
+					} else if (isset($value['values'][$value['value']])) {
+						$output = $value['values'][$value['value']];
+					} else {
+						$output = $value['value'];
+					}
+					
+					return sprintf('<strong>%s</strong>: %s', $value['label'], $output);
 				}, unserialize($object->data)))
 			));
 
-			if (in_array($array['editedon'], array('-001-11-30 00:00:00', '0000-00-00 00:00:00', null))) {
+			if (in_array($array['editedon'], array('-001-11-30 00:00:00', '-1-11-30 00:00:00', '0000-00-00 00:00:00', null))) {
 				$array['editedon'] = '';
 			} else {
-				$array['editedon'] = strftime($this->getProperty('dateFormat', '%b %d, %Y %I:%M %p'), strtotime($array['editedon']));
+				$array['editedon'] = date($this->getProperty('dateFormat'), strtotime($array['editedon']));
 			}
 			
 			return $array;	

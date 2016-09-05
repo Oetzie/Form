@@ -3,14 +3,7 @@ Form
 ----------------------
 
 ----------------------
-Version: 1.0.1
-Released: 2015-03-10
-----------------------
-- Captcha function added
-- Dutch phonenumber validator
-
-----------------------
 Version: 1.0.0
-Released: 2014-11-29
+Released: 2016-09-05
 ----------------------
 - First release

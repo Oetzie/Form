@@ -2,11 +2,29 @@
 
 	return array(
 		array(
-	        'name' 		=> 'placeholderKey',
-	        'desc' 		=> 'form_snippet_placeholderkey_desc',
+	        'name' 		=> 'dateFormat',
+	        'desc' 		=> 'form_snippet_dateformat_desc',
+	        'type' 		=> 'textfield',
+	        'options' 	=> '',
+	        'value'		=> '%d-%m-%Y',
+	        'area'		=> PKG_NAME_LOWER,
+	        'lexicon' 	=> PKG_NAME_LOWER.':default'
+	    ),
+	    array(
+	        'name' 		=> 'placeholder',
+	        'desc' 		=> 'form_snippet_placeholder_desc',
 	        'type' 		=> 'textfield',
 	        'options' 	=> '',
 	        'value'		=> 'form',
+	        'area'		=> PKG_NAME_LOWER,
+	        'lexicon' 	=> PKG_NAME_LOWER.':default'
+	    ),
+	    array(
+	        'name' 		=> 'submit',
+	        'desc' 		=> 'form_snippet_submit_desc',
+	        'type' 		=> 'textfield',
+	        'options' 	=> '',
+	        'value'		=> 'submit',
 	        'area'		=> PKG_NAME_LOWER,
 	        'lexicon' 	=> PKG_NAME_LOWER.':default'
 	    ),
@@ -15,7 +33,7 @@
 	        'desc' 		=> 'form_snippet_tplbulkerror_desc',
 	        'type' 		=> 'textfield',
 	        'options' 	=> '',
-	        'value'		=> '@INLINE:<li>[[+error]]</li>',
+	        'value'		=> '@INLINE:<li class="[[+class]]">[[+error]]</li>',
 	        'area'		=> PKG_NAME_LOWER,
 	        'lexicon' 	=> PKG_NAME_LOWER.':default'
 	    ),
@@ -33,7 +51,16 @@
 	        'desc' 		=> 'form_snippet_tplerror_desc',
 	        'type' 		=> 'textfield',
 	        'options' 	=> '',
-	        'value'		=> '@INLINE:<span class="error-notice-desc"><span class="error-notice-desc-inner">[[+error]]</span></span>',
+	        'value'		=> '@INLINE:<div class="error-notice-desc"><span class="error-notice-desc-inner">[[+error]]</div>',
+	        'area'		=> PKG_NAME_LOWER,
+	        'lexicon' 	=> PKG_NAME_LOWER.':default'
+	    ),
+	    array(
+	        'name' 		=> 'type',
+	        'desc' 		=> 'form_snippet_type_desc',
+	        'type' 		=> 'textfield',
+	        'options' 	=> '',
+	        'value'		=> 'set',
 	        'area'		=> PKG_NAME_LOWER,
 	        'lexicon' 	=> PKG_NAME_LOWER.':default'
 	    )

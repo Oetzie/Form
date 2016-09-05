@@ -110,7 +110,8 @@ Form.grid.FormSave = function(config) {
             sortable	: true,
             editable	: false,
             fixed		: true,
-			width		: 200
+			width		: 200,
+			renderer	: this.renderDate
         }, {
             header		: _('context'),
             dataIndex	: 'resource_context_key',
@@ -124,7 +125,7 @@ Form.grid.FormSave = function(config) {
     	sm			: sm,
     	cm			: columns,
         id			: 'form-grid-formsave',
-        url			: Form.config.connectorUrl,
+        url			: Form.config.connector_url,
         baseParams	: {
         	action		: 'mgr/getList'
         },
@@ -197,7 +198,7 @@ Ext.extend(Form.grid.FormSave, MODx.grid.Grid, {
     	MODx.msg.confirm({
         	title 	: _('form.formsave_remove'),
         	text	: _('form.formsave_remove_confirm'),
-        	url		: this.config.url,
+        	url		: Form.config.connector_url,
         	params	: {
             	action	: 'mgr/remove',
             	id		: this.menu.record.id
@@ -220,7 +221,7 @@ Ext.extend(Form.grid.FormSave, MODx.grid.Grid, {
     	MODx.msg.confirm({
         	title 	: _('form.formsave_remove_selected'),
         	text	: _('form.formsave_remove_selected_confirm'),
-        	url		: this.config.url,
+        	url		: Form.config.connector_url,
         	params	: {
             	action	: 'mgr/removeSelected',
             	ids		: cs
@@ -240,7 +241,7 @@ Ext.extend(Form.grid.FormSave, MODx.grid.Grid, {
     	MODx.msg.confirm({
         	title 	: _('form.formsave_reset'),
         	text	: _('form.formsave_reset_confirm'),
-        	url		: this.config.url,
+        	url		: Form.config.connector_url,
         	params	: {
             	action	: 'mgr/reset',
             	id		: 'all'
@@ -260,6 +261,13 @@ Ext.extend(Form.grid.FormSave, MODx.grid.Grid, {
     	c.css = 1 == parseInt(d) || d ? 'green' : 'red';
     	
     	return 1 == parseInt(d) || d ? _('form.valid') : _('form.notvalid');
+    },
+	renderDate: function(a) {
+        if (Ext.isEmpty(a)) {
+            return '—';
+        }
+
+        return a;
     }
 });
 
@@ -270,66 +278,12 @@ Form.window.ShowFormSave = function(config) {
     
     Ext.applyIf(config, {
     	autoHeight	: false,
-    	height		: 360,
+    	height		: 500,
     	width		: 800,
         title 		: _('form.form') + ': ' + config.record.name,
 	    labelAlign	: 'left',
-        fields		: [{
-        	layout		: 'column',
-        	border		: false,
-            defaults	: {
-                layout		: 'form',
-                labelSeparator : ''
-            },
-        	items		: [{
-	        	columnWidth	: .4,
-	        	labelWidth	: 125,
-	        	style		: 'padding-right: 15px; border-right: 1px solid #f0f0f0;',
-	        	items		: [{
-			        element		: 'label',
-			        style		: 'padding: 7px 0;',
-		            fieldLabel	: _('form.label_name'),
-		            html 		: '<a href="' + config.record.resource_url + '" target="_blank", title="' + config.record.name + '">' + config.record.name + '</a>'
-		        }, {
-		        	xtype		: MODx.expandHelp ? 'label' : 'hidden',
-		            html		: _('form.label_name_desc'),
-		            cls			: 'desc-under'
-		        }, {
-			        element		: 'label',
-			        style		: 'padding: 7px 0;',
-			        fieldLabel	: _('form.label_ipnumber'),
-		            html 		: config.record.ip
-		        }, {
-		        	xtype		: MODx.expandHelp ? 'label' : 'hidden',
-		            html		: _('form.label_ipnumber_desc'),
-		            cls			: 'desc-under'
-		        }, {
-			        element		: 'label',
-			        style		: 'padding: 7px 0;',
-		            fieldLabel	: _('form.label_date'),
-		            html 		: config.record.editedon
-		        }, {
-		        	xtype		: MODx.expandHelp ? 'label' : 'hidden',
-		            html		: _('form.label_date_desc'),
-		            cls			: 'desc-under'
-		        }, {
-			        element		: 'label',
-			        style		: 'padding: 7px 0;',
-		            fieldLabel	: _('form.label_active'),
-		            html 		: 1 == parseInt(config.record.active) || config.record.active ? _('form.valid') : _('form.notvalid'),
-		            cls			: 1 == parseInt(config.record.active) || config.record.active ? 'green' : 'red',
-		        }, {
-		        	xtype		: MODx.expandHelp ? 'label' : 'hidden',
-		            html		: _('form.label_active_desc'),
-		            cls			: 'desc-under'
-		        }]
-	        }, {
-		        columnWidth	: .6,
-		        labelWidth	: 175,
-		        style		: 'margin-right: 0;',
-		        items		: this.formData(config.record.data)
-	        }]	
-	    }]
+	    labelWidth	: 250,
+        fields		: this.formData(config.record.data)
 	});
     
     Form.window.ShowFormSave.superclass.constructor.call(this, config);
@@ -337,16 +291,87 @@ Form.window.ShowFormSave = function(config) {
 
 Ext.extend(Form.window.ShowFormSave, MODx.Window, {
 	formData : function(data) {
+		console.log(data);
+		
 		elements = [];
 		
-		for (var i = 0; i < data.length; i++) {
-			elements.push({
-				element		: 'label',
-			    style		: 'padding: 7px 0;',
-		        fieldLabel	: data[i].label,
-		        html 		: (1 == parseInt(data[i].valid) || data[i].valid ? '' : _('form.notvalid') + ': ') + ('' == data[i].value ? _('form.empty') : Ext.util.Format.nl2br(data[i].value)),
-		        cls			: 1 == parseInt(data[i].valid) || data[i].valid ? '' : 'red'
-		    });
+		for (key in data) {
+			var element = data[key];
+			
+			switch (element.type) {
+				case 'radio':
+				case 'checkbox':
+					var items = [];
+					
+					for (value in element.values) {
+						if (typeof element.values[value] != 'function') {
+							items.push({
+							    boxLabel	: element.values[value],
+							    checked		: (typeof element.value == 'object' && -1 != element.value.indexOf(value)) || value == element.value ? true : false,
+							});
+						}
+					}
+					
+					elements.push({
+						xtype		: element.type + 'group',
+						fieldLabel	: element.label,
+						items		: items,
+						columns		: 1,
+						anchor 		: '100%',
+				        disabled 	: true
+					});
+				
+					break;
+				case 'select':
+					elements.push({
+						xtype		: 'textfield',
+				        fieldLabel	: element.label,
+				        value		: undefined == element.values[element.value] ? element.value : element.values[element.value],
+				        anchor 		: '100%',
+				        disabled	: true
+				    });
+				    
+					break;
+				case 'textarea':
+					elements.push({
+						xtype		: 'textarea',
+				        fieldLabel	: element.label,
+				        value 		: element.value,
+				        anchor 		: '100%',
+				        disabled	: true
+				    });
+			    
+					break;
+				case 'password':
+					elements.push({
+						xtype		: 'textfield',
+						inputType	: 'password',
+				        fieldLabel	: element.label,
+				        value 		: element.value,
+				        anchor 		: '100%',
+				        disabled	: true
+				    });
+				    
+					break;
+				default:
+					elements.push({
+						xtype		: 'textfield',
+				        fieldLabel	: element.label,
+				        value		: element.value,
+				        anchor 		: '100%',
+				        disabled	: true
+				    });
+
+					break;
+			}
+			
+			if (null != element.error) {
+			   elements.push({
+		        	xtype		: 'label',
+		            html		: _('form.error2_' + element.error.type.toLowerCase(), element.error),
+		            cls			: 'desc-under red'
+		        });
+		    }
 		}
 		
 		return elements;

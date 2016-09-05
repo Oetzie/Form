@@ -3,7 +3,7 @@
 	/**
 	 * Form
 	 *
-	 * Copyright 2014 by Oene Tjeerd de Bruin <info@oetzie.nl>
+	 * Copyright 2016 by Oene Tjeerd de Bruin <info@oetzie.nl>
 	 *
 	 * This file is part of Form, a real estate property listings component
 	 * for MODX Revolution.
@@ -52,6 +52,6 @@
 		}
 	}
 	
-	
 	return 'FormSaveResetProcessor';
+	
 ?>

@@ -3,7 +3,7 @@
 	/**
 	 * Form
 	 *
-	 * Copyright 2014 by Oene Tjeerd de Bruin <info@oetzie.nl>
+	 * Copyright 2016 by Oene Tjeerd de Bruin <info@oetzie.nl>
 	 *
 	 * This file is part of Form, a real estate property listings component
 	 * for MODX Revolution.
@@ -22,13 +22,16 @@
 	 * Suite 330, Boston, MA 02111-1307 USA
 	 */
 
-
-	if (is_array($input)) {
-		$input = implode(',', $input);
-	}
-
 	if (is_string($input)) {
 		if ($input == $options) {
+			return 'selected="selected"';
+		}
+
+		$input = explode(',', $input);
+	}
+
+	if (is_array($input)) {
+		if (in_array($options, $input)) {
 			return 'selected="selected"';
 		}
 	}

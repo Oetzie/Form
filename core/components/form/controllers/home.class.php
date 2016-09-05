@@ -3,7 +3,7 @@
 	/**
 	 * Form
 	 *
-	 * Copyright 2014 by Oene Tjeerd de Bruin <info@oetzie.nl>
+	 * Copyright 2016 by Oene Tjeerd de Bruin <info@oetzie.nl>
 	 *
 	 * This file is part of Form, a real estate property listings component
 	 * for MODX Revolution.
@@ -27,9 +27,9 @@
 		 * @acces public.
 		 */
 		public function loadCustomCssJs() {
-			$this->addJavascript($this->form->config['jsUrl'].'mgr/widgets/home.panel.js');
-			$this->addJavascript($this->form->config['jsUrl'].'mgr/widgets/formsave.grid.js');
-			$this->addLastJavascript($this->form->config['jsUrl'].'mgr/sections/home.js');
+			$this->addJavascript($this->modx->getOption('js_url', $this->form->config).'mgr/widgets/home.panel.js');
+			$this->addJavascript($this->modx->getOption('js_url', $this->form->config).'mgr/widgets/formsave.grid.js');
+			$this->addLastJavascript($this->modx->getOption('js_url', $this->form->config).'mgr/sections/home.js');
 		}
 		
 		/**
@@ -45,7 +45,7 @@
 		* @return String.
 		*/
 		public function getTemplateFile() {
-			return $this->form->config['templatesPath'].'home.tpl';
+			return $this->modx->getOption('templates_path', $this->form->config).'home.tpl';
 		}
 	}
 

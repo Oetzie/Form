@@ -8,7 +8,7 @@
 	define('PKG_NAME', 			'Form');
 	define('PKG_NAME_LOWER', 	strtolower(PKG_NAME));
 	define('PKG_NAMESPACE', 	strtolower(PKG_NAME));
-	define('PKG_VERSION',		'1.0.1');
+	define('PKG_VERSION',		'1.0.0');
 	define('PKG_RELEASE',		'pl');
 
 	$root = dirname(dirname(__FILE__)).'/';
@@ -21,8 +21,9 @@
 	    'core' 			=> $root.'core/components/'.PKG_NAME_LOWER,
 	    'assets' 		=> $root.'assets/components/'.PKG_NAME_LOWER,
 	    'chunks' 		=> $root.'core/components/'.PKG_NAME_LOWER.'/elements/chunks/',
-	    'snippets' 		=> $root.'core/components/'.PKG_NAME_LOWER.'/elements/snippets/',
+	    'cronjobs' 		=> $root.'core/components/'.PKG_NAME_LOWER.'/elements/cronjobs/',
 	    'plugins' 		=> $root.'core/components/'.PKG_NAME_LOWER.'/elements/plugins/',
+	    'snippets' 		=> $root.'core/components/'.PKG_NAME_LOWER.'/elements/snippets/',
 	    'lexicon' 		=> $root.'core/components/'.PKG_NAME_LOWER.'/lexicon/',
 	    'docs' 			=> $root.'core/components/'.PKG_NAME_LOWER.'/docs/'
 	);
@@ -48,6 +49,34 @@
 	
 	$category = $modx->newObject('modCategory');
 	$category->fromArray(array('id' => 1, 'category' => PKG_NAME), '', true, true);
+	
+	if (file_exists($sources['data'].'transport.chunks.php')) {
+		$modx->log(modX::LOG_LEVEL_INFO, 'Packaging in chunk(s) into category...');
+		
+		$chunks = include $sources['data'].'transport.chunks.php';
+	
+		foreach ($chunks as $chunk) {
+			$category->addMany($chunk);
+		}
+		
+		$modx->log(modX::LOG_LEVEL_INFO, 'Packed chunk(s) '.count($chunks).' into category.');
+	} else {
+		$modx->log(modX::LOG_LEVEL_INFO, 'No chunk(s) to pack...');
+	}
+	
+	if (file_exists($sources['data'].'transport.cronjobs.php')) {	
+		$modx->log(modX::LOG_LEVEL_INFO, 'Packaging in cronjobs(s) into category...');
+	
+		$cronjobs = include $sources['data'].'transport.cronjobs.php';
+	
+		foreach ($cronjobs as $cronjob) {
+			$category->addMany($cronjob);
+		}
+
+		$modx->log(modX::LOG_LEVEL_INFO, 'Packed cronjobs(s) '.count($cronjobs).' into category.');
+	} else {
+		$modx->log(modX::LOG_LEVEL_INFO, 'No cronjobs(s) to pack...');
+	}
 
 	if (file_exists($sources['data'].'transport.plugins.php')) {	
 		$modx->log(modX::LOG_LEVEL_INFO, 'Packaging in plugins(s) into category...');
@@ -77,26 +106,17 @@
 		$modx->log(modX::LOG_LEVEL_INFO, 'No snippet(s) to pack...');
 	}
 	
-	if (file_exists($sources['data'].'transport.chunks.php')) {
-		$modx->log(modX::LOG_LEVEL_INFO, 'Packaging in chunk(s) into category...');
-		
-		$chunks = include $sources['data'].'transport.chunks.php';
-	
-		foreach ($chunks as $chunk) {
-			$category->addMany($chunk);
-		}
-		
-		$modx->log(modX::LOG_LEVEL_INFO, 'Packed chunk(s) '.count($chunks).' into category.');
-	} else {
-		$modx->log(modX::LOG_LEVEL_INFO, 'No chunk(s) to pack...');
-	}
-	
 	$builder->putVehicle($builder->createVehicle($category, array(
 	    xPDOTransport::UNIQUE_KEY 		=> 'category',
 	    xPDOTransport::PRESERVE_KEYS 	=> false,
 	    xPDOTransport::UPDATE_OBJECT 	=> true,
 	    xPDOTransport::RELATED_OBJECTS 	=> true,
 	    xPDOTransport::RELATED_OBJECT_ATTRIBUTES => array(
+		    'Chunks' => array(
+	            xPDOTransport::PRESERVE_KEYS 	=> false,
+	            xPDOTransport::UPDATE_OBJECT 	=> true,
+	            xPDOTransport::UNIQUE_KEY 		=> 'name'
+	        ),
 	        'Plugins' => array(
 	            xPDOTransport::PRESERVE_KEYS 	=> false,
 	            xPDOTransport::UPDATE_OBJECT 	=> true,
@@ -108,11 +128,6 @@
 	            xPDOTransport::UNIQUE_KEY 		=> array('pluginid', 'event'),
 	        ),
 	        'Snippets' => array(
-	            xPDOTransport::PRESERVE_KEYS 	=> false,
-	            xPDOTransport::UPDATE_OBJECT 	=> true,
-	            xPDOTransport::UNIQUE_KEY 		=> 'name'
-	        ),
-	        'Chunks' => array(
 	            xPDOTransport::PRESERVE_KEYS 	=> false,
 	            xPDOTransport::UPDATE_OBJECT 	=> true,
 	            xPDOTransport::UNIQUE_KEY 		=> 'name'
@@ -192,11 +207,22 @@
 		
 	$modx->log(xPDO::LOG_LEVEL_INFO, 'Setting Package Attributes...');
 
-	$builder->setPackageAttributes(array(
-	    'license' 	=> file_get_contents($sources['docs'].'license.txt'),
-	    'readme' 	=> file_get_contents($sources['docs'].'readme.txt'),
-	    'changelog' => file_get_contents($sources['docs'].'changelog.txt'),
-	));
+	if (file_exists($sources['build'].'/setup.options.php')) {
+		$builder->setPackageAttributes(array(
+		    'license' 		=> file_get_contents($sources['docs'].'license.txt'),
+		    'readme' 		=> file_get_contents($sources['docs'].'readme.txt'),
+		    'changelog' 	=> file_get_contents($sources['docs'].'changelog.txt'),
+		    'setup-options' => array(
+	        	'source' 		=> $sources['build'].'/setup.options.php'
+			)
+		));
+	} else {
+		$builder->setPackageAttributes(array(
+		    'license' 		=> file_get_contents($sources['docs'].'license.txt'),
+		    'readme' 		=> file_get_contents($sources['docs'].'readme.txt'),
+		    'changelog' 	=> file_get_contents($sources['docs'].'changelog.txt')
+		));
+	}
 
 	$modx->log(xPDO::LOG_LEVEL_INFO, 'Zipping up package...');
 

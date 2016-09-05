@@ -3,7 +3,7 @@
 	/**
 	 * Form
 	 *
-	 * Copyright 2014 by Oene Tjeerd de Bruin <info@oetzie.nl>
+	 * Copyright 2016 by Oene Tjeerd de Bruin <info@oetzie.nl>
 	 *
 	 * This file is part of Form, a real estate property listings component
 	 * for MODX Revolution.
@@ -34,11 +34,9 @@
 		 * @return Mixed.
 		 */
 		public function initialize() {
-			require_once $this->modx->getOption('form.core_path', null, $this->modx->getOption('core_path').'components/form/').'/model/form/form.class.php';
-			
-			$this->form = new Form($this->modx);
-			
-			$this->addJavascript($this->form->config['jsUrl'].'mgr/form.js');
+			$this->form = $this->modx->getService('form', 'Form', $this->modx->getOption('form.core_path', null, $this->modx->getOption('core_path').'components/form/').'model/form/');
+
+			$this->addJavascript($this->modx->getOption('js_url', $this->form->config).'mgr/form.js');
 			$this->addHtml('<script type="text/javascript">
 				Ext.onReady(function() {
 					MODx.config.help_url = "http://rtfm.modx.com/extras/revo/'.$this->form->getHelpUrl().'";

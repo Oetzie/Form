@@ -3,7 +3,7 @@
 	/**
 	 * Form
 	 *
-	 * Copyright 2015 by Oene Tjeerd de Bruin <info@oetzie.nl>
+	 * Copyright 2016 by Oene Tjeerd de Bruin <info@oetzie.nl>
 	 *
 	 * This file is part of Form, a real estate property listings component
 	 * for MODX Revolution.
@@ -26,18 +26,12 @@
 	require_once MODX_CORE_PATH.'config/'.MODX_CONFIG_KEY.'.inc.php';
 	require_once MODX_CONNECTORS_PATH.'index.php';
 	
-	$corePath = $modx->getOption('form.core_path', null, $modx->getOption('core_path').'components/form/');
-	
-	require_once $corePath.'model/form/form.class.php';
-	
-	$modx->form = new Form($modx);
-	
-	$modx->lexicon->load('form:default');
-	
-	$path = $modx->getOption('processorsPath', $modx->form->config, $corePath.'processors/');
-	
+	$form = $modx->getService('form', 'Form', $modx->getOption('form.core_path', null, $modx->getOption('core_path').'components/form/').'model/form/');
+
+	$modx->lexicon->load($modx->getOption('language', $form->config));
+
 	$modx->request->handleRequest(array(
-		'processors_path' 	=> $path,
+		'processors_path' 	=> $modx->getOption('processors_path', $form->config),
 		'location' 			=> ''
 	));
 

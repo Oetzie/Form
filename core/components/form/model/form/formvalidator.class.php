@@ -3,7 +3,7 @@
 	/**
 	 * Form
 	 *
-	 * Copyright 2014 by Oene Tjeerd de Bruin <info@oetzie.nl>
+	 * Copyright 2016 by Oene Tjeerd de Bruin <info@oetzie.nl>
 	 *
 	 * This file is part of Form, a real estate property listings component
 	 * for MODX Revolution.
@@ -39,7 +39,7 @@
 		 * @acces public.
 		 * @var Array.
 		 */
-		public $errors = array();
+		public $output;
 		
 		/**
 		 * @acces public.
@@ -55,33 +55,23 @@
 		 * @acces public.
 		 * @return Boolean.
 		 */
-		public function isValid() {
-			return 0 == count($this->errors);
-		}
-		
-		/**
-		 * @acces public.
-		 * @return Boolean.
-		 */
 		public function validate() {
-			if (false !== ($validate = $this->modx->getOption('validate', $this->form->scriptProperties, false))) {
-				foreach (explode(',', $validate) as $validateElement) {
-					$validators = explode(':', $validateElement);
-					$validateElement = array_shift($validators);
-					
-					foreach ($validators as $validator) {
-						$validator = explode('=', $validator, 2);
+			$this->clearOutput();
+			
+			if (is_array($this->form->properties['validate'])) {
+				foreach ($this->form->properties['validate'] as $key => $value) {					
+					foreach ($value as $validator => $param) {
+						if (is_numeric($validator)) {
+							$validator  = $param;
+							$param 		= 'true';
+						}
 						
-						$param = 1 == count($validator) ? '' : trim($validator[1], '^');
-						
-						if (method_exists($this, '_'.$validator[0])) {
-							$this->{'_'.$validator[0]}($validateElement, $param);
+						if (method_exists($this, '_'.$validator)) {
+							$this->{'_'.$validator}($key, $param);
 						} else {
-							$validator = $this->modx->getObject('modSnippet', array('name' => $validator[0]));
-							
-							if (null !== $validator) {
+							if (null !== ($validator = $this->modx->getObject('modSnippet', array('name' => $validator)))) {
 								$validator->process(array(
-									'element'	=> $validateElement,
+									'element'	=> $key,
 									'param'		=> $param,
 									'form'		=> &$this->form
 								));
@@ -92,55 +82,76 @@
 				
 				return $this->isValid();
 			}
-			
+
 			return true;
 		}
 		
 		/**
 		 * @acces protected.
-		 * @param String $element.
+		 * @param String $key.
 		 * @return Boolean.
 		 */
-		protected function _required($element) {
-			$value = $this->form->getValue($element);
+		protected function _required($key) {
+			$value = $this->form->getValue($key);
 			
 			switch (gettype($value)) {
 				case 'array':
 					if (0 == count($value)) {
-						return $this->setError($element, trim(__FUNCTION__, '_'));
+						return $this->setOutput($key, trim(__FUNCTION__, '_'));
 					}
+					
 					break;
 				case 'string':
 					if ('' == $value) {
-						return $this->setError($element, trim(__FUNCTION__, '_'));
+						return $this->setOutput($key, trim(__FUNCTION__, '_'));
 					}
+					
 					break;
 				case 'boolean':
-					return $this->setError($element, trim(__FUNCTION__, '_'));
+					return $this->setOutput($key, trim(__FUNCTION__, '_'));
+					
 					break;
 			}
 
 			return true;
 		}
 		
-				/**
+		/**
 		 * @acces protected.
-		 * @param String $element.
+		 * @param String $key.
+		 * @param String $param.
 		 * @return Boolean.
 		 */
-		protected function _blank($element) {
-			$value = $this->form->getValue($element);
+		protected function _requiredWhen($key, $param = null) {
+			$value = $this->form->getValue($param);
+			
+			if ('' == $value) {
+				return true;	
+			}
+			
+			return $this->_required($key);
+		}
+		
+		/**
+		 * @acces protected.
+		 * @param String $key.
+		 * @return Boolean.
+		 */
+		protected function _blank($key) {
+			$value = $this->form->getValue($key);
 			
 			switch (gettype($value)) {
 				case 'array':
 					if (0 != count($value)) {
-						return $this->setError($element, trim(__FUNCTION__, '_'));
+						return $this->setOutput($key, trim(__FUNCTION__, '_'));
 					}
+					
 					break;
 				case 'string':
 					if ('' != $value) {
-						return $this->setError($element, trim(__FUNCTION__, '_'));
+						return $this->setOutput($key, trim(__FUNCTION__, '_'));
 					}
+					
 					break;
 			}
 			
@@ -149,31 +160,33 @@
 		
 		/**
 		 * @acces protected.
-		 * @param String $element.
+		 * @param String $key.
 		 * @param String $param.
 		 * @return Boolean.
 		 */
-		protected function _equals($element, $param = null) {
-			$value = $this->form->getValue($element);
+		protected function _equals($key, $param = null) {
+			$value = $this->form->getValue($key);
 			
-			if (empty($value)) {
+			if ('' == $value) {
 				return true;	
 			}
-			
-			$properties = array(
-				'equals' => $param
-			);
 			
 			switch (gettype($value)) {
 				case 'array':
 					if ($param != count($value)) {
-						return $this->setError($element, trim(__FUNCTION__, '_'), $properties);
+						return $this->setOutput($key, trim(__FUNCTION__, '_'), array(
+							'equals' => $param
+						));
 					}
+					
 					break;
 				case 'string':
 					if ($param != $value) {
-						return $this->setError($element, trim(__FUNCTION__, '_'), $properties);
+						return $this->setOutput($key, trim(__FUNCTION__, '_'), array(
+							'equals' => $param
+						));
 					}
+					
 					break;
 			}
 			
@@ -182,21 +195,19 @@
 		
 		/**
 		 * @acces protected.
-		 * @param String $element.
+		 * @param String $key.
 		 * @param String $param.
 		 * @return Boolean.
 		 */
-		protected function _equalsElement($element, $param = null) {
-			$value = $this->form->getValue($element);
+		protected function _equalsTo($key, $param = null) {
+			$value = $this->form->getValue($key);
 
-			$properties = array(
-				'equals' 		=> $this->form->getValue($param),
-				'equalsElement'	=> $param
-			);
-			
 			if ('string' == gettype($value)) {
-				if ($properties['equals'] != $value) {
-					return $this->setError($element, trim(__FUNCTION__, '_'), $properties);
+				if ($this->form->getValue($param) != $value) {
+					return $this->setOutput($key, trim(__FUNCTION__, '_'), array(
+						'equals' 		=> $this->form->getValue($param),
+						'equalsTo'		=> $param
+					));
 				}
 			}
 			
@@ -205,24 +216,22 @@
 		
 		/**
 		 * @acces protected.
-		 * @param String $element.
+		 * @param String $key.
 		 * @param String $param.
 		 * @return Boolean.
 		 */
-		protected function _contains($element, $param = null) {
-			$value = $this->form->getValue($element);
+		protected function _contains($key, $param = null) {
+			$value = $this->form->getValue($key);
 			
-			if (empty($value)) {
+			if ('' == $value) {
 				return true;	
 			}
-			
-			$properties = array(
-				'contains' => $param
-			);
-			
+
 			if ('string' == gettype($value)) {
 				 if (!preg_match('/'.$param.'/i', $value)) {
-					return $this->setError($element, trim(__FUNCTION__, '_'), $properties);
+					return $this->setOutput($key, trim(__FUNCTION__, '_'), array(
+						'contains' => $param
+					));
 				}
 			}
 			
@@ -231,133 +240,33 @@
 		
 		/**
 		 * @acces protected.
-		 * @param String $element.
+		 * @param String $key.
 		 * @param String $param.
 		 * @return Boolean.
 		 */
-		protected function _minLength($element, $param = null) {
-			$value = $this->form->getValue($element);
+		protected function _minLength($key, $param = null) {
+			$value = $this->form->getValue($key);
 			
-			if (empty($value)) {
+			if ('' == $value) {
 				return true;	
 			}
-			
-			$properties = array(
-				'minLength' => $param
-			);
 
-			switch (gettype($value)) {
-				case 'array':
-					if ($param > count($value)) {
-						return $this->setError($element, trim(__FUNCTION__, '_'), $properties);
-					}
-					break;
-				case 'string':
-					if ($param > strlen($value)) {
-						return $this->setError($element, trim(__FUNCTION__, '_'), $properties);
-					}
-					break;
-			}
-			
-			return true;
-		}
-		
-		/**
-		 * @acces protected.
-		 * @param String $element.
-		 * @param String $param.
-		 * @return Boolean.
-		 */
-		protected function _maxLength($element, $param = null) {
-			$value = $this->form->getValue($element);
-			
-			if (empty($value)) {
-				return true;	
-			}
-			
-			$properties = array(
-				'maxLength' => $param
-			);
-			
-			switch (gettype($value)) {
-				case 'array':
-					if ($param < count($value)) {
-						return $this->setError($element, trim(__FUNCTION__, '_'), $properties);
-					}
-					break;
-				case 'string':
-					if ($param < strlen($value)) {
-						return $this->setError($element, trim(__FUNCTION__, '_'), $properties);
-					}
-					break;
-			}
-			
-			return true;
-		}
-		
-		/**
-		 * @acces protected.
-		 * @param String $element.
-		 * @param String $param.
-		 * @return Boolean.
-		 */
-		protected function _betweenLength($element, $param = null) {
-			$value = $this->form->getValue($element);
-			
-			if (empty($value)) {
-				return true;	
-			}
-			
-			$param = explode('|', $param);
-
-			$properties = array(
-				'minLength' => trim($param[0]),
-				'maxLength' => trim($param[(1 == count($param) ? 0 : 1)])
-			);
-
-			switch (gettype($value)) {
-				case 'array':
-					if ($properties['minLength'] > count($value) || $properties['maxLength'] < count($value)) {
-						return $this->setError($element, trim(__FUNCTION__, '_'), $properties);
-					}
-					break;
-				case 'string':
-					if ($properties['minLength'] > strlen($value) || $properties['maxLength'] < strlen($value)) {
-						return $this->setError($element, trim(__FUNCTION__, '_'), $properties);
-					}
-					break;
-			}
-			
-			return true;
-		}
-		
-		/**
-		 * @acces protected.
-		 * @param String $element.
-		 * @param String $param.
-		 * @return Boolean.
-		 */
-		protected function _minValue($element, $param = null) {
-			$value = $this->form->getValue($element);
-			
-			if (empty($value)) {
-				return true;	
-			}
-			
-			$properties = array(
-				'minValue' => $param
-			);
-			
 			switch (gettype($value)) {
 				case 'array':
 					if ((int) $param > count($value)) {
-						return $this->setError($element, trim(__FUNCTION__, '_'), $properties);
+						return $this->setOutput($key, trim(__FUNCTION__, '_'), array(
+							'minLength' => $param
+						));
 					}
+					
 					break;
 				case 'string':
-					if ((int) $param > (int) $value) {
-						return $this->setError($element, trim(__FUNCTION__, '_'), $properties);
+					if ((int) $param > strlen($value)) {
+						return $this->setOutput($key, trim(__FUNCTION__, '_'), array(
+							'minLength' => $param
+						));
 					}
+					
 					break;
 			}
 			
@@ -366,31 +275,33 @@
 		
 		/**
 		 * @acces protected.
-		 * @param String $element.
+		 * @param String $key.
 		 * @param String $param.
 		 * @return Boolean.
 		 */
-		protected function _maxValue($element, $param = null) {
-			$value = $this->form->getValue($element);
+		protected function _maxLength($key, $param = null) {
+			$value = $this->form->getValue($key);
 			
-			if (empty($value)) {
+			if ('' == $value) {
 				return true;	
 			}
-			
-			$properties = array(
-				'maxValue' => $param
-			);
 			
 			switch (gettype($value)) {
 				case 'array':
 					if ((int) $param < count($value)) {
-						return $this->setError($element, trim(__FUNCTION__, '_'), $properties);
+						return $this->setOutput($key, trim(__FUNCTION__, '_'), array(
+							'maxLength' => $param
+						));
 					}
+					
 					break;
 				case 'string':
-					if ((int) $param < (int) $value) {
-						return $this->setError($element, trim(__FUNCTION__, '_'), $properties);
+					if ((int) $param < strlen($value)) {
+						return $this->setOutput($key, trim(__FUNCTION__, '_'), array(
+							'maxLength' => $param
+						));
 					}
+					
 					break;
 			}
 			
@@ -399,34 +310,40 @@
 		
 		/**
 		 * @acces protected.
-		 * @param String $element.
+		 * @param String $key.
 		 * @param String $param.
 		 * @return Boolean.
 		 */
-		protected function _betweenValue($element, $param = null) {
-			$value = $this->form->getValue($element);
+		protected function _betweenLength($key, $param = null) {
+			$value = $this->form->getValue($key);
 			
-			if (empty($value)) {
+			if ('' == $value) {
 				return true;	
 			}
 			
 			$param = explode('|', $param);
-
-			$properties = array(
-				'minValue' => (int) trim($param[0]),
-				'maxValue' => (int) trim($param[(1 == count($param) ? 0 : 1)])
-			);
+			
+			$min = (int) trim($param[0]);
+			$max = (int) trim($param[(1 == count($param) ? 0 : 1)]);
 
 			switch (gettype($value)) {
 				case 'array':
-					if ($properties['minValue'] > count($value) || $properties['maxValue'] < count($value)) {
-						return $this->setError($element, trim(__FUNCTION__, '_'), $properties);
+					if ($min > count($value) || $max < count($value)) {
+						return $this->setOutput($key, trim(__FUNCTION__, '_'), array(
+							'minLength' => $min,
+							'maxLength' => $max
+						));
 					}
+					
 					break;
 				case 'string':
-					if ($properties['minValue'] > (int) $value || $properties['maxValue'] < (int) $value) {
-						return $this->setError($element, trim(__FUNCTION__, '_'), $properties);
+					if ($min > strlen($value) || $max < strlen($value)) {
+						return $this->setOutput($key, trim(__FUNCTION__, '_'), array(
+							'minLength' => $min,
+							'maxLength' => $max
+						));
 					}
+					
 					break;
 			}
 			
@@ -435,24 +352,134 @@
 		
 		/**
 		 * @acces protected.
-		 * @param String $element.
+		 * @param String $key.
 		 * @param String $param.
 		 * @return Boolean.
 		 */
-		protected function _regex($element, $param = null) {
-			$value = $this->form->getValue($element);
+		protected function _minValue($key, $param = null) {
+			$value = $this->form->getValue($key);
 			
-			if (empty($value)) {
+			if ('' == $value) {
 				return true;	
 			}
 			
-			$properties = array(
-				'regex' => $param
-			);
+			switch (gettype($value)) {
+				case 'array':
+					if ((int) $param > count($value)) {
+						return $this->setOutput($key, trim(__FUNCTION__, '_'), array(
+							'minValue' => $param
+						));
+					}
+					
+					break;
+				case 'string':
+					if ((int) $param > (int) $value) {
+						return $this->setOutput($key, trim(__FUNCTION__, '_'), array(
+							'minValue' => $param
+						));
+					}
+					
+					break;
+			}
+			
+			return true;
+		}
+		
+		/**
+		 * @acces protected.
+		 * @param String $key.
+		 * @param String $param.
+		 * @return Boolean.
+		 */
+		protected function _maxValue($key, $param = null) {
+			$value = $this->form->getValue($key);
+			
+			if ('' == $value) {
+				return true;	
+			}
+			
+			switch (gettype($value)) {
+				case 'array':
+					if ((int) $param < count($value)) {
+						return $this->setOutput($key, trim(__FUNCTION__, '_'), array(
+							'maxValue' => $param
+						));
+					}
+					
+					break;
+				case 'string':
+					if ((int) $param < (int) $value) {
+						return $this->setOutput($key, trim(__FUNCTION__, '_'), array(
+							'maxValue' => $param
+						));
+					}
+					
+					break;
+			}
+			
+			return true;
+		}
+		
+		/**
+		 * @acces protected.
+		 * @param String $key.
+		 * @param String $param.
+		 * @return Boolean.
+		 */
+		protected function _betweenValue($key, $param = null) {
+			$value = $this->form->getValue($key);
+			
+			if ('' == $value) {
+				return true;	
+			}
+			
+			$param = explode('|', $param);
+			
+			$min = (int) trim($param[0]);
+			$max = (int) trim($param[(1 == count($param) ? 0 : 1)]);
 
+			switch (gettype($value)) {
+				case 'array':
+					if ($min > count($value) || $max < count($value)) {
+						return $this->setOutput($key, trim(__FUNCTION__, '_'), array(
+							'minValue' => $min,
+							'maxValue' => $max
+						));
+					}
+					
+					break;
+				case 'string':
+					if ($min > (int) $value || $max < (int) $value) {
+						return $this->setOutput($key, trim(__FUNCTION__, '_'), array(
+							'minValue' => $min,
+							'maxValue' => $max
+						));
+					}
+					
+					break;
+			}
+			
+			return true;
+		}
+		
+		/**
+		 * @acces protected.
+		 * @param String $key.
+		 * @param String $param.
+		 * @return Boolean.
+		 */
+		protected function _regex($key, $param = null) {
+			$value = $this->form->getValue($key);
+			
+			if ('' == $value) {
+				return true;	
+			}
+			
 			if ('string' == gettype($value)) {
 				if (!preg_match($param, $value)) {
-					return $this->setError($element, trim(__FUNCTION__, '_'), $properties);
+					return $this->setOutput($key, trim(__FUNCTION__, '_'), array(
+						'regex' => $param
+					));
 				}
 			}
 			
@@ -461,19 +488,19 @@
 		
 		/**
 		 * @acces protected.
-		 * @param String $element.
+		 * @param String $key.
 		 * @return Boolean.
 		 */
-		protected function _email($element) {
-			$value = $this->form->getValue($element);
+		protected function _email($key) {
+			$value = $this->form->getValue($key);
 			
-			if (empty($value)) {
+			if ('' == $value) {
 				return true;	
 			}
 			
 			if ('string' == gettype($value)) {
 				if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
-					return $this->setError($element, trim(__FUNCTION__, '_'));
+					return $this->setOutput($key, trim(__FUNCTION__, '_'));
 				}
 			}
 			
@@ -482,19 +509,19 @@
 		
 		/**
 		 * @acces protected.
-		 * @param String $element.
+		 * @param String $key.
 		 * @return Boolean.
 		 */
-		protected function _ip($element) {
-			$value = $this->form->getValue($element);
+		protected function _ip($key) {
+			$value = $this->form->getValue($key);
 			
-			if (empty($value)) {
+			if ('' == $value) {
 				return true;	
 			}
 			
 			if ('string' == gettype($value)) {
 				if (!filter_var($value, FILTER_VALIDATE_IP)) {
-					return $this->setError($element, trim(__FUNCTION__, '_'));
+					return $this->setOutput($key, trim(__FUNCTION__, '_'));
 				}
 			}
 			
@@ -503,19 +530,19 @@
 		
 		/**
 		 * @acces protected.
-		 * @param String $element.
+		 * @param String $key.
 		 * @return Boolean.
 		 */
-		protected function _url($element) {
-			$value = $this->form->getValue($element);
+		protected function _url($key) {
+			$value = $this->form->getValue($key);
 			
-			if (empty($value)) {
+			if ('' == $value) {
 				return true;	
 			}
 			
 			if ('string' == gettype($value)) {
 				if (!preg_match('/(http:\/\/|https:\/\/|ftp:\/\/|www\.)[a-z0-9-]+(.[a-z0-9-]+)*(:[0-9]+)?(\/.*)?$/i', $value)) {
-					return $this->setError($element, trim(__FUNCTION__, '_'));
+					return $this->setOutput($key, trim(__FUNCTION__, '_'));
 				}
 			}
 			
@@ -524,19 +551,40 @@
 		
 		/**
 		 * @acces protected.
-		 * @param String $element.
+		 * @param String $key.
 		 * @return Boolean.
 		 */
-		protected function _number($element) {
-			$value = $this->form->getValue($element);
+		protected function _iban($key) {
+			$value = $this->form->getValue($key);
 			
-			if (empty($value)) {
+			if ('' == $value) {
+				return true;	
+			}
+			
+			if ('string' == gettype($value)) {
+				if (!preg_match('/[a-zA-Z]{2}[0-9]{2}[a-zA-Z0-9]{4}[0-9]{7}([a-zA-Z0-9]?){0,16}$/i', $value)) {
+					return $this->setOutput($key, trim(__FUNCTION__, '_'));
+				}
+			}
+			
+			return true;
+		}
+		
+		/**
+		 * @acces protected.
+		 * @param String $key.
+		 * @return Boolean.
+		 */
+		protected function _number($key) {
+			$value = $this->form->getValue($key);
+			
+			if ('' == $value) {
 				return true;	
 			}
 
 			if ('string' == gettype($value)) {
 				if (!is_numeric(str_replace(',', '.', $value))) {
-					return $this->setError($element, trim(__FUNCTION__, '_'));
+					return $this->setOutput($key, trim(__FUNCTION__, '_'));
 				}
 			}
 			
@@ -545,19 +593,19 @@
 		
 		/**
 		 * @acces protected.
-		 * @param String $element.
+		 * @param String $key.
 		 * @return Boolean.
 		 */
-		protected function _phone($element) {
-			$value = $this->form->getValue($element);
+		protected function _phone($key) {
+			$value = $this->form->getValue($key);
 			
-			if (empty($value)) {
+			if ('' == $value) {
 				return true;	
 			}
 			
-			if ('string' == gettype($value)) {
+			if ('string' == gettype($key)) {
 				if (!preg_match('/^([\d\s?\-?]){10,11}$/', $value)) {
-					return $this->setError($element, trim(__FUNCTION__, '_'));
+					return $this->setOutput($key, trim(__FUNCTION__, '_'));
 				}
 			}
 			
@@ -566,19 +614,19 @@
 		
 		/**
 		 * @acces protected.
-		 * @param String $element.
+		 * @param String $key.
 		 * @return Boolean.
 		 */
-		protected function _string($element) {
-			$value = $this->form->getValue($element);
+		protected function _string($key) {
+			$value = $this->form->getValue($key);
 			
-			if (empty($value)) {
+			if ('' == $value) {
 				return true;	
 			}
 
 			if ('string' == gettype($value)) {
 				if (!preg_match('/^([a-z]+)$/si', $value)) {
-					return $this->setError($element, trim(__FUNCTION__, '_'));
+					return $this->setOutput($key, trim(__FUNCTION__, '_'));
 				}
 			}
 			
@@ -587,29 +635,29 @@
 		
 		/**
 		 * @acces protected.
-		 * @param String $element.
+		 * @param String $key.
 		 * @param String $param.
 		 * @return Boolean.
 		 */
-		protected function _date($element, $param = null) {
-			$value = $this->form->getValue($element);
+		protected function _date($key, $param = null) {
+			$value = $this->form->getValue($key);
 			
-			if (empty($value)) {
+			if ('' == $value) {
 				return true;	
 			}
 			
-			$properties = array(
-				'format' => '' == $param ? $this->form->config['dateFormat'] : $param
-			);
-
+			$format = 'true' == $param ? $this->form->properties['dateFormat'] : $param;
+			
 			if ('string' == gettype($value)) {
 				$value = strtotime($value);
 
 				if ('' == $value || false == $value) {
-					return $this->setError($element, trim(__FUNCTION__, '_'), $properties);
+					return $this->setOutput($key, trim(__FUNCTION__, '_'), array(
+						'format' => $format
+					));
 				}
 	
-				$this->form->setValue($element, strftime($properties['format'], $value));
+				$this->form->setValue($key, strftime($format, $value));
 			}
 			
 			return true;
@@ -617,65 +665,35 @@
 		
 		/**
 		 * @acces protected.
-		 * @param String $element.
+		 * @param String $key.
 		 * @param String $param.
 		 * @return Boolean.
 		 */
-		protected function _minDate($element, $param = null) {
-			$value = $this->form->getValue($element);
+		protected function _minDate($key, $param = null) {
+			$value = $this->form->getValue($key);
 			
-			if (empty($value)) {
+			if ('' == $value) {
 				return true;	
 			}
 			
-			$properties = array(
-				'format'	=> $this->form->config['dateFormat'],
-				'minDate' 	=> strftime($this->form->config['dateFormat'], strtotime($param))
-			);
-
-			if ('string' == gettype($value)) {
-				$value = strtotime($value);
-				
-				if ('' == $value || false == $value) {
-					return $this->setError($element, 'date', $properties);
-				} else if ($value < strtotime($properties['minDate'])) {
-					return $this->setError($element, trim(__FUNCTION__, '_'), $properties);
-				}
-				
-				$this->form->setValue($element, strftime($properties['format'], $value));
-			}
-			
-			return true;
-		}
-		
-		/**
-		 * @acces protected.
-		 * @param String $element.
-		 * @param String $param.
-		 * @return Boolean.
-		 */
-		protected function _maxDate($element, $param = null) {
-			$value = $this->form->getValue($element);
-			
-			if (empty($value)) {
-				return true;	
-			}
-			
-			$properties = array(
-				'format'	=> $this->form->config['dateFormat'],
-				'maxDate' 	=> strftime($this->form->config['dateFormat'], strtotime($param))
-			);
+			$min = strftime($this->form->properties['dateFormat'], strtotime('now' == $param ? date('d-m-Y') : $param));
 			
 			if ('string' == gettype($value)) {
 				$value = strtotime($value);
 				
 				if ('' == $value || false == $value) {
-					return $this->setError($element, 'date', $properties);
-				} else if ($value > strtotime($properties['maxDate'])) {
-					return $this->setError($element, trim(__FUNCTION__, '_'), $properties);
+					return $this->setOutput($key, 'date', array(
+						'format'	=> $this->form->properties['dateFormat'],
+						'minDate' 	=> $min
+					));
+				} else if ($value < strtotime($min)) {
+					return $this->setOutput($key, trim(__FUNCTION__, '_'), array(
+						'format'	=> $this->form->properties['dateFormat'],
+						'minDate' 	=> $min
+					));
 				}
 				
-				$this->form->setValue($element, strftime($properties['format'], $value));
+				$this->form->setValue($key, strftime($this->form->properties['dateFormat'], $value));
 			}
 			
 			return true;
@@ -683,104 +701,145 @@
 		
 		/**
 		 * @acces protected.
-		 * @param String $element.
+		 * @param String $key.
 		 * @param String $param.
 		 * @return Boolean.
 		 */
-		protected function _betweenDate($element, $param = null) {
-			$value = $this->form->getValue($element);
+		protected function _maxDate($key, $param = null) {
+			$value = $this->form->getValue($key);
+			
+			if ('' == $value) {
+				return true;	
+			}
+			
+			$max = strftime($this->form->properties['dateFormat'], strtotime('now' == $param ? date('d-m-Y') : $param));
+			
+			if ('string' == gettype($value)) {
+				$value = strtotime($value);
+				
+				if ('' == $value || false == $value) {
+					return $this->setOutput($key, 'date', array(
+						'format'	=> $this->form->properties['dateFormat'],
+						'maxDate' 	=> $max
+					));
+				} else if ($value > strtotime($max)) {
+					return $this->setOutput($key, trim(__FUNCTION__, '_'), array(
+						'format'	=> $this->form->properties['dateFormat'],
+						'maxDate' 	=> $max
+					));
+				}
+				
+				$this->form->setValue($key, strftime($this->form->properties['dateFormat'], $value));
+			}
+			
+			return true;
+		}
+		
+		/**
+		 * @acces protected.
+		 * @param String $key.
+		 * @param String $param.
+		 * @return Boolean.
+		 */
+		protected function _betweenDate($key, $param = null) {
+			$value = $this->form->getValue($key);
 			
 			if (empty($value)) {
 				return true;	
 			}
 			
 			$param = explode('|', $param);
-
-			$properties = array(
-				'format'	=> $this->form->config['dateFormat'],
-				'minDate' 	=> strftime($this->form->config['dateFormat'], strtotime(trim($param[0]))),
-				'maxDate' 	=> strftime($this->form->config['dateFormat'], strtotime(trim($param[(1 == count($param) ? 0 : 1)])))
-			);
 			
+			$min = trim($param[0]);
+			$max = trim($param[(1 == count($param) ? 0 : 1)]);
+			
+			$min = strftime($this->form->properties['dateFormat'], strtotime('now' == $min ? date('d-m-Y') : $min));
+			$max = strftime($this->form->properties['dateFormat'], strtotime('now' == $max ? date('d-m-Y') : $max));
+
 			if ('string' == gettype($value)) {
 				$value = strtotime($value);
 				
 				if ('' == $value || false == $value) {
-					return $this->setError($element, 'date', $properties);
-				} else if ($value < strtotime($properties['minDate']) || $value > strtotime($properties['maxDate'])) {
-					return $this->setError($element, trim(__FUNCTION__, '_'), $properties);
+					return $this->setOutput($key, 'date', array(
+						'format'	=> $this->form->config['dateFormat'],
+						'minDate' 	=> $min,
+						'maxDate' 	=> $max
+					));
+				} else if ($value < strtotime($min) || $value > strtotime($max)) {
+					return $this->setOutput($key, trim(__FUNCTION__, '_'), array(
+						'format'	=> $this->form->config['dateFormat'],
+						'minDate' 	=> $min,
+						'maxDate' 	=> $max
+					));
 				}
 				
-				$this->form->setValue($element, strftime($properties['format'], $value));
+				$this->form->setValue($key, strftime($this->form->properties['dateFormat'], $value));
 			}
 			
 			return true;
 		}
-
 		
 		/**
 		 * @acces public.
 		 * @param String $key.
-		 * @param String $error.
-		 * @param Array $properties.
-		 * @param String $errorMessage.
-		 * @return false.
+		 * @return Boolean.
 		 */
-		public function setError($key, $error = 'required', $properties = array(), $errorMessage = null) {
-			$properties = array_merge(array(
-				'element'	=> $key,
-				'value'		=> $this->form->getValue($key),
-				'error'		=> $error
-			), $properties);
-			
-			if (null === $errorMessage) {
-				$error = $this->modx->lexicon($this->form->getPlaceholderKey().'error_'.strtolower($error), $properties);	
-			} else {
-				$error = $errorMessage;
+		public function isValid($key = null) {
+			if (null === $key) {
+				return 0 == count($this->output);
 			}
-
-			$this->errors[$key] = $error;
-
-			$this->modx->setPlaceholders(array(
-				$key			=> $this->form->getTpl($this->form->scriptProperties['tplError'], array_merge($properties, array('error' => $error))),
-				$key.'.message'	=> $error
-			), $this->form->getPlaceholderKey().'error.');
 			
-			return $this->setBulkError();
+			return !isset($this->output[$key]);
 		}
 		
 		/**
 		 * @acces public.
-		 * @param String $error.
-		 * @param Array $properties.
-		 * @param String $errorMessage.
-		 * @return false.
+		 * @return String.
 		 */
-		public function setBulkError($error = 'validate', $properties = array(), $errorMessage = null) {
+		public function getBulkOutput() {
 			$errors = array();
 			
-			foreach ($this->errors as $key => $value) {
-				$errors[] = $this->form->getTpl($this->form->scriptProperties['tplBulkError'], array('error' => $value)); 
-			}
+			$i = 0;
 			
-			if (null === $errorMessage) {
-				$error = $this->modx->lexicon($this->form->getPlaceholderKey().'error_'.strtolower($error), $properties);
-			} else {
-				$error = $errorMessage;
+			foreach ($this->output as $error) {
+				$class = array();
+				
+				if (0 == $i) {
+					$class[] = 'first';
+				}
+				
+				if (count($this->errors) - 1 == $i) {
+					$class[] = 'last';
+				}
+				
+				$class[] = 0 == $i % 2 ? 'odd' : 'even';
+				
+				$errors[] = $this->form->getTemplate($this->form->properties['tplBulkError'], array_merge(array(
+					'class'	=> implode(' ', $class)
+				), $error));
+				
+				$i++;
 			}
-			
-			$properties = array_merge(array(
-				'elements'	=> count($this->errors),
-				'errors'	=> implode(PHP_EOL, $errors),
-				'error'		=> $error
+
+			return $this->form->getTemplate($this->form->properties['tplBulkWrapper'], array(
+				'error'		=> $this->modx->lexicon('form.error_bulk'),
+				'total'		=> count($this->errors),
+				'output' 	=> implode(PHP_EOL, $errors)
+			));
+		}
+
+		/**
+		 * @acces public.
+		 * @param String $key.
+		 * @param String $value.
+		 */
+		public function setOutput($key, $error, $properties = array(), $message = null) {
+			$this->output[$key] = array_merge(array(
+				'element'	=> $key,
+				'value'		=> $this->form->getValue($key),
+				'type'		=> $error,
+				'error'		=> null == $message ? $this->modx->lexicon('form.error_'.strtolower($error)) : $message
 			), $properties);
-			
-			$this->errors['validate'] = $error; 
-			
-			$this->modx->setPlaceholders(array(
-				'error'			=> $this->form->getTpl($this->form->scriptProperties['tplBulkWrapper'], array_merge($properties, array('error' => $error))),
-				'error.message'	=> $error
-			), $this->form->getPlaceholderKey());
 			
 			return false;
 		}
@@ -788,23 +847,29 @@
 		/**
 		 * @acces public.
 		 * @param String $key.
-		 * @return Mixed.
+		 * @return Array.
 		 */
-		public function getError($key) {
-			if (array_key_exists($key, $this->errors)) {
-				return $this->errors[$key];
+		public function getOutput($key = null) {
+			if (null !== $key) {
+				if (isset($this->output[$key])) {
+					return $this->output[$key];
+				}
+				
+				return null;
 			}
 			
-			return false;
+			return $this->output;
 		}
 		
 		/**
 		 * @acces public.
-		 * @return Array.
+		 * @return Boolean.
 		 */
-		public function getErrors() {
-			return $this->errors;
+		public function clearOutput() {
+			$this->output = array();
+			
+			return true;
 		}
 	}
-	
+
 ?>

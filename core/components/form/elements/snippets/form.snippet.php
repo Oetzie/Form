@@ -3,7 +3,7 @@
 	/**
 	 * Form
 	 *
-	 * Copyright 2014 by Oene Tjeerd de Bruin <info@oetzie.nl>
+	 * Copyright 2016 by Oene Tjeerd de Bruin <info@oetzie.nl>
 	 *
 	 * This file is part of Form, a real estate property listings component
 	 * for MODX Revolution.
@@ -21,12 +21,15 @@
 	 * Form; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
 	 * Suite 330, Boston, MA 02111-1307 USA
 	 */
+	
+	if ($modx->loadClass('Form', $modx->getOption('form.core_path', null, $modx->getOption('core_path').'components/form/').'model/form/', true, true)) {
+        $form = new Form($modx);
 
-	require_once $modx->getOption('form.core_path', null, $modx->getOption('core_path').'components/form/').'/model/form/form.class.php';
-
-	$form = new Form($modx);
-	$form->setScriptProperties($scriptProperties);
-
-	$form->setRequest($modx->request->getParameters(array(), 'POST'));
-
+	    if ($form instanceOf Form) {
+	        return $form->run($scriptProperties);
+	    }
+	}
+	
+	return ' ';
+	
 ?>

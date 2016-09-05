@@ -3,7 +3,7 @@
 	/**
 	 * Form
 	 *
-	 * Copyright 2014 by Oene Tjeerd de Bruin <info@oetzie.nl>
+	 * Copyright 2016 by Oene Tjeerd de Bruin <info@oetzie.nl>
 	 *
 	 * This file is part of Form, a real estate property listings component
 	 * for MODX Revolution.
@@ -22,7 +22,7 @@
 	 * Suite 330, Boston, MA 02111-1307 USA
 	 */
 	 
-	require_once (dirname(dirname(__FILE__)) . '/formsave.class.php');
+	require_once dirname(dirname(__FILE__)). '/formsave.class.php';
 	
 	class FormSave_mysql extends FormSave {}
 
