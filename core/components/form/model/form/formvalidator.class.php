@@ -45,7 +45,7 @@
 		 * @acces public.
 		 * @var String.
 		 */
-		public $message;
+		public $message = null;
 		
 		/**
 		 * @acces public.
@@ -792,7 +792,7 @@
 		 */
 		public function isValid($key = null) {
 			if (null === $key) {
-				return 0 == count($this->output);
+				return 0 == count($this->output) && null == $this->message;
 			}
 			
 			return !isset($this->output[$key]);
