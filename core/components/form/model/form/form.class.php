@@ -229,25 +229,23 @@
 						$output[rtrim($this->properties['placeholder'], '.').'.extensions.'.$key] = $value;
 					}
 					
+					foreach ($this->getValues() as $key => $value) {
+						if (is_array($value)) {
+							$value = implode(',', $value);
+						}
+						
+						$output[rtrim($this->properties['placeholder'], '.').'.'.$key] = $value;
+					}
+					
 					if ($this->getMethod('POST', $this->getValues(true))) {
 						$validator->validate();
 
 						$output[rtrim($this->properties['placeholder'], '.').'.submit'] = true;
-							
-						foreach ($this->getValues() as $key => $value) {
-							if (is_array($value)) {
-								$value = implode(',', $value);
-							}
-							
-							$output[rtrim($this->properties['placeholder'], '.').'.'.$key] = $value;
-						}
 
 						foreach ($extensions->setExtentions('After') as $key => $value) {
 							$output[rtrim($this->properties['placeholder'], '.').$key] = $value;
 						}
-						
-						$this->setCacheForm($output);
-
+	
 						if (!$validator->isValid()) {
 							$output[rtrim($this->properties['placeholder'], '.').'.error'] = $validator->getBulkOutput();
 						
