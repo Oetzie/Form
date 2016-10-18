@@ -46,7 +46,7 @@
 		 * @return Mixed.
 		 */
 		public function process() {
-			$this->modx->removeCollection($this->classKey);
+			$this->modx->removeCollection($this->classKey, array());
 			
 			return $this->outputArray(array());
 		}

@@ -253,6 +253,8 @@
 								$output[rtrim($this->properties['placeholder'], '.').'.error.'.$key] = $this->getTemplate($this->properties['tplError'], $value);
 							}
 						} else {
+							$this->setCacheForm($this->getValues());
+							
 							if (isset($this->properties['redirect'])) {
 								$this->modx->sendRedirect($this->modx->makeUrl($this->properties['redirect'], null, null, 'full'));
 							}
@@ -423,7 +425,7 @@
 		 */
 		public function getCacheOptions($option = null) {
 			$options = array(
-				xPDO::OPT_CACHE_KEY 	=> 'form',
+				xPDO::OPT_CACHE_KEY 	=> rtrim($this->properties['placeholder'], '.').'.'.$this->properties['submit'],
 				xPDO::OPT_CACHE_HANDLER => $this->modx->getOption(xPDO::OPT_CACHE_HANDLER, null, 'xPDOFileCache'),
 				xPDO::OPT_CACHE_EXPIRES => 60
 			);
