@@ -48,8 +48,8 @@
 	$_lang['form.formsave_show']									= 'Show form';
 	$_lang['form.formsave_remove']									= 'Delete form';
 	$_lang['form.formsave_remove_confirm']							= 'Are you sure you want to delete this form?';
-	$_lang['form.formsave_remove_selected']							= 'Delete selected forms';
-	$_lang['form.formsave_remove_selected_confirm']					= 'Are you sure you want to delete the selected forms?';
+	$_lang['form.formsaves_remove_selected']						= 'Delete selected forms';
+	$_lang['form.formsaves_remove_selected_confirm']				= 'Are you sure you want to delete the selected forms?';
 	$_lang['form.formsave_reset']									= 'Delete all forms';
 	$_lang['form.formsave_reset_confirm']							= 'Are you sure you want to delete all the forms?';
 	

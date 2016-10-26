@@ -48,8 +48,8 @@
 	$_lang['form.formsave_show']									= 'Formulier bekijken';
 	$_lang['form.formsave_remove']									= 'Formulier verwijderen';
 	$_lang['form.formsave_remove_confirm']							= 'Weet je zeker dat je dit formulier wilt verwijderen?';
-	$_lang['form.formsave_remove_selected']							= 'Geselecteerde formulieren verwijderen';
-	$_lang['form.formsave_remove_selected_confirm']					= 'Weet je zeker dat je de geselecteerde formulieren wilt verwijderen?';
+	$_lang['form.formsaves_remove_selected']						= 'Geselecteerde formulieren verwijderen';
+	$_lang['form.formsaves_remove_selected_confirm']				= 'Weet je zeker dat je de geselecteerde formulieren wilt verwijderen?';
 	$_lang['form.formsave_reset']									= 'Alle formulieren verwijderen';
 	$_lang['form.formsave_reset_confirm']							= 'Weet je zeker dat je alle formulieren wilt verwijderen?';
 	

@@ -5,8 +5,8 @@ Form.grid.FormSave = function(config) {
 		text		: _('bulk_actions'),
 		cls			:'primary-button',
 		menu		: [{
-			text		: _('form.formsave_remove_selected'),
-			handler		: this.removeSelectedFormSave,
+			text		: _('form.formsaves_remove_selected'),
+			handler		: this.removeSelectedFormSaves,
 			scope		: this
 		}, '-', {
 			text		: _('form.formsave_reset'),
@@ -14,14 +14,14 @@ Form.grid.FormSave = function(config) {
 			scope		: this
 		}]
 	}, '->', {
-    	xtype		: 'form-combo-xstatus',
+    	xtype		: 'form-combo-status',
     	name		: 'form-filter-status',
         id			: 'form-filter-status',
         emptyText	: _('form.filter_status'),
         listeners	: {
         	'select'	: {
-	            	fn			: this.filterStatus,
-	            	scope		: this   
+	            	fn		: this.filterStatus,
+	            	scope	: this   
 		    }
 		},
 		width: 250
@@ -33,8 +33,8 @@ Form.grid.FormSave = function(config) {
         emptyText	: _('form.filter_context'),
         listeners	: {
         	'select'	: {
-	            	fn			: this.filterContext,
-	            	scope		: this   
+	            	fn		: this.filterContext,
+	            	scope	: this   
 		    }
 		},
 		width: 250
@@ -60,14 +60,14 @@ Form.grid.FormSave = function(config) {
 	        }
         }
     }, {
-    	xtype	: 'button',
-    	cls		: 'x-form-filter-clear',
-    	id		: 'form-filter-clear',
-    	text	: _('filter_clear'),
-    	listeners: {
-        	'click': {
-        		fn		: this.clearFilter,
-        		scope	: this
+    	xtype		: 'button',
+    	cls			: 'x-form-filter-clear',
+    	id			: 'form-filter-clear',
+    	text		: _('filter_clear'),
+    	listeners	: {
+        	'click'		: {
+        		fn			: this.clearFilter,
+        		scope		: this
         	}
         }
     }];
@@ -127,7 +127,7 @@ Form.grid.FormSave = function(config) {
         id			: 'form-grid-formsave',
         url			: Form.config.connector_url,
         baseParams	: {
-        	action		: 'mgr/getList'
+        	action		: 'mgr/formsave/getlist'
         },
         fields		: ['id', 'resource_id', 'resource_url', 'resource_name', 'resource_name_alias', 'resource_context_key', 'name', 'ip', 'data', 'data_formatted', 'active', 'editedon'],
         paging		: true,
@@ -200,18 +200,18 @@ Ext.extend(Form.grid.FormSave, MODx.grid.Grid, {
         	text	: _('form.formsave_remove_confirm'),
         	url		: Form.config.connector_url,
         	params	: {
-            	action	: 'mgr/remove',
+            	action	: 'mgr/formsave/remove',
             	id		: this.menu.record.id
             },
             listeners: {
-            	'success': {
-            		fn		: this.refresh,
-            		scope	: this
+            	'success'	: {
+            		fn			: this.refresh,
+            		scope		: this
             	}
             }
     	});
     },
-    removeSelectedFormSave: function(btn, e) {
+    removeSelectedFormSaves: function(btn, e) {
     	var cs = this.getSelectedAsList();
     	
         if (cs === false) {
@@ -223,16 +223,16 @@ Ext.extend(Form.grid.FormSave, MODx.grid.Grid, {
         	text	: _('form.formsave_remove_selected_confirm'),
         	url		: Form.config.connector_url,
         	params	: {
-            	action	: 'mgr/removeSelected',
+            	action	: 'mgr/formsave/removeselected',
             	ids		: cs
             },
             listeners: {
-            	'success': {
-            		fn		: function() {
+            	'success'	: {
+            		fn			: function() {
             			this.getSelectionModel().clearSelections(true);
             			this.refresh();
             		},
-            		scope	: this
+            		scope		: this
             	}
             }
     	});
@@ -243,13 +243,13 @@ Ext.extend(Form.grid.FormSave, MODx.grid.Grid, {
         	text	: _('form.formsave_reset_confirm'),
         	url		: Form.config.connector_url,
         	params	: {
-            	action	: 'mgr/reset',
+            	action	: 'mgr/formsave/reset',
             	id		: 'all'
             },
             listeners: {
-            	'success': {
-            		fn		: this.refresh,
-            		scope	: this
+            	'success'	: {
+            		fn			: this.refresh,
+            		scope		: this
             	}
             }
     	});
@@ -388,8 +388,8 @@ Form.combo.Status = function(config) {
             mode	: 'local',
             fields	: ['type','label'],
             data	: [
-                [1, _('form.valid')],
-               	[0, _('form.notvalid')]
+                ['1', _('form.valid')],
+               	['0', _('form.notvalid')]
             ]
         }),
         remoteSort	: ['label', 'asc'],
@@ -404,4 +404,4 @@ Form.combo.Status = function(config) {
 
 Ext.extend(Form.combo.Status, MODx.combo.ComboBox);
 
-Ext.reg('form-combo-xstatus', Form.combo.Status);
+Ext.reg('form-combo-status', Form.combo.Status);

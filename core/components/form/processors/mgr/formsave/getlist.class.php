@@ -91,7 +91,7 @@
 			
 			$status = $this->getProperty('status');
 			
-			if (!empty($status)) {
+			if ('' != $status) {
 				$c->where(array(
 					'FormSave.active' => $status
 				));
