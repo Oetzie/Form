@@ -183,7 +183,7 @@
 						), $value);
 					}
 					
-					if (null !== ($object = $this->modx->newObject('FormSave'))) {
+					if (null !== ($object = $this->modx->newObject('FormFormSave'))) {
 						$object->fromArray(array(
 							'name'			=> $this->form->properties['saveName'],
 							'resource_id'	=> $this->modx->resource->id,

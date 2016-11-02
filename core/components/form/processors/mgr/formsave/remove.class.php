@@ -22,12 +22,12 @@
 	 * Suite 330, Boston, MA 02111-1307 USA
 	 */
 	 
-	class FormSaveRemoveProcessor extends modObjectRemoveProcessor {
+	class FormFormSaveRemoveProcessor extends modObjectRemoveProcessor {
 		/**
 		 * @acces public.
 		 * @var String.
 		 */
-		public $classKey = 'FormSave';
+		public $classKey = 'FormFormSave';
 		
 		/**
 		 * @acces public.
@@ -42,6 +42,6 @@
 		public $objectType = 'form.formsave';
 	}
 	
-	return 'FormSaveRemoveProcessor';
+	return 'FormFormSaveRemoveProcessor';
 	
 ?>

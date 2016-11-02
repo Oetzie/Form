@@ -1,5 +1,5 @@
 <?php
-	
+
 	/**
 	 * Form
 	 *
@@ -22,8 +22,6 @@
 	 * Suite 330, Boston, MA 02111-1307 USA
 	 */
 	 
-	require_once dirname(dirname(__FILE__)). '/formsave.class.php';
-	
-	class FormSave_mysql extends FormSave {}
+	class FormFormSave extends xPDOSimpleObject {}
 
 ?>

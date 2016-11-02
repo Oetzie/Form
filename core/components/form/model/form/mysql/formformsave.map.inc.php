@@ -22,7 +22,7 @@
 	 * Suite 330, Boston, MA 02111-1307 USA
 	 */
 	 
-	$xpdo_meta_map['FormSave']= array(
+	$xpdo_meta_map['FormFormSave']= array(
 		'package' 	=> 'form',
 		'version' 	=> '1.0',
 		'table' 	=> 'form_save',

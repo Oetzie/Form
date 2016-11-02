@@ -22,12 +22,12 @@
 	 * Suite 330, Boston, MA 02111-1307 USA
 	 */
 
-	class FormSaveGetListProcessor extends modObjectGetListProcessor {
+	class FormFormSaveGetListProcessor extends modObjectGetListProcessor {
 		/**
 		 * @acces public.
 		 * @var String.
 		 */
-		public $classKey = 'FormSave';
+		public $classKey = 'FormFormSave';
 		
 		/**
 		 * @acces public.
@@ -79,14 +79,16 @@
 		 * @return Object.
 		 */
 		public function prepareQueryBeforeCount(xPDOQuery $c) {
-			$c->innerjoin('modResource', 'modResource', array('modResource.id = FormSave.resource_id'));
-			$c->select($this->modx->getSelectColumns('FormSave', 'FormSave'));
-			$c->select($this->modx->getSelectColumns('modResource', 'modResource', 'resource_', array('pagetitle', 'longtitle', 'context_key')));
+			$c->innerjoin('modResource', 'modResource', array('modResource.id = FormFormSave.resource_id'));
+			$c->select($this->modx->getSelectColumns('FormFormSave', 'FormFormSave'));
+			$c->select($this->modx->getSelectColumns('modResource', 'modResource', 'resource_', array('pagetitle', 'context_key')));
 			
 			$context = $this->getProperty('context');
 			
 			if (!empty($context)) {
-				$c->where(array('modResource.context_key' => $context));
+				$c->where(array(
+					'modResource.context_key' => $context
+				));
 			}
 			
 			$status = $this->getProperty('status');
@@ -103,8 +105,7 @@
 				$c->where(array(
 					'FormSave.name:LIKE' 			=> '%'.$query.'%',
 					'OR:FormSave.data:LIKE' 		=> '%'.$query.'%',
-					'OR:modResource.pagetitle:LIKE' => '%'.$query.'%',
-					'OR:modResource.longtitle:LIKE' => '%'.$query.'%'
+					'OR:modResource.pagetitle:LIKE' => '%'.$query.'%'
 				));
 			}
 			
@@ -119,8 +120,8 @@
 		public function prepareRow(xPDOObject $object) {
 			$array = array_merge($object->toArray(), array(
 				'resource_url'			=> $this->modx->makeUrl($object->resource_id, '', '', 'full'),
-				'resource_name' 		=> empty($object->resource_longtitle) ? $object->resource_pagetitle : $object->resource_longtitle,
-				'resource_name_alias' 	=> (empty($object->resource_longtitle) ? $object->resource_pagetitle : $object->resource_longtitle).' ('.$object->resource_id.')',
+				'resource_name' 		=> $object->resource_pagetitle,
+				'resource_name_alias' 	=> $object->resource_pagetitle.' ('.$object->resource_id.')',
 				'data'					=> unserialize($object->data),
 				'data_formatted'		=> implode(', ', array_map(function($value) {
 					if (is_array($value['value'])) {
@@ -153,6 +154,6 @@
 		}
 	}
 
-	return 'FormSaveGetListProcessor';
+	return 'FormFormSaveGetListProcessor';
 	
 ?>
