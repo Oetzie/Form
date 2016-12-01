@@ -41,6 +41,7 @@
 	$_lang['form_snippet_tplbulkwrapper_desc']						= 'The template of the bulk error wrapper. This can start with @INLINE:, @CHUNK: or chunk name.';
 	$_lang['form_snippet_tplerror_desc']							= 'The template of an error. This can start with @INLINE:, @CHUNK: or chunk name.';
 	$_lang['form_snippet_type_desc']								= 'The type of the form. This can be "set" or "get", default is "set".';
+	$_lang['form_snippet_method_desc']								= 'The methode of the form. This can be "post" of "get", default is "post".';
 		
 	$_lang['form.formsave']											= 'Forms';
 	$_lang['form.formsaves']										= 'Forms';
@@ -68,35 +69,11 @@
 		
 	$_lang['form.filter_context']									= 'Filter at context...';
 	$_lang['form.filter_status']									= 'Filter at status...';
+	$_lang['form.auto_refresh_grid']								= 'Automatic refresh';
 	$_lang['form.form']												= 'Form';
 	$_lang['form.valid']											= 'Complete';
 	$_lang['form.notvalid']											= 'Incomplete';
 	$_lang['form.empty']											= 'Not filled';
-	
-	$_lang['form.error_required']									= 'This field is required.';
-	$_lang['form.error_blank']										= 'This field should not be blank.';
-	$_lang['form.error_equals']										= 'This field needs to be equal to "[[+equals]]".';
-	$_lang['form.error_equalsto']									= 'This field needs to be equal to the field "[[+equalsTo]]".';
-	$_lang['form.error_contains']									= 'This field needs to contain "[[+contains]]".';
-	$_lang['form.error_minlength']									= 'This field should have at least [[+minLength]] characters.';
-	$_lang['form.error_maxlength']									= 'This field should not have more then [[+maxLength]] characters.';
-	$_lang['form.error_betweenlength']								= 'This field needs to have between [[+minLength]] and [[+maxLength]] characters.';
-	$_lang['form.error_minvalue']									= 'This field needs to be bigger then [[+minValue]].';
-	$_lang['form.error_maxvalue']									= 'This field needs to be smaller then [[+maxValue]].';
-	$_lang['form.error_betweenvalue']								= 'This field needs to be between [[+minValue]] and [[+maxValue]].';
-	$_lang['form.error_regex']										= 'This field needs to conform to "[[+regex]]".';
-	$_lang['form.error_email']										= 'This field is not a valid e-mail address.';
-	$_lang['form.error_ip']											= 'This field is not a valid IP nummer.';
-	$_lang['form.error_url']										= 'This field is not a valid web address.';
-	$_lang['form.error_iban']										= 'This field is not a valid IBAN number.';
-	$_lang['form.error_phone']										= 'This field is not a valid phone number.';
-	$_lang['form.error_number']										= 'This field should only contain numbers.';
-	$_lang['form.error_string']										= 'This field should only contain letters.';
-	$_lang['form.error_date']										= 'This field is not a valid date.';
-	$_lang['form.error_mindate']									= 'This field should be later then [[+minDate]].';
-	$_lang['form.error_maxdate']									= 'This field should be earlier then [[+maxDate]].';
-	$_lang['form.error_betweendate']								= 'This field needs to be between [[+minDate]] and [[+maxDate]].';
-	$_lang['form.error_recaptcha']									= 'This field with reCAPTCHA is not correct.';
 	
 	$_lang['form.error2_required']									= 'This field was not filled.';
 	$_lang['form.error2_blank']										= 'This field was not empty.';
@@ -122,8 +99,5 @@
 	$_lang['form.error2_maxdate']									= 'This field was not earlier then [[+maxDate]].';
 	$_lang['form.error2_betweendate']								= 'This field was not between [[+minDate]] and [[+maxDate]].';
 	$_lang['form.error2_recaptcha']									= 'This field with reCAPTCHA was not correct.';
-
-	$_lang['form.error_sendemail']									= 'The background e-mail could not be sent, please try again.';
-	$_lang['form.error_sendrespondemail']							= 'The background e-mail could not be sent, please try again.';
 	
 ?>

@@ -1,7 +1,7 @@
 <h2>Test formulier</h2>
-[[+form.error]]
-<p class="info">Velden gemarkeerd met een sterretje zijn verplicht.</p>
-<form action="[[~[[*id]]]]" method="post" name="test" class="form [[+form.submit:notempty=`form-active`]]">
+<p class="info">[[%form.fields_required? &topic=`site`&namespace=`form`&language=`[[++language]]`]]</p>
+<form action="[[+form.url]]" method="[[+form.method]]" name="[[+form.submit]]" class="form [[+form.submitted:notempty=`form-active`]]">
+	[[+form.error]]
     <div class="form-element [[+form.error.sex:notempty=`error`]]">
 		<label for="sex">Uw geslacht</label>
 		<div class="form-element-container">
@@ -51,7 +51,7 @@
 	</div>
 	<div class="form-element">
 		<div class="form-element-container">
-			<button type="submit" name="submit" title="Versturen">Versturen</button>
+			<button type="submit" name="[[+form.submit]]" title="Versturen">Versturen</button>
 		</div>
 	</div>
 </form>

@@ -74,7 +74,7 @@
 			$this->config = array_merge(array(
 				'namespace'				=> $this->modx->getOption('namespace', $config, 'form'),
 				'helpurl'				=> $this->modx->getOption('helpurl', $config, 'form'),
-				'language'				=> 'form:default',
+				'lexicons'				=> array('form:default', 'form:site'),
 				'base_path'				=> $corePath,
 				'core_path' 			=> $corePath,
 				'model_path' 			=> $corePath.'model/',
@@ -93,6 +93,14 @@
 			), $config);
 			
 			$this->modx->addPackage('form', $this->config['model_path']);
+			
+			if (is_array($this->config['lexicons'])) {
+				foreach ($this->config['lexicons'] as $lexicon) {
+					$this->modx->lexicon->load($lexicon);
+				}
+			} else {
+				$this->modx->lexicon->load($this->config['lexicons']);
+			}
 		}
 		
 		/**
@@ -108,15 +116,9 @@
 		 * @return Boolean.
 		 */
 		private function getContexts() {
-			$context = array();
-			
-			foreach ($this->modx->getCollection('modContext') as $value) {
-				if ('mgr' != $value->key) {
-					$context[] = $value->toArray();
-				}
-			}
-			
-			return 1 == count($context) ? 0 : 1;
+			return 1 == $this->modx->getCount('modContext', array(
+				'key:!=' => 'mgr'
+			));
 		}
 				
 		/**
@@ -163,6 +165,8 @@
 				'extensions'		=> '',
 				'placeholder' 		=> 'form',
 				'submit'			=> 'submit',
+				'method'			=> 'post',
+				'handler'			=> 'reload',
 				'tplBulkError'		=> '@INLINE:<li class="[[+class]]">[[+error]]</li>',
 				'tplBulkWrapper'	=> '@INLINE:<p class="error-notices">[[+error]]</p>',
 				'tplError'			=> '@INLINE:<div class="error-notice-desc"><span class="error-notice-desc-inner">[[+error]]</div>',
@@ -178,6 +182,8 @@
 		 * @return Boolean.
 		 */
 		protected function setDefaultProperties() {
+			$this->properties['placeholder'] = rtrim($this->properties['placeholder'], '.').'.';
+			
 			if (is_string($this->properties['validate'])) {
 				$this->properties['validate'] = $this->modx->fromJSON($this->properties['validate']);
 				
@@ -217,58 +223,92 @@
 		 * @return String.
 		 */
 		public function setForm() {
-			$this->modx->lexicon->load('form:default');
-			
-			$this->setValues($this->modx->request->getParameters(array(), 'POST'));
-			
 			if ($validator = $this->getValidator()) {
 				if ($extensions = $this->getExtensions()) {
 					$output = array();
 					
-					foreach ($extensions->setExtentions('Before') as $key => $value) {
-						$output[rtrim($this->properties['placeholder'], '.').'.extensions.'.$key] = $value;
+					$output[$this->properties['placeholder'].'method'] = 'post';
+					$output[$this->properties['placeholder'].'submit'] = $this->properties['submit'];
+					
+					if ('reload' != $this->properties['handler']) {
+						$output[$this->properties['placeholder'].'url'] = $this->modx->makeUrl($this->properties['handler'], null, $this->modx->request->getParameters());
+					} else {
+						$output[$this->properties['placeholder'].'url'] = $this->modx->makeUrl($this->modx->resource->id, null, $this->modx->request->getParameters());
 					}
 					
+					foreach ($extensions->setExtentions('Before') as $key => $value) {
+						$output[$this->properties['placeholder'].'extensions.'.$key] = $value;
+					}
+
 					foreach ($this->getValues() as $key => $value) {
 						if (is_array($value)) {
-							$value = implode(',', $value);
+							$output[$this->properties['placeholder'].$key] = implode(',', $value);
+						} else {
+							$output[$this->properties['placeholder'].$key] = $value;
 						}
-						
-						$output[rtrim($this->properties['placeholder'], '.').'.'.$key] = $value;
 					}
 					
-					if ($this->getMethod('POST', $this->getValues(true))) {
+					if ($this->getMethod('POST', $this->modx->request->getParameters(array(), 'POST'))) {
+						$this->setValues($this->modx->request->getParameters(array(), 'POST'));
+						
+						foreach ($this->getValues() as $key => $value) {
+							if (is_array($value)) {
+								$output[$this->properties['placeholder'].$key] = implode(',', $value);
+							} else {
+								$output[$this->properties['placeholder'].$key] = $value;
+							}
+						}
+						
 						$validator->validate();
 
-						$output[rtrim($this->properties['placeholder'], '.').'.submit'] = true;
-
+						$output[$this->properties['placeholder'].'submitted'] = true;
+		
 						foreach ($extensions->setExtentions('After') as $key => $value) {
-							$output[rtrim($this->properties['placeholder'], '.').$key] = $value;
+							$output[$this->properties['placeholder'].$key] = $value;
 						}
 	
 						if (!$validator->isValid()) {
-							$output[rtrim($this->properties['placeholder'], '.').'.error'] = $validator->getBulkOutput();
+							$output[$this->properties['placeholder'].'error'] = $validator->getBulkOutput();
 						
 							foreach ($validator->getOutput() as $key => $value) {
-								$output[rtrim($this->properties['placeholder'], '.').'.error.'.$key] = $this->getTemplate($this->properties['tplError'], $value);
+								$output[$this->properties['placeholder'].'error.'.$key] = $this->getTemplate($this->properties['tplError'], $value);
 							}
 						} else {
 							$this->setCacheForm($this->getValues());
 							
-							if (isset($this->properties['redirect'])) {
-								$this->modx->sendRedirect($this->modx->makeUrl($this->properties['redirect'], null, null, 'full'));
+							if (isset($this->properties['success'])) {
+								if ('reload' == $this->properties['success']) {
+									$this->modx->sendRedirect($this->modx->makeUrl($this->modx->resource->id, null, $this->modx->request->getParameters(), 'full'));
+								} else {
+									if ('get' == $this->properties['method']) {
+										$this->modx->sendRedirect($this->modx->makeUrl($this->properties['success'], null, $this->getValues(), 'full'));
+									} else {
+										$this->modx->sendRedirect($this->modx->makeUrl($this->properties['success'], null, null, 'full'));
+									}
+								}
 							}
 							
 							if (isset($this->properties['tplValidated'])) {
-								return $this->getTemplate($this->properties['tplValidated'], $output);
+								if (isset($this->properties['tplWrapper'])) {
+									return $this->getTemplate($this->properties['tplWrapper'], array_merge($output, array(
+										'output' => $this->getTemplate($this->properties['tplValidated'], $output)
+									)));
+								} else {
+									return $this->getTemplate($this->properties['tplValidated'], $output);
+								}
 							}
 						}
 					}
-					
-					return $this->getTemplate($this->properties['tpl'], $output);
+
+					if (isset($this->properties['tplWrapper'])) {
+						return $this->getTemplate($this->properties['tplWrapper'], array_merge($output, array(
+							'output' => $this->getTemplate($this->properties['tpl'], $output)
+						)));
+					} else {
+						return $this->getTemplate($this->properties['tpl'], $output);
+					}
 				}
 			}
-
 			return '';
 		}
 		
@@ -425,7 +465,7 @@
 		 */
 		public function getCacheOptions($option = null) {
 			$options = array(
-				xPDO::OPT_CACHE_KEY 	=> rtrim($this->properties['placeholder'], '.').'.'.$this->properties['submit'],
+				xPDO::OPT_CACHE_KEY 	=> $this->properties['placeholder'].$this->properties['submit'],
 				xPDO::OPT_CACHE_HANDLER => $this->modx->getOption(xPDO::OPT_CACHE_HANDLER, null, 'xPDOFileCache'),
 				xPDO::OPT_CACHE_EXPIRES => 60
 			);
@@ -442,7 +482,7 @@
 		 * @return String.
 		 */
 		protected function setCacheKey() {
-			return $_SESSION[$this->getCacheOptions(xPDO::OPT_CACHE_KEY)] = rtrim($this->properties['placeholder'], '.').'.'.time();
+			return $_SESSION[$this->getCacheOptions(xPDO::OPT_CACHE_KEY)] = $this->properties['placeholder'].time();
 		}
 		
 		/**

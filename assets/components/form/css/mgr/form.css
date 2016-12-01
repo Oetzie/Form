@@ -1,0 +1,8 @@
+.x-toolbar-cell .x-form-check-wrap .x-form-cb-label {
+	padding-left: 22px !important;
+	line-height: 12px;
+}
+
+.x-toolbar-cell .x-form-check-wrap .x-form-cb-label:before {
+	top: -3px;
+}

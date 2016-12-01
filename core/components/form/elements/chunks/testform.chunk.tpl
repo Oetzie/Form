@@ -1,7 +1,8 @@
 [[!Form?
-    &redirect=`14`
+	&method=`contact`
+    &success=`14`
     
-    &extensions=`save,recaptcha,email`
+    &extensions=`Save,Recaptcha,Email`
     &validate=`{"sex": ["required"], "name": ["required"], "phone": ["phone", "required"], "email":["email", "required"], "content": ["required"]}`
 
     &saveName=`Test formulier`

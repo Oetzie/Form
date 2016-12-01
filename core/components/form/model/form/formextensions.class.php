@@ -304,7 +304,14 @@
 					}
 					
 					$mail->set(modMail::MAIL_SUBJECT, $this->form->getTemplate('@INLINE:'.$subject, $output));
-					$mail->set(modMail::MAIL_BODY, $this->form->getTemplate($tpl, $output));
+					
+					if (null !== ($tplWrapper = $this->form->properties[$type.'TplWrapper'])) {
+						$mail->set(modMail::MAIL_BODY, $this->form->getTemplate($tplWrapper, array(
+							'output' => $this->form->getTemplate($tpl, $output)
+						)));
+					} else {
+						$mail->set(modMail::MAIL_BODY, $this->form->getTemplate($tpl, $output));
+					}
 					
 					if ($mail->send()) {
 						return true;

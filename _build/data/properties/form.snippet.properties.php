@@ -63,6 +63,15 @@
 	        'value'		=> 'set',
 	        'area'		=> PKG_NAME_LOWER,
 	        'lexicon' 	=> PKG_NAME_LOWER.':default'
+	    ),
+	    array(
+	        'name' 		=> 'method',
+	        'desc' 		=> 'form_snippet_method_desc',
+	        'type' 		=> 'textfield',
+	        'options' 	=> '',
+	        'value'		=> 'post',
+	        'area'		=> PKG_NAME_LOWER,
+	        'lexicon' 	=> PKG_NAME_LOWER.':default'
 	    )
 	);
 

@@ -80,8 +80,10 @@
 		 */
 		public function prepareQueryBeforeCount(xPDOQuery $c) {
 			$c->innerjoin('modResource', 'modResource', array('modResource.id = FormFormSave.resource_id'));
+			$c->innerjoin('modContext', 'modContext', array('modContext.key = modResource.context_key'));
 			$c->select($this->modx->getSelectColumns('FormFormSave', 'FormFormSave'));
-			$c->select($this->modx->getSelectColumns('modResource', 'modResource', 'resource_', array('pagetitle', 'context_key')));
+			$c->select($this->modx->getSelectColumns('modResource', 'modResource', 'resource_', array('pagetitle')));
+			$c->select($this->modx->getSelectColumns('modContext', 'modContext', 'context_', array('key', 'name')));
 			
 			$context = $this->getProperty('context');
 			
@@ -105,7 +107,8 @@
 				$c->where(array(
 					'FormSave.name:LIKE' 			=> '%'.$query.'%',
 					'OR:FormSave.data:LIKE' 		=> '%'.$query.'%',
-					'OR:modResource.pagetitle:LIKE' => '%'.$query.'%'
+					'OR:modResource.pagetitle:LIKE' => '%'.$query.'%',
+					'OR:modResource.longtitle:LIKE' => '%'.$query.'%'
 				));
 			}
 			
@@ -117,11 +120,9 @@
 		 * @param Object $query.
 		 * @return Array.
 		 */
-		public function prepareRow(xPDOObject $object) {
+		public function prepareRow(xPDOObject $object) {			
 			$array = array_merge($object->toArray(), array(
 				'resource_url'			=> $this->modx->makeUrl($object->resource_id, '', '', 'full'),
-				'resource_name' 		=> $object->resource_pagetitle,
-				'resource_name_alias' 	=> $object->resource_pagetitle.' ('.$object->resource_id.')',
 				'data'					=> unserialize($object->data),
 				'data_formatted'		=> implode(', ', array_map(function($value) {
 					if (is_array($value['value'])) {

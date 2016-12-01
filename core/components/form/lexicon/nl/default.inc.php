@@ -41,6 +41,7 @@
 	$_lang['form_snippet_tplbulkwrapper_desc']						= 'De template de samenvattingserror wrapper. Deze kan beginnen met @INLINE:, @CHUNK: of chunk naam.';
 	$_lang['form_snippet_tplerror_desc']							= 'De template voor een error. Deze kan beginnen met @INLINE:, @CHUNK: of chunk naam.';
 	$_lang['form_snippet_type_desc']								= 'Het type van het formulier. Dit kan "set" of "get" zijn, standaard is "set".';
+	$_lang['form_snippet_method_desc']								= 'De methode van het formulier. Dit kan "post" of "get" zijn, standaard is "post".';
 		
 	$_lang['form.formsave']											= 'Formulieren';
 	$_lang['form.formsaves']										= 'Formulieren';
@@ -68,63 +69,35 @@
 		
 	$_lang['form.filter_context']									= 'Filter op context...';
 	$_lang['form.filter_status']									= 'Filter op status...';
+	$_lang['form.auto_refresh_grid']								= 'Automatisch vernieuwen';
 	$_lang['form.form']												= 'Formulier';
 	$_lang['form.valid']											= 'Compleet';
 	$_lang['form.notvalid']											= 'Incompleet';
 	$_lang['form.empty']											= 'Niet ingevuld';
-	$_lang['form.error_bulk']										= 'Er zijn een aantal fouten in het formulier opgetreden, vul het formulier aan en probeer nog een keer.';
 	
-	$_lang['form.error_required']									= 'Dit veld is verplicht.';
-	$_lang['form.error_blank']										= 'Dit veld mag alleen leeg zijn.';
-	$_lang['form.error_equals']										= 'Dit veld moet gelijk zijn aan "[[+equals]]".';
-	$_lang['form.error_equalsto']									= 'Dit veld moet gelijk zijn aan het veld "[[+equalsTo]]".';
-	$_lang['form.error_contains']									= 'Dit veld moet "[[+contains]]" bevatten.';
-	$_lang['form.error_minlength']									= 'Dit veld moet minimaal [[+minLength]] karakters hebben.';
-	$_lang['form.error_maxlength']									= 'Dit veld mag maximaal [[+maxLength]] karakters hebben.';
-	$_lang['form.error_betweenlength']								= 'Dit veld moet tussen [[+minLength]] en [[+maxLength]] karakters zijn.';
-	$_lang['form.error_minvalue']									= 'Dit veld moet groter zijn dan [[+minValue]].';
-	$_lang['form.error_maxvalue']									= 'Dit veld moet kleiner zijn dan [[+maxValue]].';
-	$_lang['form.error_betweenvalue']								= 'Dit veld moet tussen [[+minValue]] en [[+maxValue]] zijn.';
-	$_lang['form.error_regex']										= 'Dit veld moet voldoen aan "[[+regex]]".';
-	$_lang['form.error_email']										= 'Dit veld is geen geldig e-mailadres.';
-	$_lang['form.error_ip']											= 'Dit veld is geen geldig IP nummer.';
-	$_lang['form.error_url']										= 'Dit veld is geen geldig webadres.';
-	$_lang['form.error_iban']										= 'Dit veld is geen geldig IBAN nummer.';
-	$_lang['form.error_phone']										= 'Dit veld is geen geldig telefoonnummer.';
-	$_lang['form.error_number']										= 'Dit veld mag alleen getallen bevatten.';
-	$_lang['form.error_string']										= 'Dit veld mag alleen letters bevatten.';
-	$_lang['form.error_date']										= 'Dit veld is geen geldige datum.';
-	$_lang['form.error_mindate']									= 'Dit veld moet later zijn dan [[+minDate]].';
-	$_lang['form.error_maxdate']									= 'Dit veld moet eerder zijn dan [[+maxDate]].';
-	$_lang['form.error_betweendate']								= 'Dit veld moet tussen [[+minDate]] en [[+maxDate]] zijn.';
-	$_lang['form.error_recaptcha']									= 'Dit veld met reCAPTCHA is niet juist.';
-	
-	$_lang['form.error2_required']									= 'Dit veld is niet ingevuld.';
-	$_lang['form.error2_blank']										= 'Dit veld was niet leeg.';
-	$_lang['form.error2_equals']									= 'Dit veld was niet gelijk aan "[[+equals]]".';
-	$_lang['form.error2_equalsto']									= 'Dit veld was niet gelijk aan het veld "[[+equalsTo]]".';
-	$_lang['form.error2_contains']									= 'Dit veld bevatte geen "[[+contains]]".';
-	$_lang['form.error2_minlength']									= 'Dit veld had geen minimaal [[+minLength]] karakters.';
-	$_lang['form.error2_maxlength']									= 'Dit veld had geen maximaal [[+maxLength]] karakters.';
-	$_lang['form.error2_betweenlength']								= 'Dit veld had niet tussen [[+minLength]] en [[+maxLength]] karakters.';
-	$_lang['form.error2_minvalue']									= 'Dit veld was niet groter dan [[+minValue]].';
-	$_lang['form.error2_maxvalue']									= 'Dit veld was niet kleiner dan [[+maxValue]].';
-	$_lang['form.error2_betweenvalue']								= 'Dit veld was niet tussen [[+minValue]] en [[+maxValue]].';
-	$_lang['form.error2_regex']										= 'Dit veld voldeed niet aan "[[+regex]]".';
-	$_lang['form.error2_email']										= 'Dit veld was geen geldig e-mailadres.';
-	$_lang['form.error2_ip']										= 'Dit veld was geen geldig IP nummer.';
-	$_lang['form.error2_url']										= 'Dit veld was geen geldig webadres.';
-	$_lang['form.error2_iban']										= 'Dit veld was geen geldig IBAN nummer.';
-	$_lang['form.error2_phone']										= 'Dit veld was geen geldig telefoonnummer.';
-	$_lang['form.error2_number']									= 'Dit veld bevatte niet alleen getallen.';
-	$_lang['form.error2_string']									= 'Dit veld bevatte niet alleen letters.';
-	$_lang['form.error2_date']										= 'Dit veld was geen geldige datum.';
-	$_lang['form.error2_mindate']									= 'Dit veld was niet later dan [[+minDate]].';
-	$_lang['form.error2_maxdate']									= 'Dit veld was niet eerder dan [[+maxDate]].';
-	$_lang['form.error2_betweendate']								= 'Dit veld was niet tussen [[+minDate]] en [[+maxDate]].';
-	$_lang['form.error2_recaptcha']									= 'Dit veld met reCAPTCHA was niet juist.';
-
-	$_lang['form.error_sendemail']									= 'De achterliggende e-mail kon niet verstuurd worden, probeer het nog een keer.';
-	$_lang['form.error_sendrespondemail']							= 'De achterliggende e-mail kon niet verstuurd worden, probeer het nog een keer.';
+	$_lang['form.has_error_required']								= 'Dit veld is niet ingevuld.';
+	$_lang['form.has_error_blank']									= 'Dit veld was niet leeg.';
+	$_lang['form.has_error_equals']									= 'Dit veld was niet gelijk aan "[[+equals]]".';
+	$_lang['form.has_error_equalsto']								= 'Dit veld was niet gelijk aan het veld "[[+equalsTo]]".';
+	$_lang['form.has_error_contains']								= 'Dit veld bevatte geen "[[+contains]]".';
+	$_lang['form.has_error_minlength']								= 'Dit veld had geen minimaal [[+minLength]] karakters.';
+	$_lang['form.has_error_maxlength']								= 'Dit veld had geen maximaal [[+maxLength]] karakters.';
+	$_lang['form.has_error_betweenlength']							= 'Dit veld had niet tussen [[+minLength]] en [[+maxLength]] karakters.';
+	$_lang['form.has_error_minvalue']								= 'Dit veld was niet groter dan [[+minValue]].';
+	$_lang['form.has_error_maxvalue']								= 'Dit veld was niet kleiner dan [[+maxValue]].';
+	$_lang['form.has_error_betweenvalue']							= 'Dit veld was niet tussen [[+minValue]] en [[+maxValue]].';
+	$_lang['form.has_error_regex']									= 'Dit veld voldeed niet aan "[[+regex]]".';
+	$_lang['form.has_error_email']									= 'Dit veld was geen geldig e-mailadres.';
+	$_lang['form.has_error_ip']										= 'Dit veld was geen geldig IP nummer.';
+	$_lang['form.has_error_url']									= 'Dit veld was geen geldig webadres.';
+	$_lang['form.has_error_iban']									= 'Dit veld was geen geldig IBAN nummer.';
+	$_lang['form.has_error_phone']									= 'Dit veld was geen geldig telefoonnummer.';
+	$_lang['form.has_error_number']									= 'Dit veld bevatte niet alleen getallen.';
+	$_lang['form.has_error_string']									= 'Dit veld bevatte niet alleen letters.';
+	$_lang['form.has_error_date']									= 'Dit veld was geen geldige datum.';
+	$_lang['form.has_error_mindate']								= 'Dit veld was niet later dan [[+minDate]].';
+	$_lang['form.has_error_maxdate']								= 'Dit veld was niet eerder dan [[+maxDate]].';
+	$_lang['form.has_error_betweendate']							= 'Dit veld was niet tussen [[+minDate]] en [[+maxDate]].';
+	$_lang['form.has_error_recaptcha']								= 'Dit veld met reCAPTCHA was niet juist.';
 	
 ?>

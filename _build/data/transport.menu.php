@@ -17,7 +17,7 @@
 	    'namespace' 	=> PKG_NAME_LOWER,
 	    'parent' 		=> 'components',
 	    'description' 	=> PKG_NAME_LOWER.'.desc',
-	    'icon' 			=> '',
+	    'icon' 			=> 'share-alt',
 	    'menuindex' 	=> 0,
 	    'params' 		=> '',
 	    'handler' 		=> '',

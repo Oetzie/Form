@@ -3,7 +3,6 @@ Form.grid.FormSave = function(config) {
 
 	config.tbar = [{
 		text		: _('bulk_actions'),
-		cls			:'primary-button',
 		menu		: [{
 			text		: _('form.formsaves_remove_selected'),
 			handler		: this.removeSelectedFormSaves,
@@ -13,6 +12,17 @@ Form.grid.FormSave = function(config) {
 			handler		: this.resetFormSave,
 			scope		: this
 		}]
+	}, {
+		xtype		: 'checkbox',
+		name		: 'form-refresh-formsave',
+        id			: 'form-refresh-formsave',
+		boxLabel	: _('form.auto_refresh_grid'),
+		listeners	: {
+			'check'		: {
+				fn 			: this.autoRefresh,
+				scope 		: this	
+			},
+		}
 	}, '->', {
     	xtype		: 'form-combo-status',
     	name		: 'form-filter-status',
@@ -20,24 +30,27 @@ Form.grid.FormSave = function(config) {
         emptyText	: _('form.filter_status'),
         listeners	: {
         	'select'	: {
-	            fn			: this.filterStatus,
-	            scope		: this   
+	            	fn		: this.filterStatus,
+	            	scope	: this   
 		    }
-		},
-		width: 250
+		}
     }, {
     	xtype		: 'modx-combo-context',
-    	hidden		: 0 == parseInt(Form.config.context) ? true : false,
+    	hidden		: Form.config.context,
     	name		: 'form-filter-context',
         id			: 'form-filter-context',
+        value		: MODx.config.default_context,
         emptyText	: _('form.filter_context'),
         listeners	: {
         	'select'	: {
-	            fn			: this.filterContext,
-	            scope		: this   
+	            	fn		: this.filterContext,
+	            	scope	: this   
 		    }
 		},
-		width: 250
+		baseParams	: {
+			action		: 'context/getlist',
+			exclude		: 'mgr'
+		}
     }, {
         xtype		: 'textfield',
         name 		: 'form-filter-search',
@@ -48,7 +61,7 @@ Form.grid.FormSave = function(config) {
 	        	fn			: this.filterSearch,
 	        	scope		: this
 	        },
-	        'render'	: {
+	        'render'		: {
 		        fn			: function(cmp) {
 			        new Ext.KeyMap(cmp.getEl(), {
 				        key		: Ext.EventObject.ENTER,
@@ -56,7 +69,7 @@ Form.grid.FormSave = function(config) {
 				        scope	: cmp
 			        });
 		        },
-		        scope		: this
+		        scope	: this
 	        }
         }
     }, {
@@ -112,12 +125,6 @@ Form.grid.FormSave = function(config) {
             fixed		: true,
 			width		: 200,
 			renderer	: this.renderDate
-        }, {
-            header		: _('context'),
-            dataIndex	: 'resource_context_key',
-            sortable	: true,
-            hidden		: true,
-            editable	: false
         }]
     });
     
@@ -127,44 +134,71 @@ Form.grid.FormSave = function(config) {
         id			: 'form-grid-formsave',
         url			: Form.config.connector_url,
         baseParams	: {
-        	action		: 'mgr/formsave/getlist'
+        	action		: 'mgr/formsave/getlist',
+        	context		: MODx.config.default_context
         },
-        fields		: ['id', 'resource_id', 'resource_url', 'resource_name', 'resource_name_alias', 'resource_context_key', 'name', 'ip', 'data', 'data_formatted', 'active', 'editedon'],
+        fields		: ['id', 'context_key', 'context_name', 'resource_id', 'url', 'pagetitle', 'name', 'ip', 'data', 'data_formatted', 'active', 'editedon'],
         paging		: true,
         pageSize	: MODx.config.default_per_page > 30 ? MODx.config.default_per_page : 30,
         sortBy		: 'id',
-        grouping	: 0 == parseInt(Form.config.context) ? false : true,
-        groupBy		: 'resource_context_key',
-        singleText	: _('form.formsave'),
-        pluralText	: _('form.formsaves')
+        gridRefresh	: {
+	        timer 		: null,
+	        duration	: 30,
+	        count 		: 0
+        }
     });
     
     Form.grid.FormSave.superclass.constructor.call(this, config);
 };
 
 Ext.extend(Form.grid.FormSave, MODx.grid.Grid, {
+	autoRefresh: function(tf, nv) {
+		var scope = this;
+		
+		if (nv) {
+			scope.config.gridRefresh.timer = setInterval(function() {
+				tf.setBoxLabel(_('form.auto_refresh_grid') + ' (' + (scope.config.gridRefresh.duration - scope.config.gridRefresh.count) + ')');
+				
+				if (0 == (scope.config.gridRefresh.duration - scope.config.gridRefresh.count)) {
+					scope.config.gridRefresh.count = 0;
+					
+					scope.getBottomToolbar().changePage(1);
+				} else {
+					scope.config.gridRefresh.count++;
+				}
+			}, 1000);
+		} else {
+			clearInterval(scope.config.gridRefresh.timer);
+		}
+	},
 	filterStatus: function(tf, nv, ov) {
         this.getStore().baseParams.status = tf.getValue();
+        
         this.getBottomToolbar().changePage(1);
     },
 	filterContext: function(tf, nv, ov) {
         this.getStore().baseParams.context = tf.getValue();
+        
         this.getBottomToolbar().changePage(1);
     },
     filterSearch: function(tf, nv, ov) {
         this.getStore().baseParams.query = tf.getValue();
+        
         this.getBottomToolbar().changePage(1);
     },
     clearFilter: function() {
     	this.getStore().baseParams.status = '';
-    	this.getStore().baseParams.context = '';
+    	this.getStore().baseParams.context = MODx.config.default_context;
 	    this.getStore().baseParams.query = '';
+	    
 	    Ext.getCmp('form-filter-status').reset();
 	    Ext.getCmp('form-filter-context').reset();
 	    Ext.getCmp('form-filter-search').reset();
+	    
         this.getBottomToolbar().changePage(1);
     },
     getMenu: function() {
+	    console.log(this.menu.record.data);
         return [{
 	        text	: _('form.formsave_show'),
 	        handler	: this.showFormSave
@@ -196,14 +230,14 @@ Ext.extend(Form.grid.FormSave, MODx.grid.Grid, {
     },
     removeFormSave: function(btn, e) {
     	MODx.msg.confirm({
-        	title 		: _('form.formsave_remove'),
-        	text		: _('form.formsave_remove_confirm'),
-        	url			: Form.config.connector_url,
-        	params		: {
-            	action		: 'mgr/formsave/remove',
-            	id			: this.menu.record.id
+        	title 	: _('form.formsave_remove'),
+        	text	: _('form.formsave_remove_confirm'),
+        	url		: Form.config.connector_url,
+        	params	: {
+            	action	: 'mgr/formsave/remove',
+            	id		: this.menu.record.id
             },
-            listeners	: {
+            listeners: {
             	'success'	: {
             		fn			: this.refresh,
             		scope		: this
@@ -219,14 +253,14 @@ Ext.extend(Form.grid.FormSave, MODx.grid.Grid, {
         }
         
     	MODx.msg.confirm({
-        	title 		: _('form.formsave_remove_selected'),
-        	text		: _('form.formsave_remove_selected_confirm'),
-        	url			: Form.config.connector_url,
-        	params		: {
-            	action		: 'mgr/formsave/removeselected',
-            	ids			: cs
+        	title 	: _('form.formsave_remove_selected'),
+        	text	: _('form.formsave_remove_selected_confirm'),
+        	url		: Form.config.connector_url,
+        	params	: {
+            	action	: 'mgr/formsave/removeselected',
+            	ids		: cs
             },
-            listeners	: {
+            listeners: {
             	'success'	: {
             		fn			: function() {
             			this.getSelectionModel().clearSelections(true);
@@ -239,13 +273,13 @@ Ext.extend(Form.grid.FormSave, MODx.grid.Grid, {
     },
     resetFormSave: function(btn, e) {
     	MODx.msg.confirm({
-        	title 		: _('form.formsave_reset'),
-        	text		: _('form.formsave_reset_confirm'),
-        	url			: Form.config.connector_url,
-        	params		: {
-            	action		: 'mgr/formsave/reset'
+        	title 	: _('form.formsave_reset'),
+        	text	: _('form.formsave_reset_confirm'),
+        	url		: Form.config.connector_url,
+        	params	: {
+            	action	: 'mgr/formsave/reset'
             },
-            listeners	: {
+            listeners: {
             	'success'	: {
             		fn			: this.refresh,
             		scope		: this
@@ -278,34 +312,38 @@ Form.window.ShowFormSave = function(config) {
     Ext.applyIf(config, {
     	autoHeight	: false,
     	height		: 500,
-    	width		: 800,
+    	width		: 700,
         title 		: _('form.form') + ': ' + config.record.name,
 	    labelAlign	: 'left',
-	    labelWidth	: 250,
-        fields		: this.getFormData(config.record.data)
+	    labelWidth	: 200,
+        fields		: this.formData(config.record.data)
 	});
     
     Form.window.ShowFormSave.superclass.constructor.call(this, config);
 };
 
 Ext.extend(Form.window.ShowFormSave, MODx.Window, {
-	getFormData : function(data) {
-		var fields = [];
-
-		Ext.iterate(data, function(index, element) {
+	formData : function(data) {
+		elements = [];
+		
+		for (key in data) {
+			var element = data[key];
+			
 			switch (element.type) {
 				case 'radio':
 				case 'checkbox':
 					var items = [];
 					
-					Ext.iterate(element.values, function(index, value) {
-						items.push({
-						    boxLabel	: value,
-						    checked		: (typeof element.value == 'object' && -1 != element.value.indexOf(index)) || index == element.value ? true : false,
-						});
-					});
-				
-					fields.push({
+					for (value in element.values) {
+						if (typeof element.values[value] != 'function') {
+							items.push({
+							    boxLabel	: element.values[value],
+							    checked		: (typeof element.value == 'object' && -1 != element.value.indexOf(value)) || value == element.value ? true : false,
+							});
+						}
+					}
+					
+					elements.push({
 						xtype		: element.type + 'group',
 						fieldLabel	: element.label,
 						items		: items,
@@ -316,7 +354,7 @@ Ext.extend(Form.window.ShowFormSave, MODx.Window, {
 				
 					break;
 				case 'select':
-					fields.push({
+					elements.push({
 						xtype		: 'textfield',
 				        fieldLabel	: element.label,
 				        value		: undefined == element.values[element.value] ? element.value : element.values[element.value],
@@ -326,7 +364,7 @@ Ext.extend(Form.window.ShowFormSave, MODx.Window, {
 				    
 					break;
 				case 'textarea':
-					fields.push({
+					elements.push({
 						xtype		: 'textarea',
 				        fieldLabel	: element.label,
 				        value 		: element.value,
@@ -336,7 +374,7 @@ Ext.extend(Form.window.ShowFormSave, MODx.Window, {
 			    
 					break;
 				case 'password':
-					fields.push({
+					elements.push({
 						xtype		: 'textfield',
 						inputType	: 'password',
 				        fieldLabel	: element.label,
@@ -347,7 +385,7 @@ Ext.extend(Form.window.ShowFormSave, MODx.Window, {
 				    
 					break;
 				default:
-					fields.push({
+					elements.push({
 						xtype		: 'textfield',
 				        fieldLabel	: element.label,
 				        value		: element.value,
@@ -358,16 +396,17 @@ Ext.extend(Form.window.ShowFormSave, MODx.Window, {
 					break;
 			}
 			
-			if (null != element.error) {
-			   fields.push({
+			if (!element.valid) {
+			   elements.push({
 		        	xtype		: 'label',
-		            html		: _('form.error2_' + element.error.type.toLowerCase(), element.error),
+		        	fieldLabel	: '&nbsp;',
+		            html		: _('form.has_error_' + element.error.type.toLowerCase(), element.error),
 		            cls			: 'desc-under red'
 		        });
 		    }
-		});
-
-		return fields;
+		}
+		
+		return elements;
 	}
 });
 
@@ -382,7 +421,7 @@ Form.combo.Status = function(config) {
             fields	: ['type','label'],
             data	: [
                 ['1', _('form.valid')],
-				['0', _('form.notvalid')]
+               	['0', _('form.notvalid')]
             ]
         }),
         remoteSort	: ['label', 'asc'],

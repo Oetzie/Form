@@ -27,9 +27,13 @@
 		 * @acces public.
 		 */
 		public function loadCustomCssJs() {
-			$this->addJavascript($this->modx->getOption('js_url', $this->form->config).'mgr/widgets/home.panel.js');
-			$this->addJavascript($this->modx->getOption('js_url', $this->form->config).'mgr/widgets/formsave.grid.js');
-			$this->addLastJavascript($this->modx->getOption('js_url', $this->form->config).'mgr/sections/home.js');
+			$this->addCss($this->form->config['css_url'].'mgr/form.css');
+			
+			$this->addJavascript($this->form->config['js_url'].'mgr/widgets/home.panel.js');
+			
+			$this->addJavascript($this->form->config['js_url'].'mgr/widgets/formsave.grid.js');
+			
+			$this->addLastJavascript($this->form->config['js_url'].'mgr/sections/home.js');
 		}
 		
 		/**
@@ -45,7 +49,7 @@
 		* @return String.
 		*/
 		public function getTemplateFile() {
-			return $this->modx->getOption('templates_path', $this->form->config).'home.tpl';
+			return $this->form->config['templates_path'].'home.tpl';
 		}
 	}
 

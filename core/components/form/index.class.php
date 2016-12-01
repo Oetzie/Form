@@ -36,7 +36,8 @@
 		public function initialize() {
 			$this->form = $this->modx->getService('form', 'Form', $this->modx->getOption('form.core_path', null, $this->modx->getOption('core_path').'components/form/').'model/form/');
 
-			$this->addJavascript($this->modx->getOption('js_url', $this->form->config).'mgr/form.js');
+			$this->addJavascript($this->form->config['js_url'].'mgr/form.js');
+			
 			$this->addHtml('<script type="text/javascript">
 				Ext.onReady(function() {
 					MODx.config.help_url = "http://rtfm.modx.com/extras/revo/'.$this->form->getHelpUrl().'";
@@ -53,7 +54,7 @@
 		 * @return Array.
 		 */
 		public function getLanguageTopics() {
-			return array('form:default');
+			return $this->form->config['lexicons'];
 		}
 		
 		/**

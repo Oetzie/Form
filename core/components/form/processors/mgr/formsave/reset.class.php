@@ -45,6 +45,16 @@
 		 * @acces public.
 		 * @return Mixed.
 		 */
+		public function initialize() {
+			$this->form = $this->modx->getService('form', 'Form', $this->modx->getOption('form.core_path', null, $this->modx->getOption('core_path').'components/form/').'model/form/');
+			
+			return parent::initialize();
+		}
+		
+		/**
+		 * @acces public.
+		 * @return Mixed.
+		 */
 		public function process() {
 			$this->modx->removeCollection($this->classKey, array());
 			
