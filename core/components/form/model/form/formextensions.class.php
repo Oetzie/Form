@@ -64,7 +64,11 @@
 					if (method_exists($this, '_'.$extension.ucfirst($prefix))) {
 						$this->{'_'.$extension.ucfirst($prefix)}();
 					} else {
-						if (null !== ($extension = $this->modx->getObject('modSnippet', array('name' => $extension)))) {
+						$extension = array(
+							'name' => $extension
+						);
+						
+						if (null !== ($extension = $this->modx->getObject('modSnippet', $extension))) {
 							$extension->process(array(
 								'prefix'	=> $prefix,
 								'form'		=> &$this->form
@@ -75,6 +79,35 @@
 			}
 
 			return $this->getOutput();
+		}
+		
+		
+		/**
+		 * @acces public.
+		 * @param String $extension.
+		 * @param Array $properties.
+		 * @param String $prefix.
+		 * @return Boolean.
+		 */
+		public function setExtension($extension, $properties = array(), $prefix = 'After') {
+			$this->form->setScriptProperties($properties);
+			
+			if (method_exists($this, '_'.$extension.ucfirst($prefix))) {
+				return $this->{'_'.$extension.ucfirst($prefix)}();
+			} else {
+				$extension = array(
+					'name' => $extension
+				);
+				
+				if (null !== ($extension = $this->modx->getObject('modSnippet', $extension))) {
+					return $extension->process(array(
+						'prefix'	=> $prefix,
+						'form'		=> &$this->form
+					));
+				}
+			}
+			
+			return false;
 		}
 		
 		/**
@@ -259,7 +292,7 @@
 										}
 									}
 	
-									$emails[$key]['emails'][$email] = $name;
+									$emails[$key]['emails'][$this->form->getTemplate('@INLINE:'.$email, array())] = $this->form->getTemplate('@INLINE:'.$name, array());
 								}
 							}
 						}

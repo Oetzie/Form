@@ -172,7 +172,7 @@
 				'tplError'			=> '@INLINE:<div class="error-notice-desc"><span class="error-notice-desc-inner">[[+error]]</div>',
 				'type'				=> 'set',
 				'validate'			=> '{}'
-			), $scriptProperties);
+			), $this->properties, $scriptProperties);
 			
 			return $this->setDefaultProperties();
 		}
@@ -240,36 +240,28 @@
 						$output[$this->properties['placeholder'].'extensions.'.$key] = $value;
 					}
 
-					foreach ($this->getValues() as $key => $value) {
-						if (is_array($value)) {
-							$output[$this->properties['placeholder'].$key] = implode(',', $value);
-						} else {
-							$output[$this->properties['placeholder'].$key] = $value;
-						}
+					foreach ($this->getValuesPlaceholders() as $key => $value) {
+						$output[$this->properties['placeholder'].$key] = $value;
 					}
 					
 					if ($this->getMethod('POST', $this->modx->request->getParameters(array(), 'POST'))) {
 						$this->setValues($this->modx->request->getParameters(array(), 'POST'));
 						
-						foreach ($this->getValues() as $key => $value) {
-							if (is_array($value)) {
-								$output[$this->properties['placeholder'].$key] = implode(',', $value);
-							} else {
-								$output[$this->properties['placeholder'].$key] = $value;
-							}
+						$output[$this->properties['placeholder'].'submitted'] = true;
+						
+						foreach ($this->getValuesPlaceholders() as $key => $value) {
+							$output[$this->properties['placeholder'].$key] = $value;
 						}
 						
 						$validator->validate();
 
-						$output[$this->properties['placeholder'].'submitted'] = true;
-		
 						foreach ($extensions->setExtentions('After') as $key => $value) {
 							$output[$this->properties['placeholder'].$key] = $value;
 						}
-	
+
 						if (!$validator->isValid()) {
 							$output[$this->properties['placeholder'].'error'] = $validator->getBulkOutput();
-						
+							
 							foreach ($validator->getOutput() as $key => $value) {
 								$output[$this->properties['placeholder'].'error.'.$key] = $this->getTemplate($this->properties['tplError'], $value);
 							}
@@ -416,6 +408,23 @@
 			foreach ($this->values as $key => $value) {
 				if ($key != $this->properties['submit']) {
 					$values[$key] = $value;
+				}
+			}
+			
+			return $values;
+		}
+		
+		/**
+		 * @acces public.
+		 * @return Boolean $all.
+		 * @return Array.
+		 */
+		public function getValuesPlaceholders($all = false) {
+			$values = $this->getValues();
+			
+			foreach ($values as $key => $value) {
+				if (is_array($value)) {
+					$values[$key] = implode(',', $value);
 				}
 			}
 			
