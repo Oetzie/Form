@@ -3,6 +3,18 @@ Form
 ----------------------
 
 ----------------------
+Version: 1.1.0
+Released: 2017-02-02
+----------------------
+- Update
+	- Form encrypting
+	- Form email attachments
+	- Form validators updated
+	- Property keys changed
+	- 75% new codes
+- Bug fixes
+
+----------------------
 Version: 1.0.1
 Released: 2016-11-21
 ----------------------

@@ -25,6 +25,7 @@
 	$_lang['form.fields_required'] 									= 'Velden gemarkeerd met een sterretje zijn verplicht.';
 	
 	$_lang['form.error_bulk']										= 'Er zijn een aantal fouten in het formulier opgetreden, vul het formulier aan en probeer nog een keer.';
+	
 	$_lang['form.error_required']									= 'Dit veld is verplicht.';
 	$_lang['form.error_blank']										= 'Dit veld mag alleen leeg zijn.';
 	$_lang['form.error_equals']										= 'Dit veld moet gelijk zijn aan "[[+equals]]".';
@@ -42,14 +43,16 @@
 	$_lang['form.error_url']										= 'Dit veld is geen geldig webadres.';
 	$_lang['form.error_iban']										= 'Dit veld is geen geldig IBAN nummer.';
 	$_lang['form.error_phone']										= 'Dit veld is geen geldig telefoonnummer.';
-	$_lang['form.error_number']										= 'Dit veld mag alleen getallen bevatten.';
-	$_lang['form.error_string']										= 'Dit veld mag alleen letters bevatten.';
+	$_lang['form.error_number']										= 'Dit veld mag alleen cijfers bevatten.';
+	$_lang['form.error_alpha']										= 'Dit veld mag alleen letters bevatten.';
+	$_lang['form.error_alphanumeric']								= 'Dit veld mag alleen letters en cijfers bevatten.';
 	$_lang['form.error_date']										= 'Dit veld is geen geldige datum.';
 	$_lang['form.error_mindate']									= 'Dit veld moet later zijn dan [[+minDate]].';
 	$_lang['form.error_maxdate']									= 'Dit veld moet eerder zijn dan [[+maxDate]].';
 	$_lang['form.error_betweendate']								= 'Dit veld moet tussen [[+minDate]] en [[+maxDate]] zijn.';
-	$_lang['form.error_recaptcha']									= 'Dit veld met reCAPTCHA is niet juist.';
+	$_lang['form.error_extension']									= 'Dit bestand heeft geen geldige extensie.';
+	
+	$_lang['form.error_recaptcha']									= 'Geef aan dat je geen robot bent.';
 	$_lang['form.error_sendemail']									= 'De achterliggende e-mail kon niet verstuurd worden, probeer het nog een keer.';
-	$_lang['form.error_sendrespondemail']							= 'De achterliggende e-mail kon niet verstuurd worden, probeer het nog een keer.';
 	
 ?>

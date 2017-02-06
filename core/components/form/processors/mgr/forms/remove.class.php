@@ -22,6 +22,26 @@
 	 * Suite 330, Boston, MA 02111-1307 USA
 	 */
 	 
-	class FormFormSave extends xPDOSimpleObject {}
-
+	class FormFormsRemoveProcessor extends modObjectRemoveProcessor {
+		/**
+		 * @acces public.
+		 * @var String.
+		 */
+		public $classKey = 'FormForms';
+		
+		/**
+		 * @acces public.
+		 * @var Array.
+		 */
+		public $languageTopics = array('form:default');
+		
+		/**
+		 * @acces public.
+		 * @var String.
+		 */
+		public $objectType = 'form.forms';
+	}
+	
+	return 'FormFormsRemoveProcessor';
+	
 ?>

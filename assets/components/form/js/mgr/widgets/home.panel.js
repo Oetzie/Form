@@ -21,10 +21,10 @@ Form.panel.Home = function(config) {
             	border		: false
             },
             items		: [{
-            	html			: '<p>' + _('form.formsave_desc') + '</p>',
+            	html			: '<p>' + _('form.forms_desc') + '</p>',
                 bodyCssClass	: 'panel-desc'
             }, {
-                xtype			: 'form-grid-formsave',
+                xtype			: 'form-grid-forms',
                 cls				: 'main-wrapper',
                 preventRender	: true
             }]

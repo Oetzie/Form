@@ -53,276 +53,301 @@
 		
 		/**
 		 * @acces public.
-		 * @param String $prefix.
+		 * @param String $event.
 		 * @return Array.
 		 */
-		public function setExtentions($prefix = 'After') {
+		public function invokeExtensions($event = 'onAfterPost') {
 			$this->clearOutput();
 			
-			if (is_array($this->form->properties['extensions'])) {
-				foreach ($this->form->properties['extensions'] as $extension) {
-					if (method_exists($this, '_'.$extension.ucfirst($prefix))) {
-						$this->{'_'.$extension.ucfirst($prefix)}();
-					} else {
-						$extension = array(
-							'name' => $extension
-						);
+			foreach ($this->form->properties['extensions'] as $extension) {
+				$properties = array();
 						
-						if (null !== ($extension = $this->modx->getObject('modSnippet', $extension))) {
-							$extension->process(array(
-								'prefix'	=> $prefix,
-								'form'		=> &$this->form
-							));
-						}
+				if (isset($this->form->properties[$extension])) {
+					$properties = $this->modx->fromJSON($this->form->properties[$extension]);
+				}
+						
+				if (method_exists($this, $extension)) {
+					$this->{$extension}($event, $properties);
+				} else {
+					$criterea = array(
+						'name' => $extension
+					);
+					
+					if (null !== ($object = $this->modx->getObject('modSnippet', $criterea))) {
+						$object->process(array_merge($properties, array(
+							'event'			=> $event,
+							'extensions' 	=> &$this,
+							'form'			=> &$this->form
+						)));
 					}
 				}
 			}
-
+			
 			return $this->getOutput();
 		}
 		
-		
 		/**
 		 * @acces public.
-		 * @param String $extension.
+		 * @param String $event.
+		 * @return Boolean.
+		 */
+		public function invokeExtension($event, $extension, $properties = null) {
+			if (method_exists($this, $extension)) {
+				return $this->{$extension}($event, $properties);
+			}
+			
+			return false;
+		}
+		
+		/**
+		 * @acces protected.
+		 * @param String $event.
 		 * @param Array $properties.
-		 * @param String $prefix.
 		 * @return Boolean.
 		 */
-		public function setExtension($extension, $properties = array(), $prefix = 'After') {
-			$this->form->setScriptProperties($properties);
-			
-			if (method_exists($this, '_'.$extension.ucfirst($prefix))) {
-				return $this->{'_'.$extension.ucfirst($prefix)}();
-			} else {
-				$extension = array(
-					'name' => $extension
-				);
-				
-				if (null !== ($extension = $this->modx->getObject('modSnippet', $extension))) {
-					return $extension->process(array(
-						'prefix'	=> $prefix,
-						'form'		=> &$this->form
-					));
-				}
-			}
-			
-			return false;
-		}
-		
-		/**
-		 * @acces protected.
-		 * @return Boolean.
-		 */
-		protected function _recaptchaBefore() {
-			$this->setOutput('recaptcha', '<div class="g-recaptcha" data-sitekey="'.$this->modx->getOption('form.recaptcha_site_key').'"></div>');
-		
-			return true;
-		}
-		
-		/**
-		 * @acces protected.
-		 * @return Boolean.
-		 */
-		protected function _recaptchaAfter() {
-			$curl = curl_init();
+		protected function recaptcha($event, $properties = null) {
+			switch ($event) {
+				case 'onBeforePost':
+					$this->setOutput('recaptcha', '<div class="g-recaptcha" data-sitekey="'.$this->modx->getOption('form.recaptcha_site_key').'"></div>');
+					
+					break;
+				case 'onValidatePost':
+					$curl = curl_init();
 		    
-		    $response = false;
-
-			curl_setopt_array($curl, array(
-				CURLOPT_URL 			=> $this->modx->getOption('form.recaptcha_url'),
-				CURLOPT_RETURNTRANSFER	=> true,
-				CURLOPT_CONNECTTIMEOUT	=> 10,
-				CURLOPT_POSTFIELDS		=> http_build_query(array(
-					'secret'				=> $this->modx->getOption('form.recaptcha_secret_key'),
-					'response'				=> $this->form->getValue('g-recaptcha-response')
-				))
-			));
-			
-			$response 	= curl_exec($curl);
-			$info		= curl_getinfo($curl);
-			
-			if (!isset($info['http_code']) || '200' != $info['http_code']) {
-				$this->form->validator->setOutput('recaptcha', 'recaptcha');
-			}
-
-			if (null === ($output = $this->modx->fromJSON($response))) {
-				$this->form->validator->setOutput('recaptcha', 'recaptcha');
-			} else {
-				if (!isset($output['success']) || !$output['success']) {
-					$this->form->validator->setOutput('recaptcha', 'recaptcha');
-				}
-			}
-			
-			curl_close($curl);
-			
-			return true;
-		}
+				    $response = false;
 		
-		/**
-		 * @acces public.
-		 * @return Boolean.
-		 */
-		protected function _emailAfter() {
-			if ($this->form->validator->isValid()) {
-				if (false === ($email = $this->sendEmail('email'))) {
-					$this->modx->log(modX::LOG_LEVEL_ERROR, '[Form] Could not send email (email extension).');
+					curl_setopt_array($curl, array(
+						CURLOPT_URL 			=> $this->modx->getOption('form.recaptcha_url'),
+						CURLOPT_RETURNTRANSFER	=> true,
+						CURLOPT_CONNECTTIMEOUT	=> 10,
+						CURLOPT_POSTFIELDS		=> http_build_query(array(
+							'secret'				=> $this->modx->getOption('form.recaptcha_secret_key'),
+							'response'				=> $this->form->getValue('g-recaptcha-response')
+						))
+					));
 					
-					$this->form->validator->setOutput('sendemail', 'sendemail');
-				}
-				
-				return $email;
-			}
-		}
+					$response 	= curl_exec($curl);
+					$info		= curl_getinfo($curl);
+					
+					if (!isset($info['http_code']) || '200' != $info['http_code']) {
+						$this->form->validator->setError('recaptcha', 'recaptcha');
+					}
 		
-		/**
-		 * @acces public.
-		 * @return Boolean.
-		 */
-		protected function _respondEmailAfter() {
-			if ($this->form->validator->isValid()) {
-				if (false === ($email = $this->sendEmail('respondEmail'))) {
-					$this->modx->log(modX::LOG_LEVEL_ERROR, '[Form] Could not send email (respondEmail extension).');
+					if (null === ($output = $this->modx->fromJSON($response))) {
+						$this->form->validator->setError('recaptcha', 'recaptcha');
+					} else {
+						if (!isset($output['success']) || !$output['success']) {
+							$this->form->validator->setError('recaptcha', 'recaptcha');
+						}
+					}
 					
-					$this->form->validator->setOutput('sendrespondemail', 'sendrespondemail');
-				}
-				
-				return $email;
+					curl_close($curl);
+			
+					break;
 			}
 		}
 		
 		/**
 		 * @acces protected.
+		 * @param String $event.
+		 * @param Array $options.
 		 * @return Boolean.
 		 */
-		protected function _saveAfter() {
-			if (isset($this->form->properties['saveName'])) {
-				if (isset($this->form->properties['saveElements'])) {
-					$elements = $this->modx->fromJSON($this->form->properties['saveElements']);
-					
-					foreach ($elements as $key => $value) {
-						if (is_string($value)) {
-							$value = array(
-								'label'	=> $value	
-							);
-						}
+		protected function save($event, $options = null) {
+			switch ($event) {
+				case 'onSuccessPost':
+				case 'onFailurePost':
+					if (null !== $options) {
+						if (isset($options['elements'])) {
+							if (isset($options['name'])) {
+								$name = $options['name'];
+							} else {
+								$name = $this->modx->resource->pagetitle;
+							}
 						
-						$elements[$key] = array_merge(array(
-							'type'		=> 'textfield',
-							'value'		=> $this->form->getValue($key),
-							'valid'		=> $this->form->validator->isValid($key),
-							'error'		=> $this->form->validator->getOutput($key),
-							'values'	=> array()	
-						), $value);
+							$data = array();
+							
+							foreach ($options['elements'] as $key => $value) {
+								if (is_string($value)) {
+									$value = array(
+										'label'	=> $value	
+									);
+								}
+							
+								$data[$key] = array_merge(array(
+									'type'		=> 'textfield',
+									'value'		=> $this->form->getValue($key, ''),
+									'valid'		=> (bool) $this->form->validator->getError($key),
+									'error'		=> $this->form->validator->getError($key, ''),
+									'values'	=> array()
+								), $value);
+							}
+
+							if (null !== ($object = $this->modx->newObject('FormForms'))) {
+								if ((bool) $this->modx->getOption('form.encrypt', null, true)) {
+									$data = $object->encrypt($this->modx->toJSON($data));
+								} else {
+									$data = $this->modx->toJSON($data);
+								}
+							
+								$object->fromArray(array(
+									'name'			=> $name,
+									'resource_id'	=> $this->modx->resource->id,
+									'ip'			=> $_SERVER['REMOTE_ADDR'],
+									'data'			=> $data,
+									'active'		=> $this->form->validator->isValid() ? 1 : 0,
+									'editedon'		=> date('Y-m-d H:i:s')
+								));
+								
+								if ($object->save()) {
+									return true;
+								}
+							}
+						}
+					} else {
+						$this->modx->log(modX::LOG_LEVEL_ERROR, '[Form] Could not save form (save extension properties not set).');
 					}
 					
-					if (null !== ($object = $this->modx->newObject('FormFormSave'))) {
-						$object->fromArray(array(
-							'name'			=> $this->form->properties['saveName'],
-							'resource_id'	=> $this->modx->resource->id,
-							'ip'			=> $_SERVER['REMOTE_ADDR'],
-							'data'			=> serialize($elements),
-							'active'		=> $this->form->validator->isValid() ? 1 : 0,
-							'editedon'		=> date('Y-m-d H:i:s')
-						));
-						
-						if ($object->save()) {
-							return true;
-						}
-					}
-				}
+					break;
 			}
 			
 			return false;
 		}
 		
 		/**
-		 * @acces public.
-		 * @param String $type.
+		 * @acces protected.
+		 * @param String $event.
+		 * @param Array $options.
 		 * @return Boolean.
 		 */
-		protected function sendEmail($type) {
-			if (null !== ($tpl = $this->form->properties[$type.'Tpl'])) {
+		protected function email($event, $options = null) {
+			switch ($event) {
+				case 'onSuccessPost':
+					if (null !== $options) {
+						if (false === ($email = $this->handleEmail($options))) {
+							$this->modx->log(modX::LOG_LEVEL_ERROR, '[Form] Could not send email (email extension).');
+							
+							$this->form->validator->setError('bulk', 'sendemail');
+						}
+						
+						return $email;
+					} else {
+						$this->modx->log(modX::LOG_LEVEL_ERROR, '[Form] Could not use email (email extension properties not set).');
+					}
+					
+					break;
+			}
+			
+			return false;
+		}
+		
+		/**
+		 * @acces protected.
+		 * @param String $event.
+		 * @param Array $options.
+		 * @return Boolean.
+		 */
+		protected function respondEmail($event, $options = null) {
+			switch ($event) {
+				case 'onSuccessPost':
+					if (null !== $options) {	
+						if (false === ($email = $this->handleEmail($options))) {
+							$this->modx->log(modX::LOG_LEVEL_ERROR, '[Form] Could not send email (respond email extension).');
+							
+							$this->form->validator->setError('bulk', 'sendemail');
+						}
+						
+						return $email;
+					} else {
+						$this->modx->log(modX::LOG_LEVEL_ERROR, '[Form] Could not send email (respond email extension properties not set).');
+					}
+					
+					break;
+			}
+			
+			return true;
+		}
+		
+		/**
+		 * @acces public.
+		 * @param Array $options.
+		 * @return Boolean.
+		 */
+		protected function handleEmail($options) {
+			if (isset($options['tpl'])) {
 				if (null !== ($mail = $this->modx->getService('mail', 'mail.modPHPMailer'))) {
 					$emails = array(
-						$type.'To' 		=> array(
-							'alias'			=> 'to',
-							'emails'		=> array()
+						'to' 	=> array(
+							'alias'		=> 'to',
+							'emails'	=> array()
 						),
-						$type.'ReplyTo' 	=> array(
-							'alias'			=> 'reply-to',
-							'emails'		=> array()
+						'reply' => array(
+							'alias'		=> 'reply-to',
+							'emails'	=> array()
 						),
-						$type.'CC' 		=> array(
-							'alias'			=> 'cc',
-							'emails'		=> array()
+						'CC' 	=> array(
+							'alias'		=> 'cc',
+							'emails'	=> array()
 						), 
-						$type.'BCC' 		=> array(
-							'alias'			=> 'bcc',
-							'emails'		=> array()
+						'BCC' 	=> array(
+							'alias'		=> 'bcc',
+							'emails'	=> array()
 						),
-						$type.'From'		=> array(
-							'emails'		=> array()
+						'from'	=> array(
+							'emails'	=> array()
 						)
 					);
 					
 					foreach ($emails as $key => $value) {
-						if (isset($this->form->properties[$key])) {
-							if (null !== ($properties = $this->modx->fromJSON($this->form->properties[$key]))) {
-								foreach ($properties as $email => $name) {
-									if (is_array($name)) {
-										$name = implode(' ', $name);
-									}
-									
-									if (preg_match('/form.([\w]+)/si', $email, $matches)) {
-										$matches = array_filter($matches);
-										
-										if (isset($matches[1])) {
-											$email = str_replace($matches[0], $this->form->getValue($matches[1]), $email);
-										}
-									}
-									
-									if (preg_match_all('/form.([\w]+)/si', $name, $matches)) {
-										$matches = array_filter($matches);
-										
-										if (isset($matches[1])) {
-											foreach ($matches[1] as $matchKey => $matchValue) {
-												$name = str_replace($matches[0][$matchKey], $this->form->getValue($matchValue), $name);
-											}
-										}
-									}
-	
-									$emails[$key]['emails'][$this->form->getTemplate('@INLINE:'.$email, array())] = $this->form->getTemplate('@INLINE:'.$name, array());
+						if (isset($options[$key])) {
+							foreach ($options[$key] as $email => $name) {
+								if (is_array($name)) {
+									$name = implode(' ', $name);
 								}
+								
+								$prefix = $this->form->properties['prefix'];
+
+								if (preg_match('/'.$prefix.'([\w\_]+)/si', $email, $matches)) {
+									$matches = array_filter($matches);
+									
+									if (isset($matches[1])) {
+										$email = str_replace($matches[0], $this->form->getValue($matches[1]), $email);
+									}
+								}
+								
+								if (preg_match('/'.$prefix.'([\w\_]+)/si', $name, $matches)) {
+									$matches = array_filter($matches);
+									
+									if (isset($matches[1])) {
+										$name = str_replace($matches[0], $this->form->getValue($matches[1]), $name);
+									}
+								}
+
+								$emails[$key]['emails'][$email] = $name;
 							}
 						}
 					}
 					
-					$output = array();
-
-					foreach ($this->form->getValues() as $key => $value) {
-						if (is_array($value)) {
-							$output[rtrim($this->form->properties['placeholder'], '.').'.'.$key] = implode(',', $value);
-						} else {
-							$output[rtrim($this->form->properties['placeholder'], '.').'.'.$key] = $value;
-						}
+					$placeholders = array();
+					
+					foreach ($this->form->getValues(true) as $key => $value) {
+						$placeholders[$prefix.$key] = $value;
 					}
 					
-					$subject = '';
-					
-					if (isset($this->form->properties[$type.'Subject'])) {
-						$subject = $this->form->properties[$type.'Subject'];
+					if (isset($options['subject'])) {
+						$subject = $options['subject'];
+					} else {
+						$subject = 'Form subject not provided';
 					}
 					
 					$mail->reset();
+					$mail->setHTML(isset($options['html']) ? (bool) $options['html'] : true);
 					
-					$mail->setHTML(isset($this->form->properties[$type.'HTML']) ? false : true);
-					
-					if (0 == count($emails[$type.'From']['emails'])) {
+					if (0 == count($emails['from']['emails'])) {
 						$mail->set(modMail::MAIL_FROM, $this->modx->getOption('emailsender'));
 						$mail->set(modMail::MAIL_FROM_NAME, $this->modx->getOption('site_name'));
 					} else {
-						foreach ($emails[$type.'From']['emails'] as $key => $value) {
+						foreach ($emails['from']['emails'] as $key => $value) {
 							$mail->set(modMail::MAIL_FROM, $key);
 							$mail->set(modMail::MAIL_FROM_NAME, $value);
 						}
@@ -336,26 +361,58 @@
 						}
 					}
 					
-					$mail->set(modMail::MAIL_SUBJECT, $this->form->getTemplate('@INLINE:'.$subject, $output));
+					$mail->set(modMail::MAIL_SUBJECT, $this->form->getTemplate('@INLINE:'.$subject, $placeholders));
 					
-					if (null !== ($tplWrapper = $this->form->properties[$type.'TplWrapper'])) {
+					if (null !== ($tplWrapper = $options['tplWrapper'])) {
 						$mail->set(modMail::MAIL_BODY, $this->form->getTemplate($tplWrapper, array(
-							'output' => $this->form->getTemplate($tpl, $output)
+							'output' => $this->form->getTemplate($options['tpl'], $placeholders)
 						)));
 					} else {
-						$mail->set(modMail::MAIL_BODY, $this->form->getTemplate($tpl, $output));
+						$mail->set(modMail::MAIL_BODY, $this->form->getTemplate($options['tpl'], $placeholders));
 					}
 					
+					if (isset($options['attachments'])) {
+						foreach ($options['attachments'] as $key => $value) {
+							if (is_string($value)) {
+								$value = array(
+									'file' 	=> $value
+								);
+							}
+							
+							if (isset($value['file'])) {
+								if (preg_match('/'.$prefix.'([\w\_]+)/si', $value['file'], $matches)) {
+									$matches = array_filter($matches);
+									
+									if (isset($matches[1])) {
+										$value = $this->form->getValue($matches[1]);
+										
+										if (isset($value['tmp_name'])) {
+											$mail->mailer->addAttachment($value['tmp_name'], $value['name'], 'base64', $value['type']);
+										}
+									}
+								} else {
+									$value = array_merge(array(
+										'name' 		=> substr($value['file'], strrpos($value['file'], '/') + 1, strlen($value['file'])),
+										'encoding'	=> 'base64',
+										'type'		=> 'application/octet-stream'
+									), $value);
+									
+									$mail->mailer->addAttachment($this->modx->getOption('base_path').ltrim($value['file'], '/'), $value['name'], $value['encoding'], $value['type']);
+								}
+							}
+						}
+					}
+
 					if ($mail->send()) {
 						return true;
 					} else {
-						$this->modx->log(modX::LOG_LEVEL_ERROR, '[Form] Could not send email because \''.$mail->mailer->ErrorInfo.'\' (email extension).');
+						$this->modx->log(modX::LOG_LEVEL_ERROR, '[Form] Could not send email (email extension \''.$mail->mailer->ErrorInfo.'\').');
 					}
 				} else {
-					$this->modx->log(modX::LOG_LEVEL_ERROR, '[Form] Could not send email because \'mail.modPHPMailer\' was not set (email extension).');
+					$this->modx->log(modX::LOG_LEVEL_ERROR, '[Form] Could not send email (email extension \'mail.modPHPMailer\' was not set).');
 				}
 			} else {
-				$this->modx->log(modX::LOG_LEVEL_ERROR, '[Form] Could not send email because no tpl was set (email extension).');
+				$this->modx->log(modX::LOG_LEVEL_ERROR, '[Form] Could not send email (email extension tpl not set).');
 			}
 			
 			return false;
@@ -364,10 +421,10 @@
 		/**
 		 * @acces public.
 		 * @param String $key.
-		 * @param String $output.
+		 * @param String $value.
 		 */
-		public function setOutput($key, $output) {
-			$this->output[$key] = $output;
+		public function setOutput($key, $value) {
+			$this->output[$key] = $value;
 		}
 		
 		/**
@@ -380,12 +437,10 @@
 		
 		/**
 		 * @acces public.
-		 * @return Boolean.
+		 * @return Array.
 		 */
 		public function clearOutput() {
-			$this->output = array();
-			
-			return true;
+			return $this->output = array();
 		}
 	}
 

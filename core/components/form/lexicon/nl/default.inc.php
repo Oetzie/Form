@@ -27,6 +27,10 @@
 		
 	$_lang['area_form']												= 'Formulieren';
 	
+	$_lang['setting_form.encrypt']									= 'Formulieren versleutelen';
+	$_lang['setting_form.encrypt_desc']								= 'Indien ja zullen de formulieren versleuteld opgeslagen worden. Standaard is "Ja".';
+	$_lang['setting_form.encrypt_key']								= 'Formulieren sleutel';
+	$_lang['setting_form.encrypt_key_desc']							= 'De sleutel om de formulieren te versleutelen indien de instelling "versleutelen" op "Ja" ingesteld is.';
 	$_lang['setting_form.recaptcha_site_key']						= 'Google reCAPTCHA API site sleutel';
 	$_lang['setting_form.recaptcha_site_key_desc']					= 'De website sleutel voor de Google reCAPTCHA API, deze is te verkrijgen via https://www.google.com/recaptcha/admin.';
 	$_lang['setting_form.recaptcha_secret_key']						= 'Google reCAPTCHA API geheime sleutel';
@@ -34,25 +38,27 @@
 	$_lang['setting_form.recaptcha_url']							= 'Google reCAPTCHA API URL';
 	$_lang['setting_form.recaptcha_url_desc']						= 'De URL voor de Google reCAPTCHA API.';
 	
-	$_lang['form_snippet_dateformat_desc']							= 'Het formaat van datums om de datums te controleren. Standaard is "%d-%m-%Y".';
-	$_lang['form_snippet_placeholder_desc']							= 'De placeholder prefix voor de placeholders. Standaard is "form".';
-	$_lang['form_snippet_submit_desc']								= 'De naam van de submit om het formulier te verzenden. Standaard is "submit".';
-	$_lang['form_snippet_tplbulkerror_desc']						= 'De template voor een error in de samenvattingserror. Deze kan beginnen met @INLINE:, @CHUNK: of chunk naam.';
-	$_lang['form_snippet_tplbulkwrapper_desc']						= 'De template de samenvattingserror wrapper. Deze kan beginnen met @INLINE:, @CHUNK: of chunk naam.';
+	$_lang['form_snippet_action_desc']								= 'De actie van het formulier. Dit kan een ID van een pagina zijn, of "self". Standaard is "self".';
+	$_lang['form_snippet_extensions_desc']							= 'De extensies die uitgevoerd moeten worden tijdens het afhandelen van het formulier. Meerdere extensies scheiden met een komma.';
+	$_lang['form_snippet_handler_desc']								= 'De naam van de submit om het formulier te verzenden. Standaard is "submit".';
+	$_lang['form_snippet_method_desc']								= 'De methode van het formulier. Dit kan "POST" of "GET" zijn, standaard is "POST".';
+	$_lang['form_snippet_prefix_desc']								= 'De prefix voor de placeholders. Standaard is "form".';
+	$_lang['form_snippet_tplbulkerror_desc']						= 'De template van een error in de algemene error. Deze kan beginnen met @INLINE:, @CHUNK: of chunk naam.';
+	$_lang['form_snippet_tplbulkwrapper_desc']						= 'De template wrapper van de algemene error. Deze kan beginnen met @INLINE:, @CHUNK: of chunk naam.';
 	$_lang['form_snippet_tplerror_desc']							= 'De template voor een error. Deze kan beginnen met @INLINE:, @CHUNK: of chunk naam.';
-	$_lang['form_snippet_type_desc']								= 'Het type van het formulier. Dit kan "set" of "get" zijn, standaard is "set".';
-	$_lang['form_snippet_method_desc']								= 'De methode van het formulier. Dit kan "post" of "get" zijn, standaard is "post".';
-		
-	$_lang['form.formsave']											= 'Formulieren';
-	$_lang['form.formsaves']										= 'Formulieren';
-	$_lang['form.formsave_desc']									= 'Bekijk hier alle formulieren die via de website zijn ingevuld. Status "compleet" betekend dat het formulier zonder fouten is ingevuld en afgehandeld, status "incompleet" betekend dat het formulier met fouten is ingevuld en daardoor niet afgehandeld is. Als een formulier te vaak de status "incompleet" heeft betekend dit dat het formulier onduidelijk is en dat de labels geoptimaliseerd dient te worden.';
-	$_lang['form.formsave_show']									= 'Formulier bekijken';
-	$_lang['form.formsave_remove']									= 'Formulier verwijderen';
-	$_lang['form.formsave_remove_confirm']							= 'Weet je zeker dat je dit formulier wilt verwijderen?';
-	$_lang['form.formsaves_remove_selected']						= 'Geselecteerde formulieren verwijderen';
-	$_lang['form.formsaves_remove_selected_confirm']				= 'Weet je zeker dat je de geselecteerde formulieren wilt verwijderen?';
-	$_lang['form.formsave_reset']									= 'Alle formulieren verwijderen';
-	$_lang['form.formsave_reset_confirm']							= 'Weet je zeker dat je alle formulieren wilt verwijderen?';
+	$_lang['form_snippet_type_desc']								= 'Het type van het formulier. Dit kan "SET" of "GET" zijn, standaard is "SET".';
+	$_lang['form_snippet_validation_desc']							= 'De validatie regels die uitgevoerd moeten worden tijdens het afhandelen van het formulier. Dit moet een geldig JSON formaat zijn.';	
+	
+	$_lang['form.form']												= 'Formulieren';
+	$_lang['form.forms']											= 'Formulieren';
+	$_lang['form.forms_desc']										= 'Bekijk hier alle formulieren die via de website zijn ingevuld. Status "<span class="green">compleet</span>" betekent dat het formulier zonder fouten is ingevuld en afgehandeld, status "<span class="red">incompleet</span>" betekent dat het formulier met fouten is ingevuld en daardoor niet afgehandeld is. Als een formulier te vaak de status "incompleet" heeft betekent dit dat het formulier onduidelijk is en dat de labels geoptimaliseerd dienen te worden.';
+	$_lang['form.form_show']										= 'Formulier bekijken';
+	$_lang['form.form_remove']										= 'Formulier verwijderen';
+	$_lang['form.form_remove_confirm']								= 'Weet je zeker dat je dit formulier wilt verwijderen?';
+	$_lang['form.forms_remove_selected']							= 'Geselecteerde formulieren verwijderen';
+	$_lang['form.forms_remove_selected_confirm']					= 'Weet je zeker dat je de geselecteerde formulieren wilt verwijderen?';
+	$_lang['form.forms_reset']										= 'Alle formulieren verwijderen';
+	$_lang['form.forms_reset_confirm']								= 'Weet je zeker dat je alle formulieren wilt verwijderen?';
 	
 	$_lang['form.label_resource']									= 'Pagina';
 	$_lang['form.label_resource_desc']								= 'De pagina waar het formulier ingevuld is.';
@@ -66,8 +72,9 @@
 	$_lang['form.label_active_desc']								= 'De validatie status van het ingevulde formulier. Status "compleet" betekend dat het formulier succesvol ingevuld is, status "incompleet" betekend dat het formulier met fouten is ingevuld.';
 	$_lang['form.label_date']										= 'Ingevuld op';
 	$_lang['form.label_date_desc']									= 'De datum wanneer het formulier ingevuld is.';
-		
+	
 	$_lang['form.filter_context']									= 'Filter op context...';
+	$_lang['form.filter_names']										= 'Filter op naam...';
 	$_lang['form.filter_status']									= 'Filter op status...';
 	$_lang['form.auto_refresh_grid']								= 'Automatisch vernieuwen';
 	$_lang['form.form']												= 'Formulier';
@@ -75,29 +82,31 @@
 	$_lang['form.notvalid']											= 'Incompleet';
 	$_lang['form.empty']											= 'Niet ingevuld';
 	
-	$_lang['form.has_error_required']								= 'Dit veld is niet ingevuld.';
-	$_lang['form.has_error_blank']									= 'Dit veld was niet leeg.';
-	$_lang['form.has_error_equals']									= 'Dit veld was niet gelijk aan "[[+equals]]".';
-	$_lang['form.has_error_equalsto']								= 'Dit veld was niet gelijk aan het veld "[[+equalsTo]]".';
-	$_lang['form.has_error_contains']								= 'Dit veld bevatte geen "[[+contains]]".';
-	$_lang['form.has_error_minlength']								= 'Dit veld had geen minimaal [[+minLength]] karakters.';
-	$_lang['form.has_error_maxlength']								= 'Dit veld had geen maximaal [[+maxLength]] karakters.';
-	$_lang['form.has_error_betweenlength']							= 'Dit veld had niet tussen [[+minLength]] en [[+maxLength]] karakters.';
-	$_lang['form.has_error_minvalue']								= 'Dit veld was niet groter dan [[+minValue]].';
-	$_lang['form.has_error_maxvalue']								= 'Dit veld was niet kleiner dan [[+maxValue]].';
-	$_lang['form.has_error_betweenvalue']							= 'Dit veld was niet tussen [[+minValue]] en [[+maxValue]].';
-	$_lang['form.has_error_regex']									= 'Dit veld voldeed niet aan "[[+regex]]".';
-	$_lang['form.has_error_email']									= 'Dit veld was geen geldig e-mailadres.';
-	$_lang['form.has_error_ip']										= 'Dit veld was geen geldig IP nummer.';
-	$_lang['form.has_error_url']									= 'Dit veld was geen geldig webadres.';
-	$_lang['form.has_error_iban']									= 'Dit veld was geen geldig IBAN nummer.';
-	$_lang['form.has_error_phone']									= 'Dit veld was geen geldig telefoonnummer.';
-	$_lang['form.has_error_number']									= 'Dit veld bevatte niet alleen getallen.';
-	$_lang['form.has_error_string']									= 'Dit veld bevatte niet alleen letters.';
-	$_lang['form.has_error_date']									= 'Dit veld was geen geldige datum.';
-	$_lang['form.has_error_mindate']								= 'Dit veld was niet later dan [[+minDate]].';
-	$_lang['form.has_error_maxdate']								= 'Dit veld was niet eerder dan [[+maxDate]].';
-	$_lang['form.has_error_betweendate']							= 'Dit veld was niet tussen [[+minDate]] en [[+maxDate]].';
-	$_lang['form.has_error_recaptcha']								= 'Dit veld met reCAPTCHA was niet juist.';
+	$_lang['form.is_required']										= 'Dit veld is niet ingevuld.';
+	$_lang['form.is_blank']											= 'Dit veld is niet leeg.';
+	$_lang['form.is_equals']										= 'Dit veld is niet gelijk aan "[[+equals]]".';
+	$_lang['form.is_equalsto']										= 'Dit veld was is gelijk aan het veld "[[+equalsTo]]".';
+	$_lang['form.is_contains']										= 'Dit veld bevat niet "[[+contains]]".';
+	$_lang['form.is_minlength']										= 'Dit veld is geen [[+minLength]] karakters lang.';
+	$_lang['form.is_maxlength']										= 'Dit veld is langer dan [[+maxLength]] karakters.';
+	$_lang['form.is_betweenlength']									= 'Dit veld is niet tussen [[+minLength]] en [[+maxLength]] karakters lang.';
+	$_lang['form.is_minvalue']										= 'Dit veld is niet groter dan [[+minValue]].';
+	$_lang['form.is_maxvalue']										= 'Dit veld is groter dan [[+maxValue]].';
+	$_lang['form.is_betweenvalue']									= 'Dit veld is niet tussen [[+minValue]] en [[+maxValue]].';
+	$_lang['form.is_regex']											= 'Dit veld voldoet niet aan "[[+regex]]".';
+	$_lang['form.is_email']											= 'Dit veld is geen geldig e-mailadres.';
+	$_lang['form.is_ip']											= 'Dit veld is geen geldig IP nummer.';
+	$_lang['form.is_url']											= 'Dit veld is geen geldig webadres.';
+	$_lang['form.is_iban']											= 'Dit veld is geen geldig IBAN nummer.';
+	$_lang['form.is_phone']											= 'Dit veld is geen geldig telefoonnummer.';
+	$_lang['form.is_number']										= 'Dit veld bevat niet alleen cijfers.';
+	$_lang['form.is_alpha']											= 'Dit veld bevat niet alleen letters.';
+	$_lang['form.is_alphanumeric']									= 'Dit veld bevat niet alleen letters en cijfers.';
+	$_lang['form.is_date']											= 'Dit veld is geen geldige datum.';
+	$_lang['form.is_mindate']										= 'Dit veld is niet later dan [[+minDate]].';
+	$_lang['form.is_maxdate']										= 'Dit veld is niet eerder dan [[+maxDate]].';
+	$_lang['form.is_betweendate']									= 'Dit veld is niet tussen [[+minDate]] en [[+maxDate]].';
+	$_lang['form.is_extension']										= 'Dit bestand heeft geen geldige extensie.';
+	$_lang['form.is_recaptcha']										= 'Vakje met "Ik ben geen robot" niet aangevinkt.';
 	
 ?>

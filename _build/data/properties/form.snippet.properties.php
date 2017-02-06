@@ -2,29 +2,47 @@
 
 	return array(
 		array(
-	        'name' 		=> 'dateFormat',
-	        'desc' 		=> 'form_snippet_dateformat_desc',
+	        'name' 		=> 'action',
+	        'desc' 		=> 'form_snippet_action_desc',
 	        'type' 		=> 'textfield',
 	        'options' 	=> '',
-	        'value'		=> '%d-%m-%Y',
+	        'value'		=> 'self',
 	        'area'		=> PKG_NAME_LOWER,
 	        'lexicon' 	=> PKG_NAME_LOWER.':default'
 	    ),
 	    array(
-	        'name' 		=> 'placeholder',
-	        'desc' 		=> 'form_snippet_placeholder_desc',
+	        'name' 		=> 'extensions',
+	        'desc' 		=> 'form_snippet_extensions_desc',
 	        'type' 		=> 'textfield',
 	        'options' 	=> '',
-	        'value'		=> 'form',
+	        'value'		=> '',
 	        'area'		=> PKG_NAME_LOWER,
 	        'lexicon' 	=> PKG_NAME_LOWER.':default'
 	    ),
 	    array(
-	        'name' 		=> 'submit',
-	        'desc' 		=> 'form_snippet_submit_desc',
+	        'name' 		=> 'handler',
+	        'desc' 		=> 'form_snippet_handler_desc',
 	        'type' 		=> 'textfield',
 	        'options' 	=> '',
 	        'value'		=> 'submit',
+	        'area'		=> PKG_NAME_LOWER,
+	        'lexicon' 	=> PKG_NAME_LOWER.':default'
+	    ),
+	    array(
+	        'name' 		=> 'method',
+	        'desc' 		=> 'form_snippet_method_desc',
+	        'type' 		=> 'textfield',
+	        'options' 	=> '',
+	        'value'		=> 'POST',
+	        'area'		=> PKG_NAME_LOWER,
+	        'lexicon' 	=> PKG_NAME_LOWER.':default'
+	    ),
+	    array(
+	        'name' 		=> 'prefix',
+	        'desc' 		=> 'form_snippet_prefix_desc',
+	        'type' 		=> 'textfield',
+	        'options' 	=> '',
+	        'value'		=> 'form',
 	        'area'		=> PKG_NAME_LOWER,
 	        'lexicon' 	=> PKG_NAME_LOWER.':default'
 	    ),
@@ -51,7 +69,7 @@
 	        'desc' 		=> 'form_snippet_tplerror_desc',
 	        'type' 		=> 'textfield',
 	        'options' 	=> '',
-	        'value'		=> '@INLINE:<div class="error-notice-desc"><span class="error-notice-desc-inner">[[+error]]</div>',
+	        'value'		=> '@INLINE:<div class="error-notice-desc">[[+error]]</div>',
 	        'area'		=> PKG_NAME_LOWER,
 	        'lexicon' 	=> PKG_NAME_LOWER.':default'
 	    ),
@@ -60,16 +78,16 @@
 	        'desc' 		=> 'form_snippet_type_desc',
 	        'type' 		=> 'textfield',
 	        'options' 	=> '',
-	        'value'		=> 'set',
+	        'value'		=> 'SET',
 	        'area'		=> PKG_NAME_LOWER,
 	        'lexicon' 	=> PKG_NAME_LOWER.':default'
 	    ),
 	    array(
-	        'name' 		=> 'method',
-	        'desc' 		=> 'form_snippet_method_desc',
+	        'name' 		=> 'validation',
+	        'desc' 		=> 'form_snippet_validation_desc',
 	        'type' 		=> 'textfield',
 	        'options' 	=> '',
-	        'value'		=> 'post',
+	        'value'		=> '{}',
 	        'area'		=> PKG_NAME_LOWER,
 	        'lexicon' 	=> PKG_NAME_LOWER.':default'
 	    )

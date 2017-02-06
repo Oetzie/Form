@@ -22,12 +22,12 @@
 	 * Suite 330, Boston, MA 02111-1307 USA
 	 */
 	 
-	class FormFormSaveResetProcessor extends modObjectProcessor {
+	class FormFormsResetProcessor extends modObjectProcessor {
 		/**
 		 * @acces public.
 		 * @var String.
 		 */
-		public $classKey = 'FormFormSave';
+		public $classKey = 'FormForms';
 		
 		/**
 		 * @acces public.
@@ -62,6 +62,6 @@
 		}
 	}
 	
-	return 'FormFormSaveResetProcessor';
+	return 'FormFormsResetProcessor';
 	
 ?>

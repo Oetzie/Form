@@ -22,12 +22,12 @@
 	 * Suite 330, Boston, MA 02111-1307 USA
 	 */
 
-	class FormFormSaveGetListProcessor extends modObjectGetListProcessor {
+	class FormFormsGetListProcessor extends modObjectGetListProcessor {
 		/**
 		 * @acces public.
 		 * @var String.
 		 */
-		public $classKey = 'FormFormSave';
+		public $classKey = 'FormForms';
 		
 		/**
 		 * @acces public.
@@ -51,7 +51,7 @@
 		 * @acces public.
 		 * @var String.
 		 */
-		public $objectType = 'form.formsave';
+		public $objectType = 'form.forms';
 		
 		/**
 		 * @acces public.
@@ -79,17 +79,20 @@
 		 * @return Object.
 		 */
 		public function prepareQueryBeforeCount(xPDOQuery $c) {
-			$c->innerjoin('modResource', 'modResource', array('modResource.id = FormFormSave.resource_id'));
+			$c->innerjoin('modResource', 'modResource', array('modResource.id = FormForms.resource_id'));
 			$c->innerjoin('modContext', 'modContext', array('modContext.key = modResource.context_key'));
-			$c->select($this->modx->getSelectColumns('FormFormSave', 'FormFormSave'));
-			$c->select($this->modx->getSelectColumns('modResource', 'modResource', 'resource_', array('pagetitle')));
+			$c->select($this->modx->getSelectColumns('FormForms', 'FormForms'));
 			$c->select($this->modx->getSelectColumns('modContext', 'modContext', 'context_', array('key', 'name')));
 			
-			$context = $this->getProperty('context');
+			$c->where(array(
+				'modResource.context_key' => $this->getProperty('context')
+			));
 			
-			if (!empty($context)) {
+			$names = $this->getProperty('names');
+			
+			if (!empty($names)) {
 				$c->where(array(
-					'modResource.context_key' => $context
+					'FormForms.name' => $names
 				));
 			}
 			
@@ -97,7 +100,7 @@
 			
 			if ('' != $status) {
 				$c->where(array(
-					'FormSave.active' => $status
+					'FormForms.active' => $status
 				));
 			}
 			
@@ -105,8 +108,8 @@
 			
 			if (!empty($query)) {
 				$c->where(array(
-					'FormSave.name:LIKE' 			=> '%'.$query.'%',
-					'OR:FormSave.data:LIKE' 		=> '%'.$query.'%',
+					'FormForms.name:LIKE' 			=> '%'.$query.'%',
+					'OR:FormForms.data:LIKE' 		=> '%'.$query.'%',
 					'OR:modResource.pagetitle:LIKE' => '%'.$query.'%',
 					'OR:modResource.longtitle:LIKE' => '%'.$query.'%'
 				));
@@ -122,28 +125,36 @@
 		 */
 		public function prepareRow(xPDOObject $object) {			
 			$array = array_merge($object->toArray(), array(
-				'resource_url'			=> $this->modx->makeUrl($object->resource_id, '', '', 'full'),
-				'data'					=> unserialize($object->data),
-				'data_formatted'		=> implode(', ', array_map(function($value) {
-					if (is_array($value['value'])) {
-						$output = array();
-						
-						foreach ($value['value'] as $key) {
-							if (isset($value['values'][$key])) {
-								$output[] = $value['values'][$key];
-							}
+				'resource_url'			=> $this->modx->makeUrl($object->resource_id),
+				'data'					=> array(),
+				'data_formatted'		=> ''
+			));
+			
+			if ((bool) $this->modx->getOption('form.encrypt', null, true)) {
+				$array['data'] = $this->modx->fromJSON($object->decrypt($object->data));
+			} else {
+				$array['data'] = $this->modx->fromJSON($object->data);
+			}
+
+			$array['data_formatted'] = implode(', ', array_map(function($value) {
+				if (is_array($value['value'])) {
+					$output = array();
+					
+					foreach ($value['value'] as $key) {
+						if (isset($value['values'][$key])) {
+							$output[] = $value['values'][$key];
 						}
-						
-						$output = implode(', ', $output);
-					} else if (isset($value['values'][$value['value']])) {
-						$output = $value['values'][$value['value']];
-					} else {
-						$output = $value['value'];
 					}
 					
-					return sprintf('<strong>%s</strong>: %s', $value['label'], $output);
-				}, unserialize($object->data)))
-			));
+					$output = implode(', ', $output);
+				} else if (isset($value['values'][$value['value']])) {
+					$output = $value['values'][$value['value']];
+				} else {
+					$output = $value['value'];
+				}
+				
+				return sprintf('<strong>%s</strong>: %s', $value['label'], $output);
+			}, $array['data']));
 
 			if (in_array($array['editedon'], array('-001-11-30 00:00:00', '-1-11-30 00:00:00', '0000-00-00 00:00:00', null))) {
 				$array['editedon'] = '';
@@ -155,6 +166,6 @@
 		}
 	}
 
-	return 'FormFormSaveGetListProcessor';
+	return 'FormFormsGetListProcessor';
 	
 ?>

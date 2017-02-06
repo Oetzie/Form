@@ -8,7 +8,7 @@
 	
 	            $manager = $modx->getManager();
 	
-	            $manager->createObjectContainer('FormFormSave');
+	            $manager->createObjectContainer('FormForms');
 	
 	            break;
 	        case xPDOTransport::ACTION_UPGRADE:

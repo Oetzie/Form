@@ -1,5 +1,5 @@
 <?php
-
+	
 	/**
 	 * Form
 	 *
@@ -21,43 +21,9 @@
 	 * Form; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
 	 * Suite 330, Boston, MA 02111-1307 USA
 	 */
-
-	class FormFormSaveRemoveSelectedProcessor extends modProcessor {
-		/**
-		 * @acces public.
-		 * @var String.
-		 */
-		public $classKey = 'FormFormSave';
-		
-		/**
-		 * @acces public.
-		 * @var Array.
-		 */
-		public $languageTopics = array('form:default');
-		
-		/**
-		 * @acces public.
-		 * @var String.
-		 */
-		public $objectType = 'form.formsave';
-		
-		/**
-		 * @acces public.
-		 * @return Mixed.
-		 */
-		public function process() {
-			foreach (explode(',', $this->getProperty('ids')) as $key => $value) {
-				$criteria = array('id' => $value);
-				
-				if (false !== ($object = $this->modx->getObject($this->classKey, $criteria))) {
-					$object->remove();
-				}
-			}
-			
-			return $this->outputArray(array());
-		}
-	}
-
-	return 'FormFormSaveRemoveSelectedProcessor';
+	 
+	require_once dirname(dirname(__FILE__)). '/formforms.class.php';
+	
+	class FormForms_mysql extends FormForms {}
 
 ?>

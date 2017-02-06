@@ -1,6 +1,6 @@
 <?php
 
-	/**
+    /**
 	 * Form
 	 *
 	 * Copyright 2016 by Oene Tjeerd de Bruin <info@oetzie.nl>
@@ -30,6 +30,6 @@
 	    }
 	}
 	
-	return ' ';
+	return;
 	
 ?>

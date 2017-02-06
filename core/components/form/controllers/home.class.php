@@ -31,7 +31,7 @@
 			
 			$this->addJavascript($this->form->config['js_url'].'mgr/widgets/home.panel.js');
 			
-			$this->addJavascript($this->form->config['js_url'].'mgr/widgets/formsave.grid.js');
+			$this->addJavascript($this->form->config['js_url'].'mgr/widgets/forms.grid.js');
 			
 			$this->addLastJavascript($this->form->config['js_url'].'mgr/sections/home.js');
 		}

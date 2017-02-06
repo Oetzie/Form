@@ -45,13 +45,13 @@
 		 * @acces public.
 		 * @var Object.
 		 */
-		public $validator = null;
+		public $extensions = null;
 		
 		/**
 		 * @acces public.
 		 * @var Object.
 		 */
-		public $extensions = null;
+		public $validator = null;
 		
 		/**
 		 * @acces public.
@@ -161,44 +161,39 @@
 		 */
 		public function setScriptProperties($scriptProperties = array()) {
 			$this->properties = array_merge(array(
-				'dateFormat'		=> '%d-%m-%Y',
+				'action'			=> 'self',
 				'extensions'		=> '',
-				'placeholder' 		=> 'form',
-				'submit'			=> 'submit',
-				'method'			=> 'post',
-				'handler'			=> 'reload',
+				'handler'			=> 'submit',
+				'method'			=> 'POST',
+				'prefix'			=> 'form',
 				'tplBulkError'		=> '@INLINE:<li class="[[+class]]">[[+error]]</li>',
 				'tplBulkWrapper'	=> '@INLINE:<p class="error-notices">[[+error]]</p>',
-				'tplError'			=> '@INLINE:<div class="error-notice-desc"><span class="error-notice-desc-inner">[[+error]]</div>',
-				'type'				=> 'set',
-				'validate'			=> '{}'
+				'tplError'			=> '@INLINE:<div class="error-notice-desc">[[+error]]</div>',
+				'type'				=> 'SET',
+				'validation'		=> '{}'
 			), $this->properties, $scriptProperties);
 			
 			return $this->setDefaultProperties();
 		}
-				
+		
 		/**
 		 * @acces protected.
 		 * @return Boolean.
 		 */
 		protected function setDefaultProperties() {
-			$this->properties['placeholder'] = rtrim($this->properties['placeholder'], '.').'.';
+			$this->properties['prefix'] = rtrim($this->properties['prefix'], '.').'.';
 			
-			if (is_string($this->properties['validate'])) {
-				$this->properties['validate'] = $this->modx->fromJSON($this->properties['validate']);
-				
-				foreach ($this->properties['validate'] as $key => $value) {
-					if (!is_array($value)) {
-						$this->properties['validate'][$key] = array(
-							$value => 'true'	
-						);
-					}
-				}
-			}
+			$this->properties['method'] = strtoupper($this->properties['method']);
 			
 			if (is_string($this->properties['extensions'])) {
 				$this->properties['extensions'] = explode(',', $this->properties['extensions']);
 			}
+			
+			if (is_string($this->properties['validation'])) {
+				$this->properties['validation'] = $this->modx->fromJSON($this->properties['validation']);
+			}
+			
+			$this->properties['type'] = strtoupper($this->properties['type']);
 			
 			return true;
 		}
@@ -211,111 +206,111 @@
 		public function run($properties = array()) {
 			$this->setScriptProperties($properties);
 			
-			if ('set' == $this->properties['type']) {
-				return $this->setForm();
-			} else if ('get' == $this->properties['type']) {
-				return $this->getForm();
-			}
-		}
-		
-		/**
-		 * @acces public.
-		 * @return String.
-		 */
-		public function setForm() {
-			if ($validator = $this->getValidator()) {
-				if ($extensions = $this->getExtensions()) {
-					$output = array();
-					
-					$output[$this->properties['placeholder'].'method'] = 'post';
-					$output[$this->properties['placeholder'].'submit'] = $this->properties['submit'];
-					
-					if ('reload' != $this->properties['handler']) {
-						$output[$this->properties['placeholder'].'url'] = $this->modx->makeUrl($this->properties['handler'], null, $this->modx->request->getParameters());
-					} else {
-						$output[$this->properties['placeholder'].'url'] = $this->modx->makeUrl($this->modx->resource->id, null, $this->modx->request->getParameters());
-					}
-					
-					foreach ($extensions->setExtentions('Before') as $key => $value) {
-						$output[$this->properties['placeholder'].'extensions.'.$key] = $value;
-					}
-
-					foreach ($this->getValuesPlaceholders() as $key => $value) {
-						$output[$this->properties['placeholder'].$key] = $value;
-					}
-					
-					if ($this->getMethod('POST', $this->modx->request->getParameters(array(), 'POST'))) {
-						$this->setValues($this->modx->request->getParameters(array(), 'POST'));
-						
-						$output[$this->properties['placeholder'].'submitted'] = true;
-						
-						foreach ($this->getValuesPlaceholders() as $key => $value) {
-							$output[$this->properties['placeholder'].$key] = $value;
-						}
-						
-						$validator->validate();
-
-						foreach ($extensions->setExtentions('After') as $key => $value) {
-							$output[$this->properties['placeholder'].$key] = $value;
-						}
-
-						if (!$validator->isValid()) {
-							$output[$this->properties['placeholder'].'error'] = $validator->getBulkOutput();
-							
-							foreach ($validator->getOutput() as $key => $value) {
-								$output[$this->properties['placeholder'].'error.'.$key] = $this->getTemplate($this->properties['tplError'], $value);
-							}
-						} else {
-							$this->setCacheForm($this->getValues());
-							
-							if (isset($this->properties['success'])) {
-								if ('reload' == $this->properties['success']) {
-									$this->modx->sendRedirect($this->modx->makeUrl($this->modx->resource->id, null, $this->modx->request->getParameters(), 'full'));
-								} else {
-									if ('get' == $this->properties['method']) {
-										$this->modx->sendRedirect($this->modx->makeUrl($this->properties['success'], null, $this->getValues(), 'full'));
-									} else {
-										$this->modx->sendRedirect($this->modx->makeUrl($this->properties['success'], null, null, 'full'));
-									}
-								}
-							}
-							
-							if (isset($this->properties['tplValidated'])) {
-								if (isset($this->properties['tplWrapper'])) {
-									return $this->getTemplate($this->properties['tplWrapper'], array_merge($output, array(
-										'output' => $this->getTemplate($this->properties['tplValidated'], $output)
-									)));
-								} else {
-									return $this->getTemplate($this->properties['tplValidated'], $output);
-								}
-							}
-						}
-					}
-
-					if (isset($this->properties['tplWrapper'])) {
-						return $this->getTemplate($this->properties['tplWrapper'], array_merge($output, array(
-							'output' => $this->getTemplate($this->properties['tpl'], $output)
-						)));
-					} else {
-						return $this->getTemplate($this->properties['tpl'], $output);
-					}
-				}
-			}
-			return '';
-		}
-		
-		/**
-		 * @acces public.
-		 * @return String.
-		 */
-		public function getForm() {
-			if ($values = $this->getCacheForm()) {
-				$this->modx->setPlaceholders($values);
-			} else {
-				if (!isset($this->properties['redirect'])) {
-					$this->modx->sendRedirect($this->modx->makeUrl($this->modx->resource->parent, null, null, 'full'));
+			if ('GET' == $this->properties['type']) {
+				if (null !== ($values = $this->getCacheForm())) {
+					$this->modx->setPlaceholders($values, $this->properties['prefix']);
 				} else {
-					$this->modx->sendRedirect($this->modx->makeUrl($this->properties['redirect'], null, null, 'full'));
+					if (isset($this->properties['failure'])) {
+						$this->modx->sendRedirect($this->modx->makeUrl($this->properties['failure']));
+					} else {
+						$this->modx->sendRedirect($this->modx->makeUrl($this->modx->resource->parent));
+					}
+				}
+			} else {
+				$prefix = $this->properties['prefix'];
+				
+				$placeholders = array(
+					$prefix.'method' 	=> 'POST',
+					$prefix.'handler'	=> $this->properties['handler'],
+					$prefix.'action'	=> $this->modx->makeUrl($this->modx->resource->id, null, $this->modx->request->getParameters())
+				);
+				
+				if (!in_array($this->properties['action'], array('self', 'this', 'reload'))) {
+					if (is_numeric($this->properties['action'])) {
+						$placeholders[$prefix.'action'] = $this->modx->makeUrl($this->properties['action'], null, $this->modx->request->getParameters());
+					} else {
+						$placeholders[$prefix.'action'] = $this->properties['action'];
+					}
+				}
+				
+				foreach($this->getFormExtensions()->invokeExtensions('onBeforePost') as $key => $extension) {
+					$placeholders[$prefix.'extension.'.$key] = $extension;
+				}
+				
+				foreach ($this->getValues(true) as $key => $value) {
+					$placeholders[$prefix.$key] = $value;
+				}
+				
+				if ($this->isMethod('POST', $this->modx->request->getParameters(array(), 'POST'))) {
+					$placeholders[$prefix.'state'] = 'active';
+					
+					$this->getFormValidator()->validate();
+					
+					foreach($this->getFormExtensions()->invokeExtensions('onValidatePost') as $key => $extension) {
+						$placeholders[$prefix.'extensions.'.$key] = $extension;
+					}
+					
+					foreach ($this->getValues(true) as $key => $value) {
+						$placeholders[$prefix.$key] = $value;
+					}
+					
+					if ($this->getFormValidator()->isValid()) {
+						foreach($this->getFormExtensions()->invokeExtensions('onSuccessPost') as $key => $extension) {
+							$placeholders[$prefix.'extensions.'.$key] = $extension;
+						}
+					} else {
+						foreach($this->getFormExtensions()->invokeExtensions('onFailurePost') as $key => $extension) {
+							$placeholders[$prefix.'extensions.'.$key] = $extension;
+						}
+					}
+					
+					if ($this->getFormValidator()->isValid()) {
+						$this->setCacheForm($this->getValues());
+						
+						if (isset($this->properties['success'])) {
+							if (in_array($this->properties['success'], array('self', 'this', 'reload'))) {
+								if ('GET' == $this->properties['method']) {
+									$this->modx->sendRedirect($this->modx->makeUrl($this->modx->resource->id, null, array_merge($this->modx->request->getParameters(), $this->getValues())));
+								} else{
+									$this->modx->sendRedirect($this->modx->makeUrl($this->modx->resource->id, null, $this->modx->request->getParameters()));
+								}
+							} else {
+								if (is_numeric($this->properties['success'])) {
+									if ('GET' == $this->properties['method']) {
+										$this->modx->sendRedirect($this->modx->makeUrl($this->properties['success'], null, $this->getValues()));
+									} else {
+										$this->modx->sendRedirect($this->modx->makeUrl($this->properties['success']));
+									}
+								} else {
+									$this->modx->sendRedirect($this->properties['success']);
+								}
+							}
+						}
+						
+						if (isset($this->properties['tplSuccess'])) {
+							$this->properties['tpl'] = $this->properties['tplSuccess'];
+						}
+					} else {
+						if (null !== ($bulk = $this->getFormValidator()->getBulkError())) {
+							$placeholders[$prefix.'error'] = $bulk;
+								
+							foreach ($this->getFormValidator()->getErrors() as $key => $error) {
+								$placeholders[$prefix.'error.'.$key] = $this->getTemplate($this->properties['tplError'], $error);
+							}
+						}
+						
+						if (isset($this->properties['tplFailure'])) {
+							$this->properties['tpl'] = $this->properties['tplFailure'];
+						}
+					}
+				}
+				
+				if (isset($this->properties['tplWrapper'])) {
+					return $this->getTemplate($this->properties['tplWrapper'], array_merge($placeholders, array(
+						'output' => $this->getTemplate($this->properties['tpl'], $placeholders)
+					)));
+				} else {
+					return $this->getTemplate($this->properties['tpl'], $placeholders);
 				}
 			}
 			
@@ -323,69 +318,116 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @acces private.
+		 * @return Boolean|Object.
 		 */
-		protected function setValidator() {
-			if ($this->modx->loadClass('FormValidator', $this->modx->getOption('form.core_path', null, $this->modx->getOption('core_path').'components/form/').'model/form/', true, true)) {
-		        $validator = new FormValidator($this->modx, $this);
-		        
-		        if ($validator instanceOf FormValidator) {
-			    	$this->validator = $validator;
-				}
-			}
-		}
-		
-		/**
-		 * @acces public.
-		 * @return Object.
-		 */
-		public function getValidator() {
-			if (null == $this->validator) {
-				$this->setValidator();
-			}
-			
-			return $this->validator;
-		}
-		
-		/**
-		 * @acces protected.
-		 */
-		protected function setExtensions() {
+		private function setFormExtensions() {
 			if ($this->modx->loadClass('FormExtensions', $this->modx->getOption('form.core_path', null, $this->modx->getOption('core_path').'components/form/').'model/form/', true, true)) {
 		        $extensions = new FormExtensions($this->modx, $this);
 		        
 		        if ($extensions instanceOf FormExtensions) {
-			    	$this->extensions = $extensions;
+			    	return $this->extensions = $extensions;
 				}
 			}
+			
+			return false;
 		}
 		
 		/**
-		 * @acces public.
-		 * @return Object.
+		 * @acces private.
+		 * @return Null|Object.
 		 */
-		public function getExtensions() {
-			if (null == $this->extensions) {
-				$this->setExtensions();
+		private function getFormExtensions() {
+			if (null === $this->extensions) {
+				$this->setFormExtensions();
 			}
 			
 			return $this->extensions;
 		}
 		
 		/**
-		 * @acces protected.
-		 * @param String $type.
+		 * @acces private.
+		 * @return Boolean|Object.
+		 */
+		private function setFormValidator() {
+			if ($this->modx->loadClass('FormValidator', $this->modx->getOption('form.core_path', null, $this->modx->getOption('core_path').'components/form/').'model/form/', true, true)) {
+		        $validator = new FormValidator($this->modx, $this);
+		        
+		        if ($validator instanceOf FormValidator) {
+			    	return $this->validator = $validator;
+				}
+			}
+			
+			return false;
+		}
+		
+		/**
+		 * @acces private.
+		 * @return Null|Object.
+		 */
+		private function getFormValidator() {
+			if (null === $this->validator) {
+				$this->setFormValidator();
+			}
+			
+			return $this->validator;
+		}
+		
+		/**
+		 * @acces private.
+		 * @param String $method.
 		 * @param Array $values.
 		 * @return Boolean.
 		 */
-		protected function getMethod($type, $values = array()) {
-			return strtoupper($type) == strtoupper($_SERVER['REQUEST_METHOD']) && isset($values[$this->properties['submit']]);
+		private function isMethod($method, $values = array()) {
+			$state = strtoupper($method) == $_SERVER['REQUEST_METHOD'] && isset($values[$this->properties['handler']]);
+			
+			if ($state) {
+				unset($values[$this->properties['handler']]);
+				
+				$this->setValues($values);
+				$this->setValues($_FILES);
+			}
+			
+			return $state;
 		}
 		
 		/**
 		 * @acces public.
+		 * @param String $key.
+		 * @param String|Array $value.
+		 */
+		public function setValue($key, $value) {
+			switch (gettype($value)) {
+				case 'array':
+					$this->values[$key] = array_filter($value);
+					
+					break;
+				case 'string':
+					$this->values[$key] = trim($value);
+					
+					break;
+			}
+		}
+		
+		/**
+		 * @acces public.
+		 * @param String $key.
+		 * @param Mixed $default.
+		 * @return Mixed.
+		 */
+		public function getValue($key, $default = null) {
+			if (isset($this->values[$key])) {
+				return $this->values[$key];
+			}
+			
+			return $default;
+		}
+		
+		
+		/**
+		 * @acces public.
 		 * @param Array $values.
-		 * @return null.
 		 */
 		public function setValues($values) {
 			foreach ($values as $key => $value) {
@@ -395,76 +437,23 @@
 		
 		/**
 		 * @acces public.
-		 * @return Boolean $all.
+		 * @param Boolean $string.
 		 * @return Array.
 		 */
-		public function getValues($all = false) {
-			if ($all) {
-				return $this->values;
-			}
-			
-			$values = array();
-			
-			foreach ($this->values as $key => $value) {
-				if ($key != $this->properties['submit']) {
-					$values[$key] = $value;
-				}
-			}
-			
-			return $values;
-		}
-		
-		/**
-		 * @acces public.
-		 * @return Boolean $all.
-		 * @return Array.
-		 */
-		public function getValuesPlaceholders($all = false) {
-			$values = $this->getValues();
+		public function getValues($string = false) {
+			$values = $this->values;
 			
 			foreach ($values as $key => $value) {
-				if (is_array($value)) {
-					$values[$key] = implode(',', $value);
+				if ($string && is_array($value)) {
+					if (isset($value['name'])) {
+						$values[$key] = $value['name'];
+					} else {
+						$values[$key] = implode(',', $value);
+					}
 				}
 			}
 			
 			return $values;
-		}
-		
-		/**
-		 * @acces public.
-		 * @param String $key.
-		 * @param String|Array $value.
-		 * @return boolean.
-		 */
-		public function setValue($key, $value) {
-			switch (gettype($value)) {
-				case 'array':
-					$value = array_filter($value);
-					
-					break;
-				case 'string':
-					$value = trim($value);
-					
-					break;	
-			}
-			
-			$this->values[$key] = $value;
-			
-			return true;
-		}
-		
-		/**
-		 * @acces public.
-		 * param String $key.
-		 * @return String|Array.
-		 */
-		public function getValue($key, $default = false) {
-			if (isset($this->values[$key])) {
-				return $this->values[$key];
-			}
-			
-			return $default;
 		}
 		
 		/**
@@ -474,7 +463,7 @@
 		 */
 		public function getCacheOptions($option = null) {
 			$options = array(
-				xPDO::OPT_CACHE_KEY 	=> $this->properties['placeholder'].$this->properties['submit'],
+				xPDO::OPT_CACHE_KEY 	=> rtrim($this->properties['prefix'], '.').'/'.$this->properties['handler'].'/'.md5(session_id()),
 				xPDO::OPT_CACHE_HANDLER => $this->modx->getOption(xPDO::OPT_CACHE_HANDLER, null, 'xPDOFileCache'),
 				xPDO::OPT_CACHE_EXPIRES => 60
 			);
@@ -487,31 +476,11 @@
 		}
 		
 		/**
-		 * @acces protected.
-		 * @return String.
-		 */
-		protected function setCacheKey() {
-			return $_SESSION[$this->getCacheOptions(xPDO::OPT_CACHE_KEY)] = $this->properties['placeholder'].time();
-		}
-		
-		/**
-		 * @acces protected.
-		 * @return String.
-		 */
-		protected function getCacheKey() {
-			if (!isset($_SESSION[$this->getCacheOptions(xPDO::OPT_CACHE_KEY)])) {
-				return $this->setCacheKey();
-			}
-			
-			return $_SESSION[$this->getCacheOptions(xPDO::OPT_CACHE_KEY)];
-		}
-		
-		/**
 		 * @acces public.
 		 * @return Boolean.
 		 */
 		protected function setCacheForm($output) {			
-			return $this->modx->cacheManager->set($this->getCacheKey(), $output, $this->getCacheOptions(xPDO::OPT_CACHE_EXPIRES), $this->getCacheOptions());
+			return $this->modx->cacheManager->set($this->getCacheOptions(xPDO::OPT_CACHE_KEY), $output, $this->getCacheOptions(xPDO::OPT_CACHE_EXPIRES));
 		}
 		
 		/**
@@ -519,13 +488,13 @@
 		 * @return Boolean.
 		 */
 		protected function getCacheForm() {
-			if (null !== ($cache = $this->modx->cacheManager->get($this->getCacheKey(), $this->getCacheOptions()))) {
-				$this->modx->cacheManager->clearCache(array($this->getCacheOptions(xPDO::OPT_CACHE_KEY)));
+			if (null !== ($output = $this->modx->cacheManager->get($this->getCacheOptions(xPDO::OPT_CACHE_KEY)))) {
+				$this->modx->cacheManager->delete($this->getCacheOptions(xPDO::OPT_CACHE_KEY));
 				
-				return $cache;
+				return $output;
 			}
 			
-			return false;
+			return null;
 		}
 	}
 
