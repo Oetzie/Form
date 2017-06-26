@@ -3,10 +3,7 @@
 	/**
 	 * Form
 	 *
-	 * Copyright 2016 by Oene Tjeerd de Bruin <info@oetzie.nl>
-	 *
-	 * This file is part of Form, a real estate property listings component
-	 * for MODX Revolution.
+	 * Copyright 2017 by Oene Tjeerd de Bruin <modx@oetzie.nl>
 	 *
 	 * Form is free software; you can redistribute it and/or modify it under
 	 * the terms of the GNU General Public License as published by the Free Software
@@ -23,8 +20,9 @@
 	 */
 	 
 	require_once dirname(dirname(dirname(dirname(__FILE__)))).'/config.core.php';
-	require_once dirname(dirname(dirname(dirname(__FILE__)))).'/core/config/config.inc.php';
-	require_once dirname(dirname(dirname(dirname(__FILE__)))).'/connectors/index.php';
+
+	require_once MODX_CORE_PATH.'config/'.MODX_CONFIG_KEY.'.inc.php';
+	require_once MODX_CONNECTORS_PATH.'index.php';
 	
 	$instance = $modx->getService('form', 'Form', $modx->getOption('form.core_path', null, $modx->getOption('core_path').'components/form/').'model/form/');
 

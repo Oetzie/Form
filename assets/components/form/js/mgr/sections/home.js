@@ -5,7 +5,17 @@ Ext.onReady(function() {
 Form.page.Home = function(config) {
 	config = config || {};
 	
-	config.buttons = [{
+	config.buttons = [];
+	
+	if (Form.config.branding) {
+		config.buttons.push({
+			text 		: 'Form ' + Form.config.version,
+			cls			: 'x-btn-branding',
+			handler		: this.loadBranding
+		});
+	}
+	
+	config.buttons.push({
     	xtype		: 'modx-combo-context',
     	hidden		: Form.config.context,
         value 		: MODx.request.context || MODx.config.default_context,
@@ -25,7 +35,7 @@ Form.page.Home = function(config) {
 		text		: _('help_ex'),
 		handler		: MODx.loadHelpPane,
 		scope		: this
-	}];
+	});
 	
 	Ext.applyIf(config, {
 		components	: [{
@@ -38,6 +48,9 @@ Form.page.Home = function(config) {
 };
 
 Ext.extend(Form.page.Home, MODx.Component, {
+	loadBranding: function(btn) {
+		window.open(Form.config.branding_url);
+	},
 	filterContext: function(tf) {
 		var request = MODx.request || {};
 		

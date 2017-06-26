@@ -1,3 +1,10 @@
+#modx-action-buttons .x-btn-branding {
+	background: none !important;
+	box-shadow: none !important;
+	border: none !important;
+	color: #555555 !important;
+}
+
 .x-toolbar-cell .x-form-check-wrap .x-form-cb-label {
 	padding-left: 22px !important;
 	line-height: 12px;

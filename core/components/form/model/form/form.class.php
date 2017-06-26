@@ -3,10 +3,7 @@
 	/**
 	 * Form
 	 *
-	 * Copyright 2016 by Oene Tjeerd de Bruin <info@oetzie.nl>
-	 *
-	 * This file is part of Form, a real estate property listings component
-	 * for MODX Revolution.
+	 * Copyright 2017 by Oene Tjeerd de Bruin <modx@oetzie.nl>
 	 *
 	 * Form is free software; you can redistribute it and/or modify it under
 	 * the terms of the GNU General Public License as published by the Free Software
@@ -24,43 +21,43 @@
 
 	class Form {
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @var Object.
 		 */
 		public $modx;
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @var Array.
 		 */
 		public $config = array();
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @var Array.
 		 */
 		public $properties = array();
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @var Object.
 		 */
 		public $extensions = null;
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @var Object.
 		 */
 		public $validator = null;
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @var Array.
 		 */
 		public $values = array();
 
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @param Object $modx.
 		 * @param Array $config.
 		 */
@@ -84,11 +81,16 @@
 				'cronjobs_path' 		=> $corePath.'elements/cronjobs/',
 				'plugins_path' 			=> $corePath.'elements/plugins/',
 				'snippets_path' 		=> $corePath.'elements/snippets/',
+				'templates_path' 		=> $corePath.'templates/',
 				'assets_path' 			=> $assetsPath,
 				'js_url' 				=> $assetsUrl.'js/',
 				'css_url' 				=> $assetsUrl.'css/',
 				'assets_url' 			=> $assetsUrl,
 				'connector_url'			=> $assetsUrl.'connector.php',
+				'version'				=> '1.2.0',
+				'branding'				=> (boolean) $this->modx->getOption('form.branding', null, true),
+				'branding_url'			=> 'http://www.oetzie.nl',
+				'branding_help_url'		=> 'http://www.werkvanoetzie.nl/extras/form',
 				'context'				=> $this->getContexts()
 			), $config);
 			
@@ -104,15 +106,15 @@
 		}
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @return String.
 		 */
 		public function getHelpUrl() {
-			return $this->config['helpurl'];
+			return $this->config['branding_help_url'].'?v='.$this->config['version'];
 		}
 		
 		/**
-		 * @acces private.
+		 * @access private.
 		 * @return Boolean.
 		 */
 		private function getContexts() {
@@ -122,7 +124,7 @@
 		}
 				
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $tpl.
 		 * @param Array $properties.
 		 * @param String $type.
@@ -155,7 +157,7 @@
 		}
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @param Array $scriptProperties.
 		 * @return Boolean.
 		 */
@@ -177,7 +179,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @return Boolean.
 		 */
 		protected function setDefaultProperties() {
@@ -199,7 +201,7 @@
 		}
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @param Array $properties.
 		 * @return String.
 		 */
@@ -318,7 +320,7 @@
 		}
 		
 		/**
-		 * @acces private.
+		 * @access private.
 		 * @return Boolean|Object.
 		 */
 		private function setFormExtensions() {
@@ -334,7 +336,7 @@
 		}
 		
 		/**
-		 * @acces private.
+		 * @access private.
 		 * @return Null|Object.
 		 */
 		private function getFormExtensions() {
@@ -346,7 +348,7 @@
 		}
 		
 		/**
-		 * @acces private.
+		 * @access private.
 		 * @return Boolean|Object.
 		 */
 		private function setFormValidator() {
@@ -362,7 +364,7 @@
 		}
 		
 		/**
-		 * @acces private.
+		 * @access private.
 		 * @return Null|Object.
 		 */
 		private function getFormValidator() {
@@ -374,7 +376,7 @@
 		}
 		
 		/**
-		 * @acces private.
+		 * @access private.
 		 * @param String $method.
 		 * @param Array $values.
 		 * @return Boolean.
@@ -393,7 +395,7 @@
 		}
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @param String $key.
 		 * @param String|Array $value.
 		 */
@@ -411,7 +413,7 @@
 		}
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @param String $key.
 		 * @param Mixed $default.
 		 * @return Mixed.
@@ -426,7 +428,7 @@
 		
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @param Array $values.
 		 */
 		public function setValues($values) {
@@ -436,7 +438,7 @@
 		}
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @param Boolean $string.
 		 * @return Array.
 		 */
@@ -457,7 +459,7 @@
 		}
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @param String $option.
 		 * @return Array.
 		 */
@@ -476,7 +478,7 @@
 		}
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @return Boolean.
 		 */
 		protected function setCacheForm($output) {			
@@ -484,7 +486,7 @@
 		}
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @return Boolean.
 		 */
 		protected function getCacheForm() {

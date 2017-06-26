@@ -21,7 +21,7 @@
 	    'menuindex' 	=> 0,
 	    'params' 		=> '',
 	    'handler' 		=> '',
-	    'permissions'	=> ''
+	    'permissions'	=> 'form'
 	), '', true, true);
 	
 	$menu->addOne($action);

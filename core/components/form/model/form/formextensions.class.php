@@ -3,10 +3,7 @@
 	/**
 	 * Form
 	 *
-	 * Copyright 2016 by Oene Tjeerd de Bruin <info@oetzie.nl>
-	 *
-	 * This file is part of Form, a real estate property listings component
-	 * for MODX Revolution.
+	 * Copyright 2017 by Oene Tjeerd de Bruin <modx@oetzie.nl>
 	 *
 	 * Form is free software; you can redistribute it and/or modify it under
 	 * the terms of the GNU General Public License as published by the Free Software
@@ -24,25 +21,25 @@
 
 	class FormExtensions {
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @var Object.
 		 */
 		public $modx;
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @var Object.
 		 */
 		public $form;
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @var Array.
 		 */
 		public $output;
 
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @param Object $modx.
 		 * @param Object $form.
 		 */
@@ -52,7 +49,7 @@
 		}
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @param String $event.
 		 * @return Array.
 		 */
@@ -87,7 +84,7 @@
 		}
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @param String $event.
 		 * @return Boolean.
 		 */
@@ -100,7 +97,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $event.
 		 * @param Array $properties.
 		 * @return Boolean.
@@ -148,7 +145,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $event.
 		 * @param Array $options.
 		 * @return Boolean.
@@ -215,7 +212,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $event.
 		 * @param Array $options.
 		 * @return Boolean.
@@ -242,7 +239,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $event.
 		 * @param Array $options.
 		 * @return Boolean.
@@ -269,7 +266,7 @@
 		}
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @param Array $options.
 		 * @return Boolean.
 		 */
@@ -419,7 +416,7 @@
 		}
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @param String $key.
 		 * @param String $value.
 		 */
@@ -428,7 +425,7 @@
 		}
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @return Array.
 		 */
 		public function getOutput() {
@@ -436,7 +433,7 @@
 		}
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @return Array.
 		 */
 		public function clearOutput() {

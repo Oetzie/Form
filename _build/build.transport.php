@@ -8,29 +8,31 @@
 	define('PKG_NAME', 			'Form');
 	define('PKG_NAME_LOWER', 	strtolower(PKG_NAME));
 	define('PKG_NAMESPACE', 	strtolower(PKG_NAME));
-	define('PKG_VERSION',		'1.1.0');
+	define('PKG_VERSION',		'1.2.0');
 	define('PKG_RELEASE',		'pl');
 
-	$root = dirname(dirname(__FILE__)).'/';
+	define('PRIVATE_PATH',		dirname(dirname(dirname(__FILE__))).'/private_html/');
+	define('PUBLIC_PATH',		dirname(dirname(__FILE__)).'/');
 
 	$sources = array(
-	    'root' 			=> $root,
-	    'build' 		=> $root.'_build/',
-	    'data' 			=> $root.'_build/data/',
-	    'resolvers' 	=> $root.'_build/resolvers/',
-	    'core' 			=> $root.'core/components/'.PKG_NAME_LOWER,
-	    'assets' 		=> $root.'assets/components/'.PKG_NAME_LOWER,
-	    'chunks' 		=> $root.'core/components/'.PKG_NAME_LOWER.'/elements/chunks/',
-	    'cronjobs' 		=> $root.'core/components/'.PKG_NAME_LOWER.'/elements/cronjobs/',
-	    'plugins' 		=> $root.'core/components/'.PKG_NAME_LOWER.'/elements/plugins/',
-	    'snippets' 		=> $root.'core/components/'.PKG_NAME_LOWER.'/elements/snippets/',
-	    'lexicon' 		=> $root.'core/components/'.PKG_NAME_LOWER.'/lexicon/',
-	    'docs' 			=> $root.'core/components/'.PKG_NAME_LOWER.'/docs/'
+	    'root' 			=> PRIVATE_PATH,
+	    'build' 		=> PUBLIC_PATH.'_build/',
+	    'data' 			=> PUBLIC_PATH.'_build/data/',
+	    'resolvers' 	=> PUBLIC_PATH.'_build/resolvers/',
+	    'core' 			=> PRIVATE_PATH.'core/components/'.PKG_NAME_LOWER,
+	    'assets' 		=> PUBLIC_PATH.'assets/components/'.PKG_NAME_LOWER,
+	    'chunks' 		=> PRIVATE_PATH.'core/components/'.PKG_NAME_LOWER.'/elements/chunks/',
+	    'cronjobs' 		=> PRIVATE_PATH.'core/components/'.PKG_NAME_LOWER.'/elements/cronjobs/',
+	    'plugins' 		=> PRIVATE_PATH.'core/components/'.PKG_NAME_LOWER.'/elements/plugins/',
+	    'snippets' 		=> PRIVATE_PATH.'core/components/'.PKG_NAME_LOWER.'/elements/snippets/',
+	    'widgets' 		=> PRIVATE_PATH.'core/components/'.PKG_NAME_LOWER.'/elements/widgets/',
+	    'lexicon' 		=> PRIVATE_PATH.'core/components/'.PKG_NAME_LOWER.'/lexicon/',
+	    'docs' 			=> PRIVATE_PATH.'core/components/'.PKG_NAME_LOWER.'/docs/'
 	);
 
-	require_once $sources['build'].'/build.config.php';
 	require_once $sources['build'].'/includes/functions.php';
-	require_once MODX_CORE_PATH.'model/modx/modx.class.php';
+	require_once PRIVATE_PATH.'core/config/config.inc.php';
+	require_once PRIVATE_PATH.'core/model/modx/modx.class.php';
 	
 	$modx = new modX();
 	$modx->initialize('mgr');
@@ -134,6 +136,24 @@
 	        )
 	    )
 	)));
+	
+	if (file_exists($sources['data'].'transport.widgets.php')) {
+		$modx->log(modX::LOG_LEVEL_INFO, 'Packaging in widgets(s) into category...');
+		
+		$widgets = include $sources['data'].'transport.widgets.php';
+	
+		foreach ($widgets as $key => $value) {
+			$builder->putVehicle($builder->createVehicle($value, array(
+				xPDOTransport::UNIQUE_KEY 		=> 'name',
+				xPDOTransport::PRESERVE_KEYS 	=> false,
+				xPDOTransport::UPDATE_OBJECT 	=> true
+			)));
+		}
+		
+		$modx->log(modX::LOG_LEVEL_INFO, 'Packed widgets(s) '.count($widgets).' into category.');
+	} else {
+		$modx->log(modX::LOG_LEVEL_INFO, 'No widgets(s) to pack...');
+	}
 	
 	if (file_exists($sources['data'].'transport.settings.php')) {
 		$settings = include $sources['data'].'transport.settings.php';

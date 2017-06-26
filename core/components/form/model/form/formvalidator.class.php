@@ -3,10 +3,7 @@
 	/**
 	 * Form
 	 *
-	 * Copyright 2016 by Oene Tjeerd de Bruin <info@oetzie.nl>
-	 *
-	 * This file is part of Form, a real estate property listings component
-	 * for MODX Revolution.
+	 * Copyright 2017 by Oene Tjeerd de Bruin <modx@oetzie.nl>
 	 *
 	 * Form is free software; you can redistribute it and/or modify it under
 	 * the terms of the GNU General Public License as published by the Free Software
@@ -24,25 +21,25 @@
 
 	class FormValidator {
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @var Object.
 		 */
 		public $modx;
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @var Object.
 		 */
 		public $form;
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @var Array.
 		 */
 		public $errors = array();
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @param Object $modx.
 		 * @param Object $form.
 		 */
@@ -52,7 +49,7 @@
 		}
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @return Boolean.
 		 */
 		public function validate() {
@@ -92,7 +89,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @return Boolean.
 		 */
@@ -122,7 +119,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @param Null|String $argument.
 		 * @return Boolean.
@@ -138,7 +135,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @return Boolean.
 		 */
@@ -164,7 +161,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @param Null|String $argument.
 		 * @return Boolean.
@@ -197,7 +194,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @param Null|String $argument.
 		 * @return Boolean.
@@ -230,7 +227,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @param Null|String $argument.
 		 * @return Boolean.
@@ -252,7 +249,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @param Null|String $argument.
 		 * @return Boolean.
@@ -285,7 +282,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @param Null|String $argument.
 		 * @return Boolean.
@@ -318,7 +315,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @param Null|String $argument.
 		 * @return Boolean.
@@ -358,7 +355,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @param Null|String $argument.
 		 * @return Boolean.
@@ -391,7 +388,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @param Null|String $argument.
 		 * @return Boolean.
@@ -424,7 +421,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @param Null|String $argument.
 		 * @return Boolean.
@@ -464,7 +461,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @param Null|String $argument.
 		 * @return Boolean.
@@ -486,7 +483,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @return Boolean.
 		 */
@@ -505,7 +502,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @return Boolean.
 		 */
@@ -524,7 +521,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @return Boolean.
 		 */
@@ -543,7 +540,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @return Boolean.
 		 */
@@ -562,7 +559,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @return Boolean.
 		 */
@@ -581,7 +578,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @return Boolean.
 		 */
@@ -600,7 +597,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @return Boolean.
 		 */
@@ -619,7 +616,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @return Boolean.
 		 */
@@ -638,7 +635,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @param Null|String $argument.
 		 * @return Boolean.
@@ -662,7 +659,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @param Null|String $argument.
 		 * @return Boolean.
@@ -697,7 +694,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @param Null|String $argument.
 		 * @return Boolean.
@@ -732,7 +729,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @param Null|String $argument.
 		 * @return Boolean.
@@ -770,7 +767,7 @@
 		}
 		
 		/**
-		 * @acces protected.
+		 * @access protected.
 		 * @param String $key.
 		 * @param Null|String $argument.
 		 * @return Boolean.
@@ -794,7 +791,7 @@
 		}
 
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @return Null|String.
 		 */
 		public function getBulkError() {
@@ -840,7 +837,7 @@
 		}
 
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @param String $key.
 		 * @param String $error.
 		 * @param Array $properties.
@@ -863,7 +860,7 @@
 		}
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @param String $key.
 		 * @param Mixed $default.
 		 * @return Array.
@@ -877,7 +874,7 @@
 		}
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @param Boolean $bulk.
 		 * @return Array.
 		 */
@@ -898,7 +895,7 @@
 		}
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @return Array.
 		 */
 		public function clearErrors() {
@@ -906,7 +903,7 @@
 		}
 		
 		/**
-		 * @acces public.
+		 * @access public.
 		 * @return Boolean.
 		 */
 		public function isValid() {

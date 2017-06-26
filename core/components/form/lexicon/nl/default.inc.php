@@ -3,10 +3,7 @@
 	/**
 	 * Form
 	 *
-	 * Copyright 2016 by Oene Tjeerd de Bruin <info@oetzie.nl>
-	 *
-	 * This file is part of Form, a real estate property listings component
-	 * for MODX Revolution.
+	 * Copyright 2017 by Oene Tjeerd de Bruin <modx@oetzie.nl>
 	 *
 	 * Form is free software; you can redistribute it and/or modify it under
 	 * the terms of the GNU General Public License as published by the Free Software
@@ -55,8 +52,6 @@
 	$_lang['form.form_show']										= 'Formulier bekijken';
 	$_lang['form.form_remove']										= 'Formulier verwijderen';
 	$_lang['form.form_remove_confirm']								= 'Weet je zeker dat je dit formulier wilt verwijderen?';
-	$_lang['form.forms_remove_selected']							= 'Geselecteerde formulieren verwijderen';
-	$_lang['form.forms_remove_selected_confirm']					= 'Weet je zeker dat je de geselecteerde formulieren wilt verwijderen?';
 	$_lang['form.forms_reset']										= 'Alle formulieren verwijderen';
 	$_lang['form.forms_reset_confirm']								= 'Weet je zeker dat je alle formulieren wilt verwijderen?';
 	

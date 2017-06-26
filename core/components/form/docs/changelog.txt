@@ -3,6 +3,14 @@ Form
 ----------------------
 
 ----------------------
+Version: 1.2.0
+Released: 2017-05-15
+----------------------
+- Bug fixes
+- Connector includes fixed for custom core path
+- Permissions added
+
+----------------------
 Version: 1.1.0
 Released: 2017-02-02
 ----------------------

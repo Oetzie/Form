@@ -4,10 +4,6 @@ Form.grid.Forms = function(config) {
 	config.tbar = [{
 		text		: _('bulk_actions'),
 		menu		: [{
-			text		: _('form.forms_remove_selected'),
-			handler		: this.removeSelectedForms,
-			scope		: this
-		}, '-', {
 			text		: _('form.forms_reset'),
 			handler		: this.resetForms,
 			scope		: this
@@ -30,7 +26,7 @@ Form.grid.Forms = function(config) {
         emptyText	: _('form.filter_names'),
         listeners	: {
         	'select'	: {
-	           	fn			: this.filterNames,
+	        	fn			: this.filterNames,
 	            scope		: this   
 		    }
 		}
@@ -82,7 +78,7 @@ Form.grid.Forms = function(config) {
     sm = new Ext.grid.CheckboxSelectionModel();
 
     columns = new Ext.grid.ColumnModel({
-        columns: [sm, {
+        columns: [{
             header		: _('form.label_name'),
             dataIndex	: 'name',
             sortable	: true,
@@ -123,7 +119,6 @@ Form.grid.Forms = function(config) {
     });
     
     Ext.applyIf(config, {
-    	sm			: sm,
     	cm			: columns,
         id			: 'form-grid-forms',
         url			: Form.config.connector_url,
@@ -135,7 +130,7 @@ Form.grid.Forms = function(config) {
         paging		: true,
         pageSize	: MODx.config.default_per_page > 30 ? MODx.config.default_per_page : 30,
         sortBy		: 'id',
-        gridRefresh	: {
+        refresher	: {
 	        timer 		: null,
 	        duration	: 30,
 	        count 		: 0
@@ -147,22 +142,20 @@ Form.grid.Forms = function(config) {
 
 Ext.extend(Form.grid.Forms, MODx.grid.Grid, {
 	autoRefresh: function(tf, nv) {
-		var scope = this;
-		
 		if (nv) {
-			scope.config.gridRefresh.timer = setInterval(function() {
-				tf.setBoxLabel(_('form.auto_refresh_grid') + ' (' + (scope.config.gridRefresh.duration - scope.config.gridRefresh.count) + ')');
+			this.config.refresher.timer = setInterval((function() {
+				tf.setBoxLabel(_('form.auto_refresh_grid') + ' (' + (this.config.refresher.duration - this.config.refresher.count) + ')');
 				
-				if (0 == (scope.config.gridRefresh.duration - scope.config.gridRefresh.count)) {
-					scope.config.gridRefresh.count = 0;
+				if (0 == (this.config.refresher.duration - this.config.refresher.count)) {
+					this.config.refresher.count = 0;
 					
-					scope.getBottomToolbar().changePage(1);
+					this.refresh();
 				} else {
-					scope.config.gridRefresh.count++;
+					this.config.refresher.count++;
 				}
-			}, 1000);
+			}).bind(this), 1000);
 		} else {
-			clearInterval(scope.config.gridRefresh.timer);
+			clearInterval(this.config.refresher.timer);
 		}
 	},
 	filterNames: function(tf, nv, ov) {
@@ -223,14 +216,14 @@ Ext.extend(Form.grid.Forms, MODx.grid.Grid, {
     },
     removeForm: function(btn, e) {
     	MODx.msg.confirm({
-        	title 	: _('form.form_remove'),
-        	text	: _('form.form_remove_confirm'),
-        	url		: Form.config.connector_url,
-        	params	: {
-            	action	: 'mgr/forms/remove',
-            	id		: this.menu.record.id
+        	title 		: _('form.form_remove'),
+        	text		: _('form.form_remove_confirm'),
+        	url			: Form.config.connector_url,
+        	params		: {
+            	action		: 'mgr/forms/remove',
+            	id			: this.menu.record.id
             },
-            listeners: {
+            listeners	: {
             	'success'	: {
             		fn			: this.refresh,
             		scope		: this
@@ -238,41 +231,15 @@ Ext.extend(Form.grid.Forms, MODx.grid.Grid, {
             }
     	});
     },
-    removeSelectedForms: function(btn, e) {
-    	var cs = this.getSelectedAsList();
-    	
-        if (cs === false) {
-        	return false;
-        }
-        
-    	MODx.msg.confirm({
-        	title 	: _('form.forms_remove_selected'),
-        	text	: _('form.forms_remove_selected_confirm'),
-        	url		: Form.config.connector_url,
-        	params	: {
-            	action	: 'mgr/forms/removeselected',
-            	ids		: cs
-            },
-            listeners: {
-            	'success'	: {
-            		fn			: function() {
-            			this.getSelectionModel().clearSelections(true);
-            			this.refresh();
-            		},
-            		scope		: this
-            	}
-            }
-    	});
-    },
     resetForms: function(btn, e) {
     	MODx.msg.confirm({
-        	title 	: _('form.forms_reset'),
-        	text	: _('form.forms_reset_confirm'),
-        	url		: Form.config.connector_url,
-        	params	: {
-            	action	: 'mgr/forms/reset'
+        	title 		: _('form.forms_reset'),
+        	text		: _('form.forms_reset_confirm'),
+        	url			: Form.config.connector_url,
+        	params		: {
+            	action		: 'mgr/forms/reset'
             },
-            listeners: {
+            listeners	: {
             	'success'	: {
             		fn			: this.refresh,
             		scope		: this
@@ -309,15 +276,36 @@ Form.window.ShowForm = function(config) {
         title 		: _('form.form_show'),
 	    labelAlign	: 'left',
 	    labelWidth	: 200,
-        fields		: this.getFormData(config.record.data)
+        fields		: this.getFormData(config.record, config.record.data)
 	});
     
     Form.window.ShowForm.superclass.constructor.call(this, config);
 };
 
 Ext.extend(Form.window.ShowForm, MODx.Window, {
-	getFormData : function(data) {
-		var elements = [];
+	getFormData : function(record, data) {
+		var elements = [{
+			xtype		: 'statictextfield',
+	        fieldLabel	: _('form.label_ipnumber'),
+	        value		: record.ip,
+	        anchor 		: '100%',
+	        readOnly	: true
+	    }, {
+			xtype		: 'statictextfield',
+	        fieldLabel	: _('form.label_active'),
+	        value		: 1 == parseInt(record.active) || record.active ? _('form.valid') : _('form.notvalid'),
+	        cls			: 1 == parseInt(record.active) || record.active ? 'green' : 'red',
+	        anchor 		: '100%',
+	        readOnly	: true
+	    }, {
+			xtype		: 'statictextfield',
+	        fieldLabel	: _('form.label_date'),
+	        value		: record.editedon,
+	        anchor 		: '100%',
+	        readOnly	: true
+	    }, {
+		    html		: '<hr />'
+	    }];
 		
 		for (key in data) {
 			var element = data[key];
@@ -342,7 +330,7 @@ Ext.extend(Form.window.ShowForm, MODx.Window, {
 						items		: items,
 						columns		: 1,
 						anchor 		: '100%',
-				        disabled 	: true
+				        readOnly 	: true
 					});
 				
 					break;
@@ -352,7 +340,7 @@ Ext.extend(Form.window.ShowForm, MODx.Window, {
 				        fieldLabel	: element.label,
 				        value		: undefined == element.values[element.value] ? element.value : element.values[element.value],
 				        anchor 		: '100%',
-				        disabled	: true
+				        readOnly	: true
 				    });
 				    
 					break;
@@ -362,7 +350,7 @@ Ext.extend(Form.window.ShowForm, MODx.Window, {
 				        fieldLabel	: element.label,
 				        value 		: element.value,
 				        anchor 		: '100%',
-				        disabled	: true
+				        readOnly	: true
 				    });
 			    
 					break;
@@ -373,7 +361,7 @@ Ext.extend(Form.window.ShowForm, MODx.Window, {
 				        fieldLabel	: element.label,
 				        value 		: element.value,
 				        anchor 		: '100%',
-				        disabled	: true
+				        readOnly	: true
 				    });
 				    
 					break;
@@ -384,7 +372,7 @@ Ext.extend(Form.window.ShowForm, MODx.Window, {
 					        fieldLabel	: element.label,
 					        value		: element.value,
 					        anchor 		: '100%',
-					        disabled	: true
+					        readOnly	: true
 					    });
 					}
 
@@ -399,7 +387,7 @@ Ext.extend(Form.window.ShowForm, MODx.Window, {
 			            value		: _('form.is_' + element.error.type.toLowerCase(), element.error),
 			            anchor 		: '100%',
 			            cls			: 'red',
-					    disabled	: true
+					    readOnly	: true
 			        });
 				} else {
 					elements.push({
