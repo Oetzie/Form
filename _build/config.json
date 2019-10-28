@@ -1,0 +1,62 @@
+{
+    "name": "Form",
+    "lowCaseName": "form",
+    "description": "A form solution for MODX Revolution.",
+    "author": "Oetzie.nl",
+    "version": "1.3.0-pl",
+    "package":{
+        "menus": [{
+            "text": "form",
+            "description": "form.desc",
+            "parent": "form",
+            "action": "home",
+            "permissions": "form"
+        }],
+        "elements": {
+            "snippets": [{
+                "name": "Form",
+                "file": "form.snippet.php"
+            }]
+        },
+        "systemSettings": [{
+            "key": "branding_url",
+            "value": "//www.oetzie.nl",
+            "area": "form"
+        },{
+            "key": "branding_url_help",
+            "value": "//www.oetzie.nl",
+            "area": "form"
+        },{
+            "key": "clean_days",
+            "value": "30",
+            "area": "form"
+        },{
+            "type": "combo-boolean",
+            "key": "encrypt",
+            "value": "1",
+            "area": "form"
+        },{
+            "type": "combo-boolean",
+            "key": "form_save_invalid",
+            "value": "1",
+            "area": "form_save"
+        },{
+            "key": "recaptcha_secret_key",
+            "area": "form_recaptcha"
+        },{
+            "key": "recaptcha_site_key",
+            "area": "form_recaptcha"
+        }]
+    },
+    "build":{
+        "readme": "docs/readme.txt",
+        "license": "docs/license.txt",
+        "changelog": "docs/changelog.txt",
+        "resolver": {
+            "after": [
+                "tables.resolver.php",
+                "permissions.resolver.php"
+            ]
+        }
+    }
+}

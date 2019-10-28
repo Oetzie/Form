@@ -1,0 +1,30 @@
+<?php return array (
+  'preserve_keys' => true,
+  'update_object' => true,
+  'unique_key' => 'text',
+  'related_objects' => true,
+  'related_object_attributes' => 
+  array (
+    'Action' => 
+    array (
+      'preserve_keys' => false,
+      'update_object' => true,
+      'unique_key' => 
+      array (
+        0 => 'namespace',
+        1 => 'controller',
+      ),
+    ),
+  ),
+  'namespace' => 'form',
+  'resolve' => NULL,
+  'validate' => NULL,
+  'vehicle_package' => 'transport',
+  'vehicle_class' => 'xPDOObjectVehicle',
+  'guid' => 'a3c8fd7af73ea2a9fbe9576b764fd1c6',
+  'package' => 'modx',
+  'class' => 'modMenu',
+  'signature' => '58516a6264ba84ff92852bdf5de6aa8a',
+  'native_key' => 'form',
+  'object' => '{"text":"form","parent":"form","action":"home","description":"form.desc","icon":"","menuindex":0,"params":"","handler":"","permissions":"form","namespace":"form"}',
+);

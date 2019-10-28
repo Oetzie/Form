@@ -1,0 +1,16 @@
+<?php return array (
+  'unique_key' => 'key',
+  'preserve_keys' => true,
+  'update_object' => false,
+  'namespace' => 'form',
+  'resolve' => NULL,
+  'validate' => NULL,
+  'vehicle_package' => 'transport',
+  'vehicle_class' => 'xPDOObjectVehicle',
+  'guid' => '5349bae04ebdc555d9bc8167d8fe6936',
+  'package' => 'modx',
+  'class' => 'modSystemSetting',
+  'signature' => '3692074f00fe42d2548c21514f98d4eb',
+  'native_key' => 'form.branding_url_help',
+  'object' => '{"key":"form.branding_url_help","value":"\\/\\/www.oetzie.nl","xtype":"textfield","namespace":"form","area":"form","editedon":null}',
+);
