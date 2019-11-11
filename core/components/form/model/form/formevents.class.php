@@ -141,26 +141,52 @@ class FormEvents
     /**
      * @access public.
      * @param String $event.
+     * @param String $properties.
      * @return Mixed.
      */
-    public function recaptcha($event)
+    public function recaptcha($event, $properties)
     {
         if (in_array($event, [self::BEFORE_POST, self::VALIDATE_POST], true)) {
+            $publicKey = $this->form->getOption('recaptcha_site_key');
+
+            if (empty($publicKey)) {
+                $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.recaptcha.' . $event .'] could not init recaptcha, site key not set.');
+
+                return false;
+            }
+
+            $actionKey      = 'g-recaptcha-action';
+            $responseKey    = 'g-recaptcha-response';
+
+            if ($properties === 'v3') {
+                $actionKey      = 'g-recaptcha-action-' . $this->form->getProperty('submit');
+                $responseKey    = 'g-recaptcha-response-' . $this->form->getProperty('submit');
+            }
+
             if ($event === self::BEFORE_POST) {
+                if ($properties === 'v3') {
+                    return [
+                        'output' => '<script src="https://www.google.com/recaptcha/api.js?render=' . $publicKey .'"></script>
+                        <input type="hidden" name="' . $actionKey . '" value="' . str_replace('-', '_', $actionKey) . '">
+                        <input type="hidden" name="' . $responseKey .'" id="' . $responseKey . '" />
+                        <script type="text/javascript">
+                            grecaptcha.ready(function() {
+                                grecaptcha.execute(\'' . $publicKey . '\', {action: \'' . str_replace('-', '_', $actionKey) . '\'}).then(function(token) {
+                                    document.querySelector(\'[id="' . $responseKey . '"]\').value = token;
+                                });
+                            });
+                        </script>'
+                    ];
+                }
+
                 return [
-                    'output' => '<div class="g-recaptcha" data-sitekey="' . $this->modx->getOption('form.recaptcha_site_key') . '"></div>'
+                    'output' => '<script src="https://www.google.com/recaptcha/api.js"></script>
+                    <div class="g-recaptcha" data-sitekey="' . $publicKey . '"></div>'
                 ];
             }
 
             if ($this->form->getValidator()->isValid()) {
-                $publicKey  = $this->form->getOption('recaptcha_site_key');
                 $secretKey  = $this->form->getOption('recaptcha_secret_key');
-
-                if (empty($publicKey)) {
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.recaptcha.' . $event .'] could not init recaptcha, site key not set.');
-
-                    return false;
-                }
 
                 if (empty($publicKey)) {
                     $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.recaptcha.' . $event .'] could not init recaptcha, secret key not set.');
@@ -176,8 +202,8 @@ class FormEvents
                         CURLOPT_RETURNTRANSFER  => true,
                         CURLOPT_CONNECTTIMEOUT  => 10,
                         CURLOPT_POSTFIELDS      => http_build_query([
-                            'secret'                => $this->modx->getOption('form.recaptcha_secret_key'),
-                            'response'              => $this->form->getCollection()->getValue('g-recaptcha-response')
+                            'secret'                => $secretKey,
+                            'response'              => $this->form->getCollection()->getValue($responseKey)
                         ])
                     ]);
 

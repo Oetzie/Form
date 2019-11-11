@@ -6,11 +6,11 @@
  * Copyright 2019 by Oene Tjeerd de Bruin <modx@oetzie.nl>
  */
 
-$package = 'ClientSettings';
+$package = 'Form';
 
 $permissions = [[
     'name'          => 'form',
-    'description'   => 'To view the Form package.',
+    'description'   => 'To view the form package.',
     'templates'     => ['AdministratorTemplate']
 ]];
 
