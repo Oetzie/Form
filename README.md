@@ -120,11 +120,13 @@ Each plugin will be triggered multiple times:
 * `onAfterPost`, get triggered after a succeed form validation.
 
 **Example plugin with custom snippet:**
+
+The following code is a simple example how to use a custom snippet as plugin. The key of the in the `plugins` value is the name of the custom snippet thats needs to be triggerd.
 ```
 {'!Form' | snippet : [
     'plugins'               => [
         'mailchimp'             => [
-            'list'                  => 'The id of the MailChimp list',
+            'list_id'               => 'The id of the MailChimp list',
             'double_optin;          => true
         ]
     ]
@@ -133,6 +135,13 @@ Each plugin will be triggered multiple times:
 
 ```
 <?php
+
+    /**
+     * Custom snippet with the name: mailchimp.
+     * @param $event, the name of the event (onBeforePost, onValidatePost or onAfterPost).
+     * @param $properties, the properties of the plugin. In this example it contains 'list' and 'double_optin'.
+     * @param $form, the form object. $form->getCollection() contains the values object, $form->getCollection() contains the validator object.
+     */
 
     if ($event === 'onBeforePost') {
         // Gets triggered before the form renders.
@@ -156,7 +165,7 @@ Each plugin will be triggered multiple times:
     
     if ($event === 'onAfterPost') {
         // Get triggered after a succeed form validation.
-        // CURL to the MailChimp API.
+        // CURL to the MailChimp API, $properties['list_id'], $properties['double_optin'].
         
         return true;
     }
