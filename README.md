@@ -1,7 +1,7 @@
 # MODX Form
 ![Form version](https://img.shields.io/badge/version-1.3.0-blue.svg) ![MODX Extra by Oetzie.nl](https://img.shields.io/badge/checked%20by-oetzie-blue.svg) ![MODX version requirements](https://img.shields.io/badge/modx%20version%20requirement-2.4%2B-brightgreen.svg)
 
-**Snippet parameters:**
+*Snippet parameters:*
 
 | Parameter                  | Description                                                                  |
 |----------------------------|------------------------------------------------------------------------------|
@@ -23,7 +23,7 @@
 | usePdoTools | If `true` pdoTool will be used for the tpl's (Fenom is also available). `@FILE` and `@INLINE` are also available without PdoTools. Default is `false`. |
 | usePdoElementsPath | If `true` pdoTools will use the `pdotools_elements_path` setting to locate the `@FILE` tpl's, otherwise the `core/components/form/` will be used as directory. Default is `false`. |
 
-**Build-in validators:**
+*Build-in validators:*
 
 | Validation rule            | Description                                                                  |
 |----------------------------|------------------------------------------------------------------------------|
@@ -56,7 +56,7 @@
 | fileExtension | The valid need to have a valid upload with a specified file size. |
 | age | The field needs to have a valid date and calculates the age that needs to be older then a specified age. |
 
-**Build-in plugins:**
+*Build-in plugins:*
 
 | Plugin                     | Description                                                                  |
 |----------------------------|------------------------------------------------------------------------------|
@@ -102,12 +102,17 @@
 ]}
 ```
 
-**Example chunk:**
+*Example chunk:*
 
 All form values are stored in an array that is available as the `values` placeholder. You can access a value by the name of the field like `{$_pls['values']['FIELD_NAME']` or `[[+values.FIELD_NAME]]`.
 
 All the validation errors are stored in an array that is avaible as the `errors` placeholder. You can access an error by the name of the field like `{$_pls['values']['FIELD_NAME']` or `[[+values.FIELD_NAME]]`. The error returns an array
-with two keys. Error, the first occurred error of the field. Errors, all the occurred errors of the field. Get the first occurred error of the field `{$_pls['values']['FIELD_NAME']['error']` or `[[+values.FIELD_NAME.error]]`.
+with two keys:
+
+* Error, the first occurred error of the field.
+* Errors, all the occurred errors of the field. 
+
+To display the first occurred error of the field `{$_pls['values']['FIELD_NAME']['error']` or `[[+values.FIELD_NAME.error]]`.
 
 ```
 <form novalidate action="{$action}" method="{$method}" class="form {$active ? 'form-active' : ''}">
