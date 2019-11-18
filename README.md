@@ -6,7 +6,7 @@
 | Parameter                  | Description                                                                  |
 |----------------------------|------------------------------------------------------------------------------|
 | action | The action of the form. This can be an URL, ID of a resource, of `resource`. If set to `resource` the action will be set to the current resource. This parameter will be available as the `{$action}` placeholder. Default is `resource`. |
-| method | The method of the form. This can be `POST` or `GET`. This parameter will be available as the `{$method}` placeholder. Default is `POST` |
+| method | The method of the form. This can be `POST` or `GET`. This parameter will be available as the `{$method}` placeholder. Default is `POST`. |
 | submit | The submit action of the form. Default is `submit`. |
 | retriever | |
 | prefix | The prefix of the placeholders, this prefix will used if you not work with the `tpl` parameter. |
