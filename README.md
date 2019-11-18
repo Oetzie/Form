@@ -138,20 +138,22 @@ The following code is a simple example how to use a custom snippet as plugin. Th
 
     /**
      * Custom snippet with the name: mailchimp.
+     *
+     * Available parameters:
      * @param $event, the name of the event (onBeforePost, onValidatePost or onAfterPost).
      * @param $properties, the properties of the plugin. In this example it contains 'list' and 'double_optin'.
      * @param $form, the form object. $form->getCollection() contains the values object, $form->getCollection() contains the validator object.
      */
 
+    // Gets triggered before the form renders.
     if ($event === 'onBeforePost') {
-        // Gets triggered before the form renders.
         $form->getCollection()->setValue('email', 'modx@oetzie.nl');
         
         return true;
     }
     
+    // Gets triggered during the form validation (after the validation rules).
     if ($event === 'onValidatePost') {
-        // Gets triggered during the form validation (after the validation rules).
         $email = $form->getCollection()->getValue('email');
         
         if (empty($email)) {
@@ -163,9 +165,16 @@ The following code is a simple example how to use a custom snippet as plugin. Th
         return true;
     }
     
+    // Get triggered after a succeed form validation.
+    // CURL to the MailChimp API, $properties['list_id'], $properties['double_optin'].
     if ($event === 'onAfterPost') {
-        // Get triggered after a succeed form validation.
-        // CURL to the MailChimp API, $properties['list_id'], $properties['double_optin'].
+        $state = curl...
+        
+        if (!$state) {
+            $form->getValidator()->setError('email', 'An error has occurred during the MailChimp api call.');
+            
+            return false;
+        }
         
         return true;
     }
