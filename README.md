@@ -73,7 +73,7 @@
         // Content field required.
         'content'               => 'required',
         
-        // Age field required and age validator.
+        // Age field required and age validator with the minimum age of 18.
         'age'                   => [
             'age'                   => 18,
             'required'              => true
