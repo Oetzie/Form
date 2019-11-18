@@ -1,9 +1,6 @@
 # MODX Form
 ![Form version](https://img.shields.io/badge/version-1.3.0-blue.svg) ![MODX Extra by Oetzie.nl](https://img.shields.io/badge/checked%20by-oetzie-blue.svg) ![MODX version requirements](https://img.shields.io/badge/modx%20version%20requirement-2.4%2B-brightgreen.svg)
 
-Current version: 1.3.0-pl
-Author: Oene Tjeerd de Bruin <modx@oetzie.nl>
-
 Form is a snippet to handle forms in MODx. It will validate the form and triggers actions like sending an email if the validation succeed. It does not generate the form, but it can repopulate it if it fails validation
 
 ## Snippet parameters
