@@ -61,10 +61,23 @@
 ```
 {'!Form' | snippet : [
     'validator'             => [
+        // Name field required.
         'name'                  => 'required',
+        
+        // Phone field required and phone validator.
         'phone'                 => ['phone', 'required'],
+        
+        // Email field required and email validator.
         'email'                 => ['email', 'required'],
-        'content'               => 'required'
+        
+        // Content field required.
+        'content'               => 'required',
+        
+        // Age field required and age validator.
+        'age'                   => [
+            'age'                   => 18,
+            'required'              => true
+        ]
     ],
     'validatorMessages'     => [
         'required'              => 'This field is required'
@@ -76,7 +89,7 @@
 
 A form can handle plugin/events, in FormIt know as hooks.
 
-## Build-in plugins
+### Build-in plugins
 
 | Plugin                     | Description                                                                  |
 |----------------------------|------------------------------------------------------------------------------|
@@ -110,7 +123,7 @@ A form can handle plugin/events, in FormIt know as hooks.
 ]}
 ```
 
-## Custom plugins
+### Custom plugins
 
 Each plugin will be triggered multiple times:
 
