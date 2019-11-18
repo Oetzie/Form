@@ -159,7 +159,7 @@ The following code is a simple example how to use a custom snippet as plugin. Th
      * Available parameters:
      * @param $event, the name of the event (onBeforePost, onValidatePost or onAfterPost).
      * @param $properties, the properties of the plugin. In this example it contains 'list' and 'double_optin'.
-     * @param $form, the form object. $form->getCollection() contains the values object, $form->getCollection() contains the validator object.
+     * @param $form, the form object. $form->getCollection() contains the values object, $form->getValidator() contains the validator object.
      */
 
     // Gets triggered before the form renders.
