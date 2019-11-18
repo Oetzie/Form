@@ -12,9 +12,9 @@
 | prefix | The prefix of the placeholders, this prefix will used if you not work with the `tpl` parameter. Default is `form`.|
 | validator | The validation rules of the form. This must be a valid array. |
 | validatorMessages | The custom validation messages for the validation rules. This must be a valid array. If empty the default validation messages (in the `validation.inc.php` lexicon file) will be used. |
-| plugins | |
-| success | |
-| failure | |
+| plugins | The plugins of the form. This must be a valid array. |
+| success | The success action of the form, if the validation is succeed the form will be redirected to this action. This can be an URL, ID of a resource, or `resource`. If set to `resource` the success action will be set to the current resource. If set to an ID of a resource or `resource` the current URL parameters will be merged in this action URL. If empty the form will not be redirected after a succeed validation. |
+| failure | The failed action of the form, if the validation is failed the form will be redirected to this action. This can be an URL, ID of a resource, or `resource`. If set to `resource` the failed action will be set to the current resource. If set to an ID of a resource or `resource` the current URL parameters will be merged in this action URL. If empty the form will not be redirected after a failed validation. |
 | tpl | The template of the form. This can be a chunk name or prefixed with `@FILE` or `@INLINE`. If empty all placeholders will set with the prefix to be used after the snippet call. |
 | tplSuccess | The template of the form if the validation succeed. This will replace the form template if not empty. |
 | tplFailure | The template of the form if the validation failed. This will replace the form template if not empty. |
@@ -97,7 +97,7 @@ A form can handle plugin/events, in FormIt know as hooks.
 | save | Saves the form data encrypted into the database (custom manager component). |
 | email | Sent the form data by email to specified emails (multiple emails supported, email to administrator, email to client etc). |
 
-**Example Recaptcha plugin:**
+**Example ReCaptcha plugin:**
 
 
 ```
@@ -131,7 +131,7 @@ Each plugin will be triggered multiple times:
 * `onValidatePost`, gets triggered during the form validation (after the validation rules).
 * `onAfterPost`, get triggered after a succeed form validation.
 
-**Example plugin with custom snippet:**
+**Example custom plugin:**
 
 The following code is a simple example how to use a custom snippet as plugin. The key of the in the `plugins` value is the name of the custom snippet thats needs to be triggerd.
 ```
