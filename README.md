@@ -103,6 +103,12 @@
 ```
 
 **Example chunk:**
+
+All form values are stored in an array that is available as the `values` placeholder. You can access a value by the name of the field like `{$_pls['values']['FIELD_NAME']` or `[[+values.FIELD_NAME]]`.
+
+All the validation errors are stored in an array that is avaible as the `errors` placeholder. You can access an error by the name of the field like `{$_pls['values']['FIELD_NAME']` or `[[+values.FIELD_NAME]]`. The error returns an array
+with two keys. Error, the first occurred error of the field. Errors, all the occurred errors of the field. Get the first occurred error of the field `{$_pls['values']['FIELD_NAME']['error']` or `[[+values.FIELD_NAME.error]]`.
+
 ```
 <form novalidate action="{$action}" method="{$method}" class="form {$active ? 'form-active' : ''}">
     {$error_message}
