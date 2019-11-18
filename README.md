@@ -24,6 +24,7 @@
 | usePdoElementsPath | If `true` pdoTools will use the `pdotools_elements_path` setting to locate the `@FILE` tpl's, otherwise the `core/components/form/` will be used as directory. Default is `false`. |
 
 **Build-in validators:**
+
 | Validation rule            | Description                                                                  |
 |----------------------------|------------------------------------------------------------------------------|
 | required | The field needs to contain a value. |
@@ -56,9 +57,10 @@
 | age | The field needs to have a valid date and calculates the age that needs to be older then a specified age. |
 
 **Build-in plugins:**
+
 | Plugin                     | Description                                                                  |
 |----------------------------|------------------------------------------------------------------------------|
-| recaptcha | Google Recaptcha (V2 and V3 supported). |
+| recaptcha | Validated the form data with Google Recaptcha (V2 and V3 supported). |
 | save | Saves the form data encrypted into the database (custom manager component). |
 | email | Sent the form data by email to specified emails (multiple emails supported, email to administrator, email to client etc). |
 
