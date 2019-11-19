@@ -101,7 +101,6 @@ A form can handle plugin/events, in FormIt know as hooks.
 
 **Example ReCaptcha plugin:**
 
-
 ```
 {'!Form' | snippet : [
     'plugins'               => [
@@ -111,6 +110,7 @@ A form can handle plugin/events, in FormIt know as hooks.
 ```
 
 **Example email plugin:**
+
 ```
 {'!Form' | snippet : [
     'plugins'               => [
@@ -137,7 +137,8 @@ Each plugin will be triggered multiple times:
 
 **Example custom plugin:**
 
-The following code is a simple example how to use a custom snippet as plugin. The key of the in the `plugins` value is the name of the custom snippet thats needs to be triggerd.
+The following code is an example how to use a snippet as plugin. The key in the `plugins` array is the name of the snippet thats needs to be triggerd. The value of the key are the properties that are parsed to the snippet. The name of the snippet will be prepended with `form`, in this case the name of the snippet will be `formMailChimp`.
+
 ```
 {'!Form' | snippet : [
     'plugins'               => [
@@ -153,7 +154,7 @@ The following code is a simple example how to use a custom snippet as plugin. Th
 <?php
 
     /**
-     * Custom snippet with the name: mailchimp.
+     * Custom snippet with the name: formMailChimp.
      *
      * Available parameters:
      * @param $event, the name of the event (onBeforePost, onValidatePost or onAfterPost).
