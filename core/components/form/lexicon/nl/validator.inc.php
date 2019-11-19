@@ -38,5 +38,5 @@ $_lang['form.validator_file']                           = 'Dit is geen geldig be
 $_lang['form.validator_fileextension']                  = 'Dit bestand heeft geen geldige extensie, alleen "[[+fileextension]]" bestanden zijn toegestaan.';
 $_lang['form.validator_filesize']                       = 'Dit bestand is te groot, alleen bestanden kleiner dan [[+filesize]] zijn toegestaan.';
 $_lang['form.validator_age']                            = 'Je moet minimaal [[+age]] jaar zijn.';
-$_lang['form.validator_recaptcha']                      = 'Vakje met "Ik ben geen robot" niet aangevinkt.';
+$_lang['form.validator_recaptcha']                      = 'ReCaptcha validatie mislukt.';
 $_lang['form.validator_send_mail']                      = 'De e-mail kon niet verstuurd worden, probeer het nog een keer.';

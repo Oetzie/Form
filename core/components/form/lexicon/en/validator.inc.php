@@ -38,5 +38,5 @@ $_lang['form.validator_file']                           = 'This is not a valid f
 $_lang['form.validator_fileextension']                  = 'This file does not have a valid extension, only "[[+fileextension]]" files are allowed.';
 $_lang['form.validator_filesize']                       = 'This file is to large, only files smaller then [[+filesize]] are allowed.';
 $_lang['form.validator_age']                            = 'You must be at least [[+age]].';
-$_lang['form.validator_recaptcha']                      = '"I am not a robot" box unchecked.';
+$_lang['form.validator_recaptcha']                      = 'ReCaptcha validation failed.';
 $_lang['form.validator_send_mail']                      = 'The e-mail could not be send, please try again.';

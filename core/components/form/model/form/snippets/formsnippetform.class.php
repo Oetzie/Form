@@ -117,8 +117,16 @@ class FormSnippetForm extends FormSnippets
                 $this->getEvents()->invokeEvent('onValidatePost');
 
                 if ($this->getValidator()->isValid()) {
-                    $this->getEvents()->invokeEvent('onAfterPost');
+                    $this->getEvents()->invokeEvent('onValidateSuccess');
+                } else {
+                    $this->getEvents()->invokeEvent('onValidateFailed');
+                }
 
+                $this->getEvents()->invokeEvent('onAfterPost');
+
+                $placeholders['values'] = $this->getCollection()->getValues();
+
+                if ($this->getValidator()->isValid()) {
                     $this->setFormCache($this->getCollection()->getValues());
 
                     $success = $this->getSuccess();
@@ -127,21 +135,24 @@ class FormSnippetForm extends FormSnippets
                         $this->modx->sendRedirect($success);
                     }
 
-                    $placeholders['values'] = $this->getCollection()->getValues();
-
                     if (!empty($this->getProperty('tplSuccess'))) {
                         $tpl = $this->getProperty('tplSuccess');
                     }
                 } else {
-                    $this->getEvents()->invokeEvent('onAfterPost');
-
-                    $placeholders['values'] = $this->getCollection()->getValues();
                     $placeholders['errors'] = $this->formatValidationErrors($this->getValidator()->getErrors());
 
                     if (!empty($this->getProperty('tplErrorMessage'))) {
-                        $placeholders['error_message'] = $this->getChunk($this->getProperty('tplErrorMessage'), [
-                            'error' => $this->modx->lexicon('form.form_invalid')
-                        ]);
+                        $error = $this->getValidator()->getError('error_message');
+
+                        if ($error === null) {
+                            $placeholders['error_message'] = $this->getChunk($this->getProperty('tplErrorMessage'), [
+                                'error' => $this->modx->lexicon('form.form_invalid')
+                            ]);
+                        } else {
+                            $placeholders['error_message'] = $this->getChunk($this->getProperty('tplErrorMessage'), [
+                                'error' => $error[0]['error']
+                            ]);
+                        }
                     }
 
                     if (!empty($this->getProperty('tplFailure'))) {

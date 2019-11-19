@@ -6,14 +6,13 @@
  * Copyright 2019 by Oene Tjeerd de Bruin <modx@oetzie.nl>
  */
 
-/**
- * @todo Custom snippet event
- */
 class FormEvents
 {
-    const BEFORE_POST   = 'onBeforePost';
-    const AFTER_POST    = 'onAfterPost';
-    const VALIDATE_POST = 'onValidatePost';
+    const BEFORE_POST       = 'onBeforePost';
+    const VALIDATE_POST     = 'onValidatePost';
+    const VALIDATE_FAILED   = 'onValidateFailed';
+    const VALIDATE_SUCCESS  = 'onValidateSuccess';
+    const AFTER_POST        = 'onAfterPost';
 
     /**
      * @access public.
@@ -115,8 +114,8 @@ class FormEvents
      */
     public function invokePlugin($plugin, $event, $properties)
     {
-        if (preg_match('/^mail(.*?)$/', $plugin)) {
-            $plugin = 'mail';
+        if (preg_match('/^mail([0-9]+)$/', $plugin)) {
+            $plugin = 'email';
         }
 
         if (method_exists($this, $plugin)) {
@@ -124,7 +123,7 @@ class FormEvents
         }
 
         $snippet = $this->modx->getObject('modSnippet', [
-            'name' => $plugin
+            'name' => 'form' . ucfirst($plugin)
         ]);
 
         if ($snippet) {
@@ -185,7 +184,7 @@ class FormEvents
                 ];
             }
 
-            if ($this->form->getValidator()->isValid()) {
+            if ($event === self::VALIDATE_POST) {
                 $secretKey  = $this->form->getOption('recaptcha_secret_key');
 
                 if (empty($publicKey)) {
@@ -194,36 +193,34 @@ class FormEvents
                     return false;
                 }
 
-                if ($event === self::VALIDATE_POST) {
-                    $curl = curl_init();
+                $curl = curl_init();
 
-                    curl_setopt_array($curl, [
-                        CURLOPT_URL             => 'https://www.google.com/recaptcha/api/siteverify',
-                        CURLOPT_RETURNTRANSFER  => true,
-                        CURLOPT_CONNECTTIMEOUT  => 10,
-                        CURLOPT_POSTFIELDS      => http_build_query([
-                            'secret'                => $secretKey,
-                            'response'              => $this->form->getCollection()->getValue($responseKey)
-                        ])
-                    ]);
+                curl_setopt_array($curl, [
+                    CURLOPT_URL             => 'https://www.google.com/recaptcha/api/siteverify',
+                    CURLOPT_RETURNTRANSFER  => true,
+                    CURLOPT_CONNECTTIMEOUT  => 10,
+                    CURLOPT_POSTFIELDS      => http_build_query([
+                        'secret'                => $secretKey,
+                        'response'              => $this->form->getCollection()->getValue($responseKey)
+                    ])
+                ]);
 
-                    $response       = curl_exec($curl);
-                    $responseInfo   = curl_getinfo($curl);
+                $response       = curl_exec($curl);
+                $responseInfo   = curl_getinfo($curl);
 
-                    if (isset($responseInfo['http_code']) && (int) $responseInfo['http_code'] === 200) {
-                        $response = json_decode($response, true);
+                if (isset($responseInfo['http_code']) && (int) $responseInfo['http_code'] === 200) {
+                    $response = json_decode($response, true);
 
-                        if ($response) {
-                            if (isset($response['success']) && $response['success'] === true) {
-                                return true;
-                            }
+                    if ($response) {
+                        if (isset($response['success']) && $response['success'] === true) {
+                            return true;
                         }
                     }
-
-                    $this->form->getValidator()->setError('recaptcha', 'recaptcha');
-
-                    return false;
                 }
+
+                $this->form->getValidator()->setError('recaptcha', 'recaptcha');
+
+                return false;
             }
         }
 
@@ -305,140 +302,138 @@ class FormEvents
      */
     public function email($event, array $properties = [])
     {
-        if ($event === self::AFTER_POST) {
-            if ($this->form->getValidator()->isValid()) {
-                $mailer = $this->modx->getService('mail', 'mail.modPHPMailer');
+        if ($event === self::VALIDATE_SUCCESS) {
+            $mailer = $this->modx->getService('mail', 'mail.modPHPMailer');
 
-                if ($mailer === null) {
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event .'] could not init email, could not load mail.modPHPMailer.');
+            if ($mailer === null) {
+                $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event .'] could not init email, could not load mail.modPHPMailer.');
+            }
+
+            $placeholders = $this->form->getCollection()->getValues();
+
+            foreach ((array) $placeholders as $key => $placeholder) {
+                if (is_array($placeholder)) {
+                    $placeholders[$key . '_formatted'] = implode(', ', $placeholder);
+                } else {
+                    $placeholders[$key . '_formatted'] = $placeholder;
                 }
+            }
 
-                $placeholders = $this->form->getCollection()->getValues();
+            if (isset($properties['tpl'])) {
+                $properties['body'] = $this->form->getChunk($properties['tpl'], array_merge([
+                    'subject' => $properties['subject']
+                ], $placeholders));
+            }
 
-                foreach ((array) $placeholders as $key => $placeholder) {
-                    if (is_array($placeholder)) {
-                        $placeholders[$key . '_formatted'] = implode(', ', $placeholder);
-                    } else {
-                        $placeholders[$key . '_formatted'] = $placeholder;
-                    }
-                }
+            if (isset($properties['tplWrapper'])) {
+                $properties['body'] = $this->form->getChunk($properties['tplWrapper'], array_merge($placeholders, [
+                    'output' => $properties['body']
+                ]));
+            }
 
-                if (isset($properties['tpl'])) {
-                    $properties['body'] = $this->form->getChunk($properties['tpl'], array_merge([
-                        'subject' => $properties['subject']
-                    ], $placeholders));
-                }
+            if (empty($properties['body'])) {
+                $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event .'] could not init email, body empty.');
 
-                if (isset($properties['tplWrapper'])) {
-                    $properties['body'] = $this->form->getChunk($properties['tplWrapper'], array_merge($placeholders, [
-                        'output' => $properties['body']
-                    ]));
-                }
+                return false;
+            }
 
-                if (empty($properties['body'])) {
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event .'] could not init email, body empty.');
+            if (!isset($properties['subject'])) {
+                $properties['subject'] = 'Form ' . $this->modx->resource->get('pagetitle');
+            }
 
-                    return false;
-                }
+            if (!isset($properties['isHtml'])) {
+                $properties['isHtml'] = true;
+            }
 
-                if (!isset($properties['subject'])) {
-                    $properties['subject'] = 'Form ' . $this->modx->resource->get('pagetitle');
-                }
+            $addresses = [];
 
-                if (!isset($properties['isHtml'])) {
-                    $properties['isHtml'] = true;
-                }
+            foreach (['to', 'reply', 'cc', 'bcc', 'from'] as $type) {
+                $key        = 'email' . ucfirst($type);
+                $keyFrom    = 'email' . ucfirst($type) . 'Field';
 
-                $addresses = [];
-
-                foreach (['to', 'reply', 'cc', 'bcc', 'from'] as $type) {
-                    $key        = 'email' . ucfirst($type);
-                    $keyFrom    = 'email' . ucfirst($type) . 'Field';
-
-                    if (isset($properties[$key])) {
-                        if (is_string($properties[$key])) {
-                            $addresses[$type][] = [
-                                'name'  => $properties[$key],
-                                'email' => $properties[$key]
-                            ];
-                        } else {
-
-                        }
-                    }
-
-                    if (isset($properties[$keyFrom])) {
+                if (isset($properties[$key])) {
+                    if (is_string($properties[$key])) {
                         $addresses[$type][] = [
-                            'email'=> $this->form->getCollection()->getValue($properties[$keyFrom])
+                            'name'  => $properties[$key],
+                            'email' => $properties[$key]
                         ];
+                    } else {
+
                     }
                 }
 
-                if (empty($addresses['from'])) {
-                    $addresses['from'][] = [
-                        'name'  => $this->modx->getOption('emailsender'),
-                        'email' => $this->modx->getOption('site_name')
+                if (isset($properties[$keyFrom])) {
+                    $addresses[$type][] = [
+                        'email'=> $this->form->getCollection()->getValue($properties[$keyFrom])
                     ];
                 }
+            }
 
-                $mailer->reset();
-                $mailer->setHTML((bool) $properties['isHtml']);
+            if (empty($addresses['from'])) {
+                $addresses['from'][] = [
+                    'name'  => $this->modx->getOption('emailsender'),
+                    'email' => $this->modx->getOption('site_name')
+                ];
+            }
 
-                foreach ($addresses as $type => $emails) {
-                    foreach ((array) $emails as $email) {
-                        if ($type === 'from') {
-                            $mailer->set(modMail::MAIL_FROM, $email['email']);
-                            $mailer->set(modMail::MAIL_FROM_NAME, $email['name'] ?: $email['email']);
-                        } else if ($type === 'reply') {
-                            $mailer->address('reply-to', $email['email'], $email['name'] ?: $email['email']);
-                        } else {
-                            $mailer->address($type, $email['email'], $email['name'] ?: $email['email']);
-                        }
+            $mailer->reset();
+            $mailer->setHTML((bool) $properties['isHtml']);
+
+            foreach ($addresses as $type => $emails) {
+                foreach ((array) $emails as $email) {
+                    if ($type === 'from') {
+                        $mailer->set(modMail::MAIL_FROM, $email['email']);
+                        $mailer->set(modMail::MAIL_FROM_NAME, $email['name'] ?: $email['email']);
+                    } else if ($type === 'reply') {
+                        $mailer->address('reply-to', $email['email'], $email['name'] ?: $email['email']);
+                    } else {
+                        $mailer->address($type, $email['email'], $email['name'] ?: $email['email']);
                     }
                 }
+            }
 
-                $mailer->set(modMail::MAIL_SUBJECT, $properties['subject']);
-                $mailer->set(modMail::MAIL_BODY, $properties['body']);
+            $mailer->set(modMail::MAIL_SUBJECT, $properties['subject']);
+            $mailer->set(modMail::MAIL_BODY, $properties['body']);
 
-                if (isset($properties['attachments'])) {
-                    if (is_string($properties['attachments'])) {
-                        $properties['attachments'] = explode(',', $properties['attachments']);
-                    }
-
-                    foreach ($properties['attachments'] as $attachment) {
-                        $filename   = trim(substr($attachment, strrpos($attachment, '/') + 1, strlen($attachment)));
-                        $attachment = rtrim($this->modx->getOption('base_path', null, MODX_BASE_PATH), '/') . '/' . ltrim($attachment, '/');
-
-                        if (file_exists($attachment)) {
-                            $mailer->mailer->addAttachment($attachment, $filename, 'base64', 'application/octet-stream');
-                        } else {
-                            $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event .'] could not find attachment "' . $attachment . '".');
-                        }
-                    }
+            if (isset($properties['attachments'])) {
+                if (is_string($properties['attachments'])) {
+                    $properties['attachments'] = explode(',', $properties['attachments']);
                 }
 
-                if (isset($properties['attachmentFields'])) {
-                    if (is_string($properties['attachmentFields'])) {
-                        $properties['attachmentFields'] = explode(',', $properties['attachmentFields']);
-                    }
+                foreach ($properties['attachments'] as $attachment) {
+                    $filename   = trim(substr($attachment, strrpos($attachment, '/') + 1, strlen($attachment)));
+                    $attachment = rtrim($this->modx->getOption('base_path', null, MODX_BASE_PATH), '/') . '/' . ltrim($attachment, '/');
 
-                    foreach ($properties['attachmentFields'] as $attachmentField) {
-                        $attachment = $this->form->getCollection()->getValue($attachmentField);
-
-                        if (isset($attachment['tmp_name'], $attachment['error']) && $attachment['error'] === UPLOAD_ERR_OK) {
-                            $mailer->mailer->addAttachment($attachment['tmp_name'], $attachment['name'], 'base64', $attachment['type'] ?: 'application/octet-stream');
-                        } else {
-                            $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event .'] could not find attachment from field "' . $attachmentField . '".');
-                        }
+                    if (file_exists($attachment)) {
+                        $mailer->mailer->addAttachment($attachment, $filename, 'base64', 'application/octet-stream');
+                    } else {
+                        $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event .'] could not find attachment "' . $attachment . '".');
                     }
                 }
+            }
 
-                if (!$mailer->send()) {
-                    $this->form->getValidator()->setError('send_mail', 'send_mail');
-
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event .'] could not send email because "' . $mailer->mailer->ErrorInfo . '".');
-
-                    return false;
+            if (isset($properties['attachmentFields'])) {
+                if (is_string($properties['attachmentFields'])) {
+                    $properties['attachmentFields'] = explode(',', $properties['attachmentFields']);
                 }
+
+                foreach ($properties['attachmentFields'] as $attachmentField) {
+                    $attachment = $this->form->getCollection()->getValue($attachmentField);
+
+                    if (isset($attachment['tmp_name'], $attachment['error']) && $attachment['error'] === UPLOAD_ERR_OK) {
+                        $mailer->mailer->addAttachment($attachment['tmp_name'], $attachment['name'], 'base64', $attachment['type'] ?: 'application/octet-stream');
+                    } else {
+                        $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event .'] could not find attachment from field "' . $attachmentField . '".');
+                    }
+                }
+            }
+
+            if (!$mailer->send()) {
+                $this->form->getValidator()->setError('send_mail', 'send_mail');
+
+                $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event .'] could not send email because "' . $mailer->mailer->ErrorInfo . '".');
+
+                return false;
             }
         }
 
