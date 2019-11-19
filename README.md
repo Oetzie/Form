@@ -91,6 +91,14 @@ Form is a snippet to handle forms in MODx. It will validate the form and trigger
 
 A form can handle plugin/events, in FormIt know as hooks.
 
+Each plugin will be triggered multiple times:
+
+* `onBeforePost`, gets triggered before the form renders.
+* `onValidatePost`, gets triggered during the form validation (after the validation rules).
+* `onValidateFailed`, gets triggered after a failed form validation.
+* `onValidateSuccess`, gets triggered after a succeed form validation.
+* `onAfterPost`, get triggered after form validation (doesn't check if the form validation is valid).
+
 ### Build-in plugins
 
 | Plugin                     | Description                                                                  |
@@ -126,14 +134,6 @@ A form can handle plugin/events, in FormIt know as hooks.
 ```
 
 ### Custom plugins
-
-Each plugin will be triggered multiple times:
-
-* `onBeforePost`, gets triggered before the form renders.
-* `onValidatePost`, gets triggered during the form validation (after the validation rules).
-* `onValidateFailed`, gets triggered after a failed form validation.
-* `onValidateSuccess`, gets triggered after a succeed form validation.
-* `onAfterPost`, get triggered after form validation (doesn't check if the form validation is valid).
 
 **Example custom plugin:**
 
