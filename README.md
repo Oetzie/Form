@@ -131,7 +131,9 @@ Each plugin will be triggered multiple times:
 
 * `onBeforePost`, gets triggered before the form renders.
 * `onValidatePost`, gets triggered during the form validation (after the validation rules).
-* `onAfterPost`, get triggered after a succeed form validation.
+* `onValidateFailed`, gets triggered after a failed form validation.
+* `onValidateSuccess`, gets triggered after a succeed form validation.
+* `onAfterPost`, get triggered after form validation (doesn't check if the form validation is valid).
 
 **Example custom plugin:**
 
@@ -160,14 +162,14 @@ The following code is a simple example how to use a custom snippet as plugin. Th
      */
 
     // Gets triggered before the form renders.
-    if ($event === 'onBeforePost') {
+    if ($event === FormEvents::BEFORE_POST) {
         $form->getCollection()->setValue('email', 'modx@oetzie.nl');
         
         return true;
     }
     
-    // Gets triggered during the form validation (after the validation rules).
-    if ($event === 'onValidatePost') {
+    // Gets triggered during the form validation (after the validation rules)
+    if ($event === FormEvents::VALIDATE_POST) {
         $email = $form->getCollection()->getValue('email');
         
         if (empty($email)) {
@@ -179,9 +181,9 @@ The following code is a simple example how to use a custom snippet as plugin. Th
         return true;
     }
     
-    // Get triggered after a succeed form validation.
+    // Gets triggered after a succeed form validation.
     // CURL to the MailChimp API, $properties['list_id'], $properties['double_optin'].
-    if ($event === 'onAfterPost') {
+    if ($event === FormEvents::VALIDATE_SUCCESS) {
         $state = curl...
         
         if (!$state) {
