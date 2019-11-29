@@ -55,7 +55,7 @@ Form is a snippet to handle forms in MODx. It will validate the form and trigger
 | betweenDate | The field needs to a valid date and between 2 specified dates. |
 | file | The field needs to have a valid upload (UPLOAD_ERR_OK). |
 | fileExtension | The valid need to have a valid upload with a specified extension. |
-| fileExtension | The valid need to have a valid upload with a specified file size. |
+| fileSize | The valid need to have a valid upload with a specified file size. |
 | age | The field needs to have a valid date and calculates the age that needs to be older then a specified age. |
 
 **Example validation parameter:**
