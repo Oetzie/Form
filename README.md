@@ -29,6 +29,7 @@ Form is a snippet to handle forms in MODx. It will validate the form and trigger
 
 | Validation rule            | Description                                                                  |
 |----------------------------|------------------------------------------------------------------------------|
+| validateIf | This field will only be validated if a specifield field is valid. |
 | required | The field needs to contain a value. |
 | blank | The field needs to be empty. |
 | equals | The field needs to be equal to a specified value. |
@@ -56,7 +57,6 @@ Form is a snippet to handle forms in MODx. It will validate the form and trigger
 | fileExtension | The valid need to have a valid upload with a specified extension. |
 | fileSize | The valid need to have a valid upload with a specified file size. |
 | age | The field needs to have a valid date and calculates the age that needs to be older then a specified age. |
-| validateIf | `Not yet supported.` |
 
 **Example validation parameter plain MODX:**
 
