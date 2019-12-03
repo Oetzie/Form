@@ -21,7 +21,7 @@ Form is a snippet to handle forms in MODx. It will validate the form and trigger
 | tplSuccess | The template of the form if the validation succeed. This will replace the form template if not empty. |
 | tplFailure | The template of the form if the validation failed. This will replace the form template if not empty. |
 | tplError | The template of an error. Default is `@INLINE <p class="help-block">[[+error]]</p>` |
-| tplErrorMessage | The template of the bulk error. Default is `@INLINE <div class="form-group form-group--error"><p class="help-block">[[+error]]</p></div>`. The bulk error is available as the `{$error_message}` placeholder. |
+| tplErrorMessage | The template of the bulk error. Default is `@INLINE <div class="form-group form-group--error"><p class="help-block">[[+error]]</p></div>`. The bulk error is available as the `[[+error_message]]` placeholder. |
 | usePdoTools | If `true` pdoTool will be used for the tpl's (Fenom is also available). `@FILE` and `@INLINE` are also available without PdoTools. Default is `false`. |
 | usePdoElementsPath | If `true` pdoTools will use the `pdotools_elements_path` setting to locate the `@FILE` tpl's, otherwise the `core/components/form/` will be used as directory. Default is `false`. |
 
