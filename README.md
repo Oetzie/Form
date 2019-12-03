@@ -30,7 +30,6 @@ Form is a snippet to handle forms in MODx. It will validate the form and trigger
 | Validation rule            | Description                                                                  |
 |----------------------------|------------------------------------------------------------------------------|
 | required | The field needs to contain a value. |
-| requiredWhen | `Not yet supported.` |
 | blank | The field needs to be empty. |
 | equals | The field needs to be equal to a specified value. |
 | equalsTo | The field needs to be equal to a specified field. |
@@ -57,6 +56,7 @@ Form is a snippet to handle forms in MODx. It will validate the form and trigger
 | fileExtension | The valid need to have a valid upload with a specified extension. |
 | fileSize | The valid need to have a valid upload with a specified file size. |
 | age | The field needs to have a valid date and calculates the age that needs to be older then a specified age. |
+| validateIf | `Not yet supported.` |
 
 **Example validation parameter plain MODX:**
 
@@ -185,6 +185,22 @@ Each plugin will be triggered multiple times:
 
 The following code is an example how to use a snippet as plugin. The key in the `plugins` array is the name of the snippet thats needs to be triggerd. The value of the key are the properties that are parsed to the snippet. The name of the snippet will be prepended with `form`, in this case the name of the snippet will be `formMailChimp`.
 
+**Plain MODX:**
+
+```
+[[!Form?
+    &plugins=`{
+        "mailchimp": {
+            "list_id": "The id of the MailChimp list",
+            "double_optin": "true"
+        }
+    }`
+]]
+```
+
+**With pdoTools/Fenom:**
+
+
 ```
 {'!Form' | snippet : [
     'plugins'               => [
@@ -271,7 +287,61 @@ To display the first occurred error of the field `[[+values.FIELD_NAME.error]]`.
 | submit | The submit value of the form. |
 | plugins | The output of the plugins (for example rendering the Recaptcha HTML). |
 
-**Example chunk:**
+**Example chunk plain MODx:**
+
+```
+<form novalidate action="[[+action]]" method="[[+method]]" class="form [[+active:notempty=`form-active`]]">
+    [[+error_message]]
+    
+    <!-- Name field -->
+    <div class="form-group required [[+errors.name.error:notempty=`form-group--error`]]">
+        <label for="name">Name *</label>
+        <div class="form-control-wrapper">
+            <input type="text" name="name" id="name" class="form-control" value="[[+values.name]]" /> [[+errors.name.error]]
+        </div>
+    </div>
+    
+    <!-- Phone field -->
+    <div class="form-group required [[+errors.phone.error:notempty=`form-group--error`]]">
+        <label for="phone">Phone *</label>
+        <div class="form-control-wrapper">
+            <input type="tel" name="phone" id="phone" class="form-control" value="[[+values.phone]]" /> [[+errors.phone.error]]
+        </div>
+    </div>
+    
+    <!-- Email field -->
+    <div class="form-group required [[+errors.email.error:notempty=`form-group--error`]]">
+        <label for="email">E-mail *</label>
+        <div class="form-element-wrapper">
+            <input type="email" name="email" id="email" class="form-control" value="[[+values.email]]" /> [[+errors.email.error]]
+        </div>
+    </div>
+    
+    <!-- Content field -->
+    <div class="form-group required [[+errors.content.error:notempty=`form-group--error`]]">
+        <label for="content">Question *</label>
+        <div class="form-control-wrapper">
+            <textarea name="content" id="content" class="form-control form-control--textarea">[[+values.content]]</textarea> [[+errors.content.error]]
+        </div>
+    </div>
+    
+    <!-- Recaptcha plugin output -->
+    <div class="form-group [[+errors.recaptcha.error:notempty=`form-group--error`]]">
+        <div class="form-control-wrapper">
+            [[+plugins.recaptcha.output]] [[+errors.recaptcha.error]]
+        </div>
+    </div>
+    
+    <!-- Submit button -->
+    <div class="form-group">
+        <div class="form-control-wrapper">
+            <button type="submit" class="btn" name="[[+submit]]" title="Submit">Submit</button>
+        </div>
+    </div>
+</form>
+```
+
+**Example chunk with pdoTools/Fenom:**
 
 ```
 <form novalidate action="{$action}" method="{$method}" class="form {$active ? 'form-active' : ''}">
@@ -279,7 +349,7 @@ To display the first occurred error of the field `[[+values.FIELD_NAME.error]]`.
     
     <!-- Name field -->
     <div class="form-group required {$_pls['errors']['name']['error'] ? 'form-group--error' : ''}">
-        <label for="name">{'base.contact_form.name' | lexicon} *</label>
+        <label for="name">Name *</label>
         <div class="form-control-wrapper">
             <input type="text" name="name" id="name" class="form-control" value="{$_pls['values']['name']}" /> {$_pls['errors']['name']['error']}
         </div>
@@ -287,7 +357,7 @@ To display the first occurred error of the field `[[+values.FIELD_NAME.error]]`.
     
     <!-- Phone field -->
     <div class="form-group required {$_pls['errors']['phone']['error'] ? 'form-group--error' : ''}">
-        <label for="phone">{'base.contact_form.phone' | lexicon} *</label>
+        <label for="phone">Phone *</label>
         <div class="form-control-wrapper">
             <input type="tel" name="phone" id="phone" class="form-control" value="{$_pls['values']['phone']}" /> {$_pls['errors']['phone']['error']}
         </div>
@@ -295,7 +365,7 @@ To display the first occurred error of the field `[[+values.FIELD_NAME.error]]`.
     
     <!-- Email field -->
     <div class="form-group required {$_pls['errors']['email']['error'] ? 'form-group--error' : ''}">
-        <label for="email">{'base.contact_form.email' | lexicon} *</label>
+        <label for="email">E-mail *</label>
         <div class="form-element-wrapper">
             <input type="email" name="email" id="email" class="form-control" value="{$_pls['values']['email']}" /> {$_pls['errors']['email']['error']}
         </div>
@@ -303,7 +373,7 @@ To display the first occurred error of the field `[[+values.FIELD_NAME.error]]`.
     
     <!-- Content field -->
     <div class="form-group required {$_pls['errors']['content']['error'] ? 'form-group--error' : ''}">
-        <label for="content">{'base.contact_form.content' | lexicon} *</label>
+        <label for="content">Question *</label>
         <div class="form-control-wrapper">
             <textarea name="content" id="content" class="form-control form-control--textarea">{$_pls['values']['content']}</textarea> {$_pls['errors']['content']['error']}
         </div>
@@ -319,7 +389,7 @@ To display the first occurred error of the field `[[+values.FIELD_NAME.error]]`.
     <!-- Submit button -->
     <div class="form-group">
         <div class="form-control-wrapper">
-            <button type="submit" class="btn" name="{$submit}" title="{'base.contact_form.submit' | lexicon}">{'base.contact_form.submit' | lexicon}</button>
+            <button type="submit" class="btn" name="{$submit}" title="Submit">Submit</button>
         </div>
     </div>
 </form>
