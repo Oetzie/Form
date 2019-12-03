@@ -178,14 +178,22 @@ class FormValidator
     public function validate(array $values = [])
     {
         foreach ($this->getRules() as $key => $rule) {
-            $value = isset($values[$key]) ? $values[$key] : '';
+            $value = $values[$key] ?: '';
 
             foreach ((array) $rule as $type) {
                 list($type, $properties) = array_values($type);
 
                 if (method_exists($this, $type)) {
-                    if (!$this->{$type}($value, $properties, $values)) {
-                        $this->setError($key, $type, $properties);
+                    $valid = $this->{$type}($value, $properties, $values);
+
+                    if ($type === 'validateIf') {
+                        if ($valid) {
+                            continue 2;
+                        }
+                    } else {
+                        if (!$valid) {
+                            $this->setError($key, $type, $properties);
+                        }
                     }
                 } else {
                     $snippet = $this->modx->getObject('modSnippet', [
@@ -213,6 +221,32 @@ class FormValidator
     /**
      * @access public.
      * @param Mixed $value.
+     * @param Mixed $properties.
+     * @param Array $values.
+     * @return Boolean.
+     */
+    public function validateIf($value, $properties, array $values = [])
+    {
+        $validate = true;
+
+        if (is_string($properties)) {
+            $properties = explode(',', $properties);
+        }
+
+        foreach ($properties as $field) {
+            $value = $values[$field] ?: '';
+
+            if ($this->required($value) && !$this->hasError($field)) {
+                $validate = false;
+            }
+        }
+
+        return $validate;
+    }
+
+    /**
+     * @access public.
+     * @param Mixed $value.
      * @return Boolean.
      */
     public function required($value)
@@ -226,20 +260,6 @@ class FormValidator
         }
 
         return false;
-    }
-
-    /**
-     * @access public.
-     * @param Mixed $value.
-     * @param Mixed $properties.
-     * @param Array $values.
-     * @return Boolean.
-     */
-    public function requiredWhen($value, $properties, array $values = [])
-    {
-        $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.validator.requiredWhen] not supported.');
-
-        return true;
     }
 
     /**

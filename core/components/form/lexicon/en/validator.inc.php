@@ -9,7 +9,6 @@
 $_lang['form.form_invalid']                             = 'An error has occurred in the form, please complete the form and try again.';
 $_lang['form.validator_unknown']                        = 'This field is required.';
 $_lang['form.validator_required']                       = 'This field is required.';
-$_lang['form.validator_requiredwhen']                   = 'This field is required.';
 $_lang['form.validator_blank']                          = 'This field must be empty.';
 $_lang['form.validator_equals']                         = 'This field must be equal to "[[+equals]]".';
 $_lang['form.validator_equalsto']                       = 'This field must be equal to "[[+equalsto]]".';

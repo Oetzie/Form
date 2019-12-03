@@ -39,7 +39,7 @@ Form.grid.Forms = function(config) {
         xtype       : 'textfield',
         name        : 'form-filter-search',
         id          : 'form-filter-search',
-        emptyText   : _('search')+'...',
+        emptyText   : _('search') + '...',
         listeners   : {
             'change'    : {
                 fn          : this.filterSearch,
@@ -68,8 +68,6 @@ Form.grid.Forms = function(config) {
             }
         }
     }];
-    
-    var sm = new Ext.grid.CheckboxSelectionModel();
 
     var columns = new Ext.grid.ColumnModel({
         columns     : [{
@@ -120,7 +118,7 @@ Form.grid.Forms = function(config) {
             action      : 'mgr/forms/getlist',
             context     : MODx.request.context || MODx.config.default_context
         },
-        fields      : ['id', 'context_key', 'name', 'ip', 'data', 'data_formatted', 'active', 'editedon', 'context_name', 'resource_id', 'resource_url',],
+        fields      : ['id', 'context_key', 'name', 'ip', 'data', 'data_formatted', 'active', 'editedon', 'context_name', 'resource_id', 'resource_url'],
         paging      : true,
         pageSize    : MODx.config.default_per_page > 30 ? MODx.config.default_per_page : 30,
         sortBy      : 'id',

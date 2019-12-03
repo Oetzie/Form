@@ -30,7 +30,7 @@ $_lang['setting_form.recaptcha_secret_key_desc']                = 'De geheime sl
 $_lang['setting_form.form_save_invalid']                        = 'Incomplete formulieren opslaan';
 $_lang['setting_form.form_save_invalid_desc']                   = 'Indien "Ja" worden ook incomplete formulieren opgeslagen tijdens het valideren van het formulier. Standaard is "Ja".';
 
-$_lang['form.form']                                             = 'Formulieren';
+$_lang['form.form']                                             = 'Formulier';
 $_lang['form.forms']                                            = 'Formulieren';
 $_lang['form.forms_desc']                                       = 'Bekijk hier alle formulieren die via de website zijn ingevuld. Status "<span class="green">compleet</span>" betekent dat het formulier zonder fouten is ingevuld en afgehandeld, status "<span class="red">incompleet</span>" betekent dat het formulier met fouten is ingevuld en daardoor niet afgehandeld is. Als een formulier te vaak de status "incompleet" heeft betekent dit dat het formulier onduidelijk is en dat de labels geoptimaliseerd dienen te worden.';
 $_lang['form.form_view']                                        = 'Formulier bekijken';

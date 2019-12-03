@@ -53,9 +53,9 @@ class FormSnippetForm extends FormSnippets
         'tpl'                   => '',
         'tplSuccess'            => '',
         'tplFailure'            => '',
-        'tplError'              => '@INLINE <p class="help-block">{$error}</p>',
+        'tplError'              => '@INLINE <p class="help-block">[[+error]]</p>',
         'tplErrorMessage'       => '@INLINE <div class="form-group form-group--error">
-            <p class="help-block">{$error}</p>
+            <p class="help-block">[[+error]]</p>
         </div>',
 
         'usePdoTools'           => false,
@@ -69,7 +69,7 @@ class FormSnippetForm extends FormSnippets
      */
     public function run(array $properties = [])
     {
-        $this->setProperties($properties);
+        $this->setProperties($this->getFormattedProperties($properties));
 
         if (!empty($this->getProperty('retriever'))) {
             $values = $this->getFormCache();

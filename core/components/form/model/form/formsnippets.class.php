@@ -63,6 +63,28 @@ class FormSnippets extends Form
 
     /**
      * @access public.
+     * @param Array $properties.
+     * @return Array.
+     */
+    public function getFormattedProperties(array $properties = [])
+    {
+        foreach (['validator', 'validatorMessages', 'plugins'] as $key) {
+            if (isset($properties[$key]) && !is_array($properties[$key])) {
+                $properties[$key] = json_decode($properties[$key], true);
+            }
+        }
+
+        foreach (['usePdoTools', 'usePdoElementsPath'] as $key) {
+            if (isset($properties[$key]) && !is_bool($properties[$key])) {
+                $properties[$key] = $properties[$key] === 'true' || $properties[$key] === '1';
+            }
+        }
+
+        return $properties;
+    }
+
+    /**
+     * @access public.
      * @param String $name.
      * @param Array $properties.
      * @return String.

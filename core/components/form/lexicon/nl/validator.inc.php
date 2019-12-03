@@ -9,7 +9,6 @@
 $_lang['form.form_invalid']                             = 'Er is een fout opgetreden in het formulier, vul het formulier aan en probeer het nog een keer.';
 $_lang['form.validator_unknown']                        = 'Dit veld is verplicht.';
 $_lang['form.validator_required']                       = 'Dit veld is verplicht.';
-$_lang['form.validator_requiredwhen']                   = 'Dit veld is verplicht.';
 $_lang['form.validator_blank']                          = 'Dit veld mag geen waarde hebben.';
 $_lang['form.validator_equals']                         = 'Dit veld moet gelijk zijn aan "[[+equals]]".';
 $_lang['form.validator_equalsto']                       = 'Dit veld moet gelijk zijn aan "[[+equalsto]]".';
