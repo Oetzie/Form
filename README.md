@@ -8,20 +8,20 @@ Form is a snippet to handle forms in MODx. It will validate the form and trigger
 | Parameter                  | Description                                                                  |
 |----------------------------|------------------------------------------------------------------------------|
 | action | The action of the form. This can be an URL, ID of a resource, or `resource`. If set to `resource` the action will be set to the current resource. If set to an ID of a resource or `resource` the current URL parameters will be merged in this action URL. |
-| method | The method of the form. This can be `POST` or `GET`. This parameter will be available as the `{$method}` placeholder. Default is `POST`. |
+| method | The method of the form. This can be `POST` or `GET`. This parameter will be available as the `[[+method]]` placeholder. Default is `POST`. |
 | submit | The submit action of the form. Default is `submit`. |
 | retriever | |
 | prefix | The prefix of the placeholders, this prefix will used if you not work with the `tpl` parameter. Default is `form`.|
-| validator | The validation rules of the form. This must be a valid array. |
-| validatorMessages | The custom validation messages for the validation rules. This must be a valid array. If empty the default validation messages (in the `validation.inc.php` lexicon file) will be used. |
-| plugins | The plugins of the form. This must be a valid array. |
+| validator | The validation rules of the form. This must be a valid JSON. |
+| validatorMessages | The custom validation messages for the validation rules. This must be a valid JSON. If empty the default validation messages (in the `validation.inc.php` lexicon file) will be used. |
+| plugins | The plugins of the form. This must be a valid JSON. |
 | success | The success action of the form, if the validation is succeed the form will be redirected to this action. This can be an URL, ID of a resource, or `resource`. If set to `resource` the success action will be set to the current resource. If set to an ID of a resource or `resource` the current URL parameters will be merged in this action URL. If empty the form will not be redirected after a succeed validation. |
 | failure | The failed action of the form, if the validation is failed the form will be redirected to this action. This can be an URL, ID of a resource, or `resource`. If set to `resource` the failed action will be set to the current resource. If set to an ID of a resource or `resource` the current URL parameters will be merged in this action URL. If empty the form will not be redirected after a failed validation. |
 | tpl | The template of the form. This can be a chunk name or prefixed with `@FILE` or `@INLINE`. If empty all placeholders will set with the prefix to be used after the snippet call. |
 | tplSuccess | The template of the form if the validation succeed. This will replace the form template if not empty. |
 | tplFailure | The template of the form if the validation failed. This will replace the form template if not empty. |
-| tplError | The template of an error. Default is `@INLINE <p class="help-block">{$error}</p>` |
-| tplErrorMessage | The template of the bulk error. Default is `@INLINE <div class="form-group form-group--error"><p class="help-block">{$error}</p></div>`. The bulk error is available as the `{$error_message}` placeholder. |
+| tplError | The template of an error. Default is `@INLINE <p class="help-block">[[+error]]</p>` |
+| tplErrorMessage | The template of the bulk error. Default is `@INLINE <div class="form-group form-group--error"><p class="help-block">[[+error]]</p></div>`. The bulk error is available as the `{$error_message}` placeholder. |
 | usePdoTools | If `true` pdoTool will be used for the tpl's (Fenom is also available). `@FILE` and `@INLINE` are also available without PdoTools. Default is `false`. |
 | usePdoElementsPath | If `true` pdoTools will use the `pdotools_elements_path` setting to locate the `@FILE` tpl's, otherwise the `core/components/form/` will be used as directory. Default is `false`. |
 
@@ -58,7 +58,27 @@ Form is a snippet to handle forms in MODx. It will validate the form and trigger
 | fileSize | The valid need to have a valid upload with a specified file size. |
 | age | The field needs to have a valid date and calculates the age that needs to be older then a specified age. |
 
-**Example validation parameter:**
+**Example validation parameter plain MODX:**
+
+```
+[[!Form?
+    &validator=`{
+        "name": "required",
+        "phone": ["phone", "required"],
+        "email": ["email", "required"],
+        "content: "required",
+        "age": {
+            "age" : "18",
+            "required": "true"
+        }
+    }`
+    &validatorMessages=`{
+        "required": "This field is required"
+    }`
+]]
+```
+
+**Example validation parameter with pdoTools/Fenom:**
 
 ```
 {'!Form' | snippet : [
@@ -107,7 +127,17 @@ Each plugin will be triggered multiple times:
 | save | Saves the form data encrypted into the database (custom manager component). |
 | email | Sent the form data by email to specified emails (multiple emails supported, email to administrator, email to client etc). |
 
-**Example ReCaptcha plugin:**
+**Example ReCaptcha plugin plain MODX:**
+
+```
+[[!Form?
+    &plugins=`{
+        "recaptcha": "v3"
+    }`
+]]
+```
+
+**Example ReCaptcha plugin with pdoTools/Fenom:**
 
 ```
 {'!Form' | snippet : [
@@ -117,7 +147,23 @@ Each plugin will be triggered multiple times:
 ]}
 ```
 
-**Example email plugin:**
+**Example email plugin with plain MODX:**
+
+```
+[[!Form?
+    &plugins=`{
+        "email": {
+            "subject": "Title of the email.",
+            "emailTo": "The e-mailadress to sent the email to.",
+            "emailToField": "The name of the field to get the e-mailadress to sent the email to.",
+            "emailFrom": "The e-mailadress to sent from.",
+            "tpl": "The template of the email."
+        }
+    }`
+]]
+```
+
+**Example email plugin with pdoTools/Fenom:**
 
 ```
 {'!Form' | snippet : [
@@ -203,15 +249,14 @@ The following code is an example how to use a snippet as plugin. The key in the 
 
 ## Form template (chunk)
 
-All form values are stored in an array that is available as the `values` placeholder. You can access a value by the name of the field like `{$_pls['values']['FIELD_NAME']}` or `[[+values.FIELD_NAME]]`.
+All form values are stored in an array that is available as the `values` placeholder. You can access a value by the name of the field with `[[+values.FIELD_NAME]]`.
 
-All the validation errors are stored in an array that is avaible as the `errors` placeholder. You can access an error by the name of the field like `{$_pls['values']['FIELD_NAME']}` or `[[+values.FIELD_NAME]]`. The error returns an array
-with two keys:
+All the validation errors are stored in an array that is avaible as the `errors` placeholder. You can access an error by the name of the field with `[[+values.FIELD_NAME]]`. The error returns an array with two keys:
 
 * Error, the first occurred error of the field.
 * Errors, all the occurred errors of the field. 
 
-To display the first occurred error of the field `{$_pls['values']['FIELD_NAME']['error']}` or `[[+values.FIELD_NAME.error]]`.
+To display the first occurred error of the field `[[+values.FIELD_NAME.error]]`.
 
 **Available placeholders:**
 
