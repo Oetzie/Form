@@ -221,7 +221,7 @@ The following code is an example how to use a snippet as plugin. The key in the 
 <?php
 
     /**
-     * Custom snippet with the name: formMailChimp.
+     * Custom snippet with the name: MailChimp.
      *
      * Available parameters:
      * @param $event, the name of the event (onBeforePost, onValidatePost or onAfterPost).
