@@ -83,9 +83,42 @@ class FormCollection
 
     /**
      * @access public.
+     * @param String $key.
+     * @return Boolean.
+     */
+    public function hasValue($key)
+    {
+        return isset($this->values[$key]);
+    }
+
+    /**
+     * @access public.
      */
     public function reset()
     {
         $this->values = [];
+    }
+
+    /**
+     * @access public.
+     * @return Array.
+     */
+    public function getFormattedValues()
+    {
+        $values = [];
+
+        foreach ($this->values as $key => $value) {
+            $values[$key] = $value;
+
+            if (is_array($value)) {
+                if (isset($value['name'], $value['type'], $value['tmp_name'])) {
+                    $values[$key . '_formatted'] = $value['name'];
+                } else {
+                    $values[$key . '_formatted'] = implode(', ', $value);
+                }
+            }
+        }
+
+        return $values;
     }
 }

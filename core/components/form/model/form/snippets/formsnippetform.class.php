@@ -39,8 +39,8 @@ class FormSnippetForm extends FormSnippets
         'action'                => 'resource',
         'method'                => 'post',
         'submit'                => 'submit',
-        'retriever'             => '',
         'prefix'                => 'form',
+        'retriever'             => '',
 
         'validator'             => [],
         'validatorMessages'     => [],
@@ -53,9 +53,9 @@ class FormSnippetForm extends FormSnippets
         'tpl'                   => '',
         'tplSuccess'            => '',
         'tplFailure'            => '',
-        'tplError'              => '@INLINE <p class="help-block">[[+error]]</p>',
+        'tplError'              => '@INLINE <p class="error">[[+error]]</p>',
         'tplErrorMessage'       => '@INLINE <div class="form-group form-group--error">
-            <p class="help-block">[[+error]]</p>
+            <p class="error">[[+error]]</p>
         </div>',
 
         'usePdoTools'           => false,
@@ -103,18 +103,32 @@ class FormSnippetForm extends FormSnippets
                 'method'    => $this->getProperty('method'),
                 'action'    => $this->getAction(),
                 'submit'    => $this->getProperty('submit'),
-                'plugins'   => $this->getEvents()->invokeEvent('onBeforePost')
+                'plugins'   => []
             ];
+
+            $postPlugins = $this->getEvents()->invokeEvent('onBeforePost');
+
+            if ($postPlugins) {
+                foreach ((array) $postPlugins as $key => $plugin) {
+                    $placeholders['plugins'][$key] = (array) $plugin;
+                }
+            }
 
             $this->getCollection()->setValues($this->getFileValues());
             $this->getCollection()->setValues($this->getRequestValues());
 
-            if ($this->isMethod('POST', $this->getCollection()->getValues())) {
+            if ($this->isMethod($this->getProperty('method'))) {
                 $placeholders['state'] = 'active';
 
                 $this->getValidator()->validate($this->getCollection()->getValues());
 
-                $this->getEvents()->invokeEvent('onValidatePost');
+                $validatePlugins = $this->getEvents()->invokeEvent('onValidatePost');
+
+                if ($validatePlugins) {
+                    foreach ((array) $validatePlugins as $key => $plugin) {
+                        $placeholders['plugins'][$key] = array_merge((array) $placeholders['plugins'][$key] ?: [], (array) $plugin);
+                    }
+                }
 
                 if ($this->getValidator()->isValid()) {
                     $this->getEvents()->invokeEvent('onValidateSuccess');
@@ -259,12 +273,13 @@ class FormSnippetForm extends FormSnippets
     /**
      * @access public.
      * @param String $method.
-     * @param Array $values.
      * @return Boolean.
      */
-    public function isMethod($method, array $values = [])
+    public function isMethod($method)
     {
         if ($_SERVER['REQUEST_METHOD'] === strtoupper($method)) {
+            $values = $this->getCollection()->getValues();
+
             if (count($values) >= 1) {
                 if (isset($values[$this->getProperty('submit')])) {
                     unset($values[$this->getProperty('submit')]);
@@ -391,38 +406,50 @@ class FormSnippetForm extends FormSnippets
      * @param Array $errors.
      * @return Array.
      */
-    public function formatValidationErrors(array $errors = [])
+    public function formatValidationError(array $errors = [])
     {
         $output = [];
 
-        foreach ($errors as $type) {
-            $errorOutput = [];
+        foreach ((array) $errors as $error) {
+            list($key, $error, $properties, $message) = array_values($error);
 
-            foreach ((array) $type as $error) {
-                list($key, $error, $properties, $message) = array_values($error);
-
-                if (!is_array($properties)) {
-                    $properties = [
-                        strtolower($error) => $properties
-                    ];
-                }
-
-                if (empty($message)) {
-                    $message = $this->getValidationMessage($error, $properties, $key);
-                }
-
-                if (empty($this->getProperty('tplError'))) {
-                    $errorOutput[] = $message;
-                } else {
-                    $errorOutput[] = $this->getChunk($this->getProperty('tplError'), [
-                        'error' => $message
-                    ]);
-                }
+            if (!is_array($properties)) {
+                $properties = [
+                    strtolower($error) => $properties
+                ];
             }
 
+            if (empty($message)) {
+                $message = $this->getValidationMessage($error, $properties, $key);
+            }
+
+            if (empty($this->getProperty('tplError'))) {
+                return $message;
+            }
+
+            $output[] = $this->getChunk($this->getProperty('tplError'), [
+                'error' => $message
+            ]);
+        }
+
+        return $output;
+    }
+
+    /**
+     * @access public.
+     * @param Array $error.
+     * @return Array.
+     */
+    public function formatValidationErrors(array $error = [])
+    {
+        $output = [];
+
+        foreach ($error as $key => $errors) {
+            $errors = $this->formatValidationError($errors);
+
             $output[$key] = [
-                'error'     => $errorOutput[0],
-                'errors'    => implode(PHP_EOL, $errorOutput)
+                'error'     => $errors[0] ?: '',
+                'errors'    => implode(PHP_EOL, $errors)
             ];
         }
 

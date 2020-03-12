@@ -19,8 +19,10 @@ $_lang['setting_form.branding_url_help']                        = 'Branding (hel
 $_lang['setting_form.branding_url_help_desc']                   = 'The URL of the branding help button, if the URL is empty the branding help button won\'t be shown.';
 $_lang['setting_form.encrypt']                                  = 'Encrypt forms';
 $_lang['setting_form.encrypt_desc']                             = 'When "Yes" al the forms will be saved encrypted. Default is "Yes".';
-$_lang['setting_form.encrypt_key']                              = 'Forms key';
-$_lang['setting_form.encrypt_key_desc']                         = 'The key to encrypt the forms when the setting "encrypt" is setup to "Yes".';
+$_lang['setting_form.encrypt_key']                              = 'Forms encrypt key';
+$_lang['setting_form.encrypt_key_desc']                         = 'The encrypt key to encrypt the forms when the setting "encrypt" is setup to "Yes".';
+$_lang['setting_form.encrypt_method']                           = 'Forms encrypt method';
+$_lang['setting_form.encrypt_method_desc']                      = 'The encrypt method to encrypte the forms when the setting "encrypt" is setup to "Yes". This can be "mcrypt" or "openssl", default is "openssl".';
 $_lang['setting_form.clean_days']                               = 'Clean forms';
 $_lang['setting_form.clean_days_desc']                          = 'The amount of thats that a form will be saved, after this the form will be deleted.';
 $_lang['setting_form.recaptcha_site_key']                       = 'Google reCAPTCHA API site key';
@@ -29,6 +31,8 @@ $_lang['setting_form.recaptcha_secret_key']                     = 'Google reCAPT
 $_lang['setting_form.recaptcha_secret_key_desc']                = 'The secret key of the Google reCAPTCHA API, you can get this at https://www.google.com/recaptcha/admin.';
 $_lang['setting_form.form_save_invalid']                        = 'Save incomplete forms';
 $_lang['setting_form.form_save_invalid_desc']                   = 'When "Yes" all the incomplete forms will be saved during validating the form. Default is "Yes".';
+$_lang['setting_form.media_source']                             = 'Forms media source';
+$_lang['setting_form.media_source_desc']                        = 'The media source that will be used for the email attachments and uploads.';
 
 $_lang['form.form']                                             = 'Form';
 $_lang['form.forms']                                            = 'Forms';
@@ -67,3 +71,4 @@ $_lang['form.empty']                                            = 'Not filled';
 $_lang['form.forms_clean_desc']                                 = 'The European <a href="https://ec.europa.eu/commission/priorities/justice-and-fundamental-rights/data-protection/2018-reform-eu-data-protection-rules_en" target="_blank">General Data Protection Regulation (GDPR)</a> requires that personal data, which is no longer necessary to possess, is removed. This tool makes it possible to remove saved forms with an age older than the given days. This action can not be undone!';
 $_lang['form.forms_clean_executing']                            = 'Cleaning up forms';
 $_lang['form.forms_clean_success']                              = '[[+amount]] form(s) removed.';
+$_lang['form.form_data_encrypt_error']                          = 'The data of the forms could not be formatted, this may be due to the encryption method.';

@@ -107,6 +107,14 @@ class FormFormsGetListProcessor extends modObjectGetListProcessor
             ]);
         }
 
+        $formbuilder = $this->getProperty('formbuilder');
+
+        if (!empty($formbuilder)) {
+            $criteria->where([
+                'Form.formbuilder_id' => $formbuilder
+            ]);
+        }
+
         return $criteria;
     }
 
@@ -120,28 +128,30 @@ class FormFormsGetListProcessor extends modObjectGetListProcessor
         $array = array_merge($object->toArray(), [
             'resource_url'      => $this->modx->makeUrl($object->get('resource_id')),
             'data'              => $object->getFields(),
-            'data_formatted'    => ''
+            'data_formatted'    => $this->modx->lexicon('form.form_data_encrypt_error')
         ]);
 
-        $array['data_formatted'] = implode(', ', array_map(function($value) {
-            if (is_array($value['value'])) {
-                $output = [];
+        if ($array['data']) {
+            $array['data_formatted'] = implode(', ', array_map(function($value) {
+                if (is_array($value['value'])) {
+                    $output = [];
 
-                foreach ($value['value'] as $key) {
-                    if (isset($value['values'][$key])) {
-                        $output[] = $value['values'][$key];
+                    foreach ($value['value'] as $key) {
+                        if (isset($value['values'][$key])) {
+                            $output[] = $value['values'][$key];
+                        }
                     }
+
+                    $output = implode(', ', $output);
+                } else if (isset($value['values'][$value['value']])) {
+                    $output = $value['values'][$value['value']];
+                } else {
+                    $output = $value['value'];
                 }
 
-                $output = implode(', ', $output);
-            } else if (isset($value['values'][$value['value']])) {
-                $output = $value['values'][$value['value']];
-            } else {
-                $output = $value['value'];
-            }
-
-            return '<strong>' . $value['label'] . '</strong>: ' . $output;
-        }, $array['data']));
+                return '<strong>' . $value['label'] . '</strong>: ' . $output;
+            }, $array['data']));
+        }
 
         if (in_array($object->get('editedon'), ['-001-11-30 00:00:00', '-1-11-30 00:00:00', '0000-00-00 00:00:00', null], true)) {
             $array['editedon'] = '';

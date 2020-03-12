@@ -23,6 +23,7 @@ Form.page.Home = function(config) {
         value       : MODx.request.context || MODx.config.default_context,
         name        : 'form-filter-context',
         emptyText   : _('form.filter_context'),
+        displayField : 'name',
         listeners   : {
             'select'    : {
                 fn          : this.filterContext,

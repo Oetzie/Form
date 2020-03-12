@@ -50,10 +50,11 @@ class Form
             'css_url'               => $assetsUrl . 'css/',
             'assets_url'            => $assetsUrl,
             'connector_url'         => $assetsUrl . 'connector.php',
-            'version'               => '1.3.2',
+            'version'               => '1.4.0',
             'branding_url'          => $this->modx->getOption('form.branding_url', null, ''),
             'branding_help_url'     => $this->modx->getOption('form.branding_url_help', null, ''),
             'clean_days'            => $this->modx->getOption('form.clean_days', null, 30),
+            'media_source'          => $this->modx->getOption('form.media_source', null, $this->modx->getOption('default_media_source')),
             'context'               => (bool) $this->getContexts(),
             'recaptcha_secret_key'  => $this->modx->getOption('form.recaptcha_secret_key', null, ''),
             'recaptcha_site_key'    => $this->modx->getOption('form.recaptcha_site_key', null, ''),
@@ -195,5 +196,33 @@ class Form
         }
 
         return $this->modx->getChunk($name, $properties);
+    }
+
+    /**
+     * @access public.
+     * @param Boolean $includeBasePath.
+     * @return String.
+     */
+    public function getMediaSourceBasePath($includeBasePath = true)
+    {
+        $basePath = '';
+
+        if ($includeBasePath) {
+            $basePath = rtrim($this->modx->getOption('base_path', null, MODX_BASE_PATH), '/') . '/';
+        }
+
+        $source = $this->modx->getObject('modMediaSource', [
+            'id' => $this->modx->getOption('form.media_source', null, $this->modx->getOption('default_media_source'))
+        ]);
+
+        if ($source) {
+            $properties = $source->getProperties();
+
+            if (!empty($properties['basePath']['value'])) {
+                return $basePath . trim($properties['basePath']['value'], '/') . '/';
+            }
+        }
+
+        return $basePath;
     }
 }

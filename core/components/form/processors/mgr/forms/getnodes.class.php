@@ -65,7 +65,7 @@ class FormFormsGetNodesProcessor extends modObjectGetListProcessor
         $criteria->leftJoin('modContext', 'modContext', 'modContext.key = modResource.context_key');
 
         $criteria->where([
-            'modContext.context_key:IN' => $this->getAvailableContexts()
+            'modContext.key:IN' => $this->getAvailableContexts()
         ]);
 
         $context = $this->getProperty('context');

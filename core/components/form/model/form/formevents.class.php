@@ -67,13 +67,12 @@ class FormEvents
     /**
      * @access public.
      * @param String $plugin.
-     * @param Mixed $properties.
+     * @param Array $properties.
      */
-    public function setPlugin($plugin, $properties)
+    public function setPlugin($plugin, array $properties = [])
     {
         $this->plugins[$plugin] = $properties;
     }
-
 
     /**
      * @access public.
@@ -87,6 +86,63 @@ class FormEvents
         }
 
         return false;
+    }
+
+    /**
+     * @access public.
+     * @param String $plugin.
+     */
+    public function unsetPlugin($plugin)
+    {
+        if (isset($this->plugins[$plugin])) {
+            unset($this->plugins[$plugin]);
+        }
+    }
+
+    /**
+     * @access public.
+     * @param Array $plugins.
+     */
+    public function unsetValues(array $plugins = [])
+    {
+        foreach ($plugins as $plugin) {
+            $this->unsetPlugin($plugin);
+        }
+    }
+
+    /**
+     * @access public.
+     * @param String $plugin.
+     * @param Array $properties.
+     */
+    public function updatePlugin($plugin, array $properties = [])
+    {
+        if (isset($this->plugins[$plugin])) {
+            $this->plugins[$plugin] = array_replace_recursive($this->plugins[$plugin], $properties);
+        } else {
+            $this->plugins[$plugin] = $plugin;
+        }
+    }
+
+    /**
+     * @access pubic.
+     * @param Array $plugins.
+     */
+    public function updatePlugins(array $plugins = [])
+    {
+        foreach ((array) $plugins as $plugin => $properties) {
+            $this->updatePlugin($plugin, $properties);
+        }
+    }
+
+    /**
+     * @access pubic.
+     * @param String $plugin.
+     * @return Boolean.
+     */
+    public function hasPlugin($plugin)
+    {
+        return isset($this->plugins[$plugin]);
     }
 
     /**
@@ -123,7 +179,7 @@ class FormEvents
         }
 
         $snippet = $this->modx->getObject('modSnippet', [
-            'name' => 'form' . ucfirst($plugin)
+            'name' => ucfirst($plugin)
         ]);
 
         if ($snippet) {
@@ -157,13 +213,13 @@ class FormEvents
             $actionKey      = 'g-recaptcha-action';
             $responseKey    = 'g-recaptcha-response';
 
-            if ($properties === 'v3') {
+            if ($properties['version'] === 'v3') {
                 $actionKey      = 'g-recaptcha-action-' . $this->form->getProperty('submit');
                 $responseKey    = 'g-recaptcha-response-' . $this->form->getProperty('submit');
             }
 
             if ($event === self::BEFORE_POST) {
-                if ($properties === 'v3') {
+                if ($properties['version'] === 'v3') {
                     return [
                         'output' => '<script src="https://www.google.com/recaptcha/api.js?render=' . $publicKey .'"></script>
                         <input type="hidden" name="' . $actionKey . '" value="' . str_replace('-', '_', $actionKey) . '">
@@ -279,11 +335,12 @@ class FormEvents
                     $object->setField($data);
 
                     $object->fromArray([
-                        'name'          => $properties['name'],
-                        'resource_id'   => $this->modx->resource->get('id'),
-                        'ip'            => $_SERVER['REMOTE_ADDR'],
-                        'active'        => $this->form->getValidator()->isValid(),
-                        'editedon'      => date('Y-m-d H:i:s')
+                        'name'              => $properties['name'],
+                        'resource_id'       => $this->modx->resource->get('id'),
+                        'formbuilder_id'    => $this->form->getProperty('form'),
+                        'ip'                => $_SERVER['REMOTE_ADDR'],
+                        'active'            => $this->form->getValidator()->isValid(),
+                        'editedon'          => date('Y-m-d H:i:s')
                     ]);
 
                     $object->save();
@@ -309,23 +366,19 @@ class FormEvents
                 $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event .'] could not init email, could not load mail.modPHPMailer.');
             }
 
-            $placeholders = $this->form->getCollection()->getValues();
+            $placeholders = $this->form->getCollection()->getFormattedValues();
 
-            foreach ((array) $placeholders as $key => $placeholder) {
-                if (is_array($placeholder)) {
-                    $placeholders[$key . '_formatted'] = implode(', ', $placeholder);
-                } else {
-                    $placeholders[$key . '_formatted'] = $placeholder;
-                }
+            if (isset($properties['placeholders'])) {
+                $placeholders = array_merge($placeholders, (array) $properties['placeholders']);
             }
 
-            if (isset($properties['tpl'])) {
+            if (!empty($properties['tpl'])) {
                 $properties['body'] = $this->form->getChunk($properties['tpl'], array_merge([
                     'subject' => $properties['subject']
                 ], $placeholders));
             }
 
-            if (isset($properties['tplWrapper'])) {
+            if (!empty($properties['tplWrapper'])) {
                 $properties['body'] = $this->form->getChunk($properties['tplWrapper'], array_merge($placeholders, [
                     'output' => $properties['body']
                 ]));
@@ -402,7 +455,7 @@ class FormEvents
 
                 foreach ($properties['attachments'] as $attachment) {
                     $filename   = trim(substr($attachment, strrpos($attachment, '/') + 1, strlen($attachment)));
-                    $attachment = rtrim($this->modx->getOption('base_path', null, MODX_BASE_PATH), '/') . '/' . ltrim($attachment, '/');
+                    //$attachment = $this->form->getMediaSourceBasePath() . trim($attachment, '/');
 
                     if (file_exists($attachment)) {
                         $mailer->mailer->addAttachment($attachment, $filename, 'base64', 'application/octet-stream');
@@ -435,6 +488,52 @@ class FormEvents
 
                 return false;
             }
+        }
+
+        return true;
+    }
+
+    /**
+     * @access public.
+     * @param String $event.
+     * @param Array $properties.
+     * @return Mixed.
+     */
+    public function uploads($event, array $properties = [])
+    {
+        if ($event === self::VALIDATE_SUCCESS) {
+            $status = true;
+
+            foreach ((array) $properties as $field => $file) {
+                if (isset($file['path'])) {
+                    $value = $this->form->getCollection()->getValue($field);
+
+                    if (isset($value['name'], $value['tmp_name'])) {
+                        $path = $this->form->getMediaSourceBasePath() . trim($file['path'], '/') . '/';
+
+                        if (!is_dir($path)) {
+                            if (!mkdir($path, 0755, true)) {
+                                $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.uploads.' . $event .'] could not create upload path "' . $path . '".');
+                            }
+                        }
+
+                        if ($path) {
+                            $name       = substr($value['name'], 0, strrpos($value['name'], '.'));
+                            $extension  = substr($value['name'], strrpos($value['name'], '.') + 1, strlen($value['name']));
+
+                            $file       = str_replace([' ', '-'], '_', strtolower($name)) . '-' . date('Y_m_d_H_i') . '.' . $extension;
+
+                            if (!move_uploaded_file($value['tmp_name'], $path . $file)) {
+                                $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.uploads.' . $event .'] could not move upload file "' . $path . $file . '".');
+
+                                $status = false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return $status;
         }
 
         return true;

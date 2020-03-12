@@ -17,8 +17,10 @@ $xpdo_meta_map['FormForm'] = [
     'fields'        => [
         'id'            => null,
         'resource_id'   => null,
+        'formbuilder_id' => null,
         'name'          => null,
         'ip'            => null,
+        'encryption'    => null,
         'data'          => null,
         'active'        => null,
         'editedon'      => null
@@ -38,6 +40,12 @@ $xpdo_meta_map['FormForm'] = [
             'phptype'       => 'integer',
             'null'          => false
         ],
+        'formbuilder_id' => [
+            'dbtype'        => 'int',
+            'precision'     => '11',
+            'phptype'       => 'integer',
+            'null'          => false
+        ],
         'name'          => [
             'dbtype'        => 'varchar',
             'precision'     => '75',
@@ -46,6 +54,13 @@ $xpdo_meta_map['FormForm'] = [
             'default'       => ''
         ],
         'ip'            => [
+            'dbtype'        => 'varchar',
+            'precision'     => '15',
+            'phptype'       => 'string',
+            'null'          => false,
+            'default'       => ''
+        ],
+        'encryption'    => [
             'dbtype'        => 'varchar',
             'precision'     => '15',
             'phptype'       => 'string',

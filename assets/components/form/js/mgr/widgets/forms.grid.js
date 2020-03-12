@@ -116,7 +116,8 @@ Form.grid.Forms = function(config) {
         url         : Form.config.connector_url,
         baseParams  : {
             action      : 'mgr/forms/getlist',
-            context     : MODx.request.context || MODx.config.default_context
+            context     : MODx.request.context || MODx.config.default_context,
+            formbuilder : decodeURIComponent(MODx.request.formbuilder || '')
         },
         fields      : ['id', 'context_key', 'name', 'ip', 'data', 'data_formatted', 'active', 'editedon', 'context_name', 'resource_id', 'resource_url'],
         paging      : true,
@@ -144,9 +145,10 @@ Ext.extend(Form.grid.Forms, MODx.grid.Grid, {
         this.getBottomToolbar().changePage(1);
     },
     clearFilter: function() {
-        this.getStore().baseParams.form     = '';
-        this.getStore().baseParams.status   = '';
-        this.getStore().baseParams.query    = '';
+        this.getStore().baseParams.form         = '';
+        this.getStore().baseParams.status       = '';
+        this.getStore().baseParams.query        = '';
+        this.getStore().baseParams.formbuilder  = '';
 
         Ext.getCmp('form-filter-form').reset();
         Ext.getCmp('form-filter-status').reset();

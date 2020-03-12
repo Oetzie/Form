@@ -3,11 +3,20 @@ Form
 ----------------------
 
 ----------------------
+Version: 1.4.0
+Released: 2020-03-12
+----------------------
+- Bug fixes
+- New openssl encrypt/decrypt method
+- Uploads support
+- FormBuilder support
+
+----------------------
 Version: 1.3.2
 Released: 2019-12-03
 ----------------------
-- plain MODx snippter call support
-- validateIf validator
+- Plain MODx snippet call support
+- ValidateIf validator
 
 ----------------------
 Version: 1.3.1
