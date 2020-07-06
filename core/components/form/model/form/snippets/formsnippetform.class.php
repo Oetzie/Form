@@ -99,20 +99,14 @@ class FormSnippetForm extends FormSnippets
             $this->getEvents()->setPlugins($this->getProperty('plugins'));
             $this->getValidator()->setRules($this->getProperty('validator'));
 
+            $this->getEvents()->invokeEvent('onBeforePost');
+
             $placeholders = [
                 'method'    => $this->getProperty('method'),
                 'action'    => $this->getAction(),
                 'submit'    => $this->getProperty('submit'),
-                'plugins'   => []
+                'plugins'   => $this->getEvents()->getValues()
             ];
-
-            $postPlugins = $this->getEvents()->invokeEvent('onBeforePost');
-
-            if ($postPlugins) {
-                foreach ((array) $postPlugins as $key => $plugin) {
-                    $placeholders['plugins'][$key] = (array) $plugin;
-                }
-            }
 
             $this->getCollection()->setValues($this->getFileValues());
             $this->getCollection()->setValues($this->getRequestValues());
@@ -122,13 +116,7 @@ class FormSnippetForm extends FormSnippets
 
                 $this->getValidator()->validate($this->getCollection()->getValues());
 
-                $validatePlugins = $this->getEvents()->invokeEvent('onValidatePost');
-
-                if ($validatePlugins) {
-                    foreach ((array) $validatePlugins as $key => $plugin) {
-                        $placeholders['plugins'][$key] = array_merge((array) $placeholders['plugins'][$key] ?: [], (array) $plugin);
-                    }
-                }
+                $this->getEvents()->invokeEvent('onValidatePost');
 
                 if ($this->getValidator()->isValid()) {
                     $this->getEvents()->invokeEvent('onValidateSuccess');
@@ -139,6 +127,7 @@ class FormSnippetForm extends FormSnippets
                 $this->getEvents()->invokeEvent('onAfterPost');
 
                 $placeholders['values'] = $this->getCollection()->getValues();
+                $placeholders['plugins'] = $this->getEvents()->getValues();
 
                 if ($this->getValidator()->isValid()) {
                     $this->setFormCache($this->getCollection()->getValues());

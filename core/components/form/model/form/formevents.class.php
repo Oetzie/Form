@@ -34,6 +34,12 @@ class FormEvents
 
     /**
      * @access public.
+     * @var Array.
+     */
+    public $values = [];
+
+    /**
+     * @access public.
      *
      * @param modX   $modx .
      * @param Object $form .
@@ -103,7 +109,7 @@ class FormEvents
      * @access public.
      * @param Array $plugins.
      */
-    public function unsetValues(array $plugins = [])
+    public function unsetPlugins(array $plugins = [])
     {
         foreach ($plugins as $plugin) {
             $this->unsetPlugin($plugin);
@@ -146,6 +152,55 @@ class FormEvents
     }
 
     /**
+     * @access public
+     * @param Array $values.
+     */
+    public function setValues(array $values = [])
+    {
+        foreach ((array) $values as $plugin => $value) {
+            $this->setValue($plugin, $value);
+        }
+    }
+
+    /**
+     * @access public.
+     * @return Array.
+     */
+    public function getValues()
+    {
+        return $this->values;
+    }
+
+    /**
+     * @access public.
+     * @param String $plugin.
+     * @param Array $value.
+     */
+    public function setValue($plugin, array $value = [])
+    {
+        if (isset($this->values[$plugin])) {
+            $value = array_merge($this->values[$plugin], $value);
+        }
+
+        $this->values[$plugin] = $value;
+    }
+
+    /**
+     * @access public.
+     * @param String $plugin.
+     * @param Array $default.
+     * @return Mixed.
+     */
+    public function getValue($plugin, array $default = [])
+    {
+        if (isset($this->values[$plugin])) {
+            return $this->values[$plugin];
+        }
+
+        return $default;
+    }
+
+    /**
      * @access public.
      * @param String $event.
      * @return Array.
@@ -170,7 +225,7 @@ class FormEvents
      */
     public function invokePlugin($plugin, $event, $properties)
     {
-        if (preg_match('/^mail([0-9]+)$/', $plugin)) {
+        if (preg_match('/^email([0-9]+|reply)$/i', $plugin)) {
             $plugin = 'email';
         }
 
@@ -220,24 +275,24 @@ class FormEvents
 
             if ($event === self::BEFORE_POST) {
                 if ($properties['version'] === 'v3') {
-                    return [
-                        'output' => '<script src="https://www.google.com/recaptcha/api.js?render=' . $publicKey .'"></script>
-                        <input type="hidden" name="' . $actionKey . '" value="' . str_replace('-', '_', $actionKey) . '">
-                        <input type="hidden" name="' . $responseKey .'" id="' . $responseKey . '" />
-                        <script type="text/javascript">
-                            grecaptcha.ready(function() {
-                                grecaptcha.execute(\'' . $publicKey . '\', {action: \'' . str_replace('-', '_', $actionKey) . '\'}).then(function(token) {
-                                    document.querySelector(\'[id="' . $responseKey . '"]\').value = token;
-                                });
+                    $output = '<script src="https://www.google.com/recaptcha/api.js?render=' . $publicKey .'"></script>
+                    <input type="hidden" name="' . $actionKey . '" value="' . str_replace('-', '_', $actionKey) . '">
+                    <input type="hidden" name="' . $responseKey .'" id="' . $responseKey . '" />
+                    <script type="text/javascript">
+                        grecaptcha.ready(function() {
+                            grecaptcha.execute(\'' . $publicKey . '\', {action: \'' . str_replace('-', '_', $actionKey) . '\'}).then(function(token) {
+                                document.querySelector(\'[id="' . $responseKey . '"]\').value = token;
                             });
-                        </script>'
-                    ];
+                        });
+                    </script>';
+                } else {
+                    $output = '<script src="https://www.google.com/recaptcha/api.js"></script>
+                    <div class="g-recaptcha" data-sitekey="' . $publicKey . '"></div>';
                 }
 
-                return [
-                    'output' => '<script src="https://www.google.com/recaptcha/api.js"></script>
-                    <div class="g-recaptcha" data-sitekey="' . $publicKey . '"></div>'
-                ];
+                $this->setValue('recaptcha', [
+                    'output' => $output
+                ]);
             }
 
             if ($event === self::VALIDATE_POST) {
@@ -528,6 +583,10 @@ class FormEvents
 
                                 $status = false;
                             }
+
+                            $this->form->getCollection()->setValue($field, array_merge($value, [
+                                'tmp_name' => $path . $file
+                            ]));
                         }
                     }
                 }

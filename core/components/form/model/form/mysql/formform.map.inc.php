@@ -38,13 +38,15 @@ $xpdo_meta_map['FormForm'] = [
             'dbtype'        => 'int',
             'precision'     => '11',
             'phptype'       => 'integer',
-            'null'          => false
+            'null'          => false,
+            'default'       => 0
         ],
         'formbuilder_id' => [
             'dbtype'        => 'int',
             'precision'     => '11',
             'phptype'       => 'integer',
-            'null'          => false
+            'null'          => false,
+            'default'       => 0
         ],
         'name'          => [
             'dbtype'        => 'varchar',

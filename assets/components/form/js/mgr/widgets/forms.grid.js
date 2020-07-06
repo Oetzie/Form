@@ -401,16 +401,25 @@ Ext.extend(Form.window.ViewForm, MODx.Window, {
                     });
 
                     break;
+                case 'recaptcha':
+
+                    break;
                 default:
-                    if (element.type !== 'recaptcha') {
-                        elements.push({
-                            xtype       : 'textfield',
-                            fieldLabel  : element.label,
-                            value       : element.value,
-                            anchor      : '100%',
-                            readOnly    : true
-                        });
+                    if (typeof element.value === 'object') {
+                        if (element.value.name && element.value.tmp_name) {
+                            element.value = element.value.name;
+                        } else {
+                            element.value = element.value.join(', ');
+                        }
                     }
+
+                    elements.push({
+                        xtype       : 'textfield',
+                        fieldLabel  : element.label,
+                        value       : element.value,
+                        anchor      : '100%',
+                        readOnly    : true
+                    });
 
                     break;
             }

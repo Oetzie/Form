@@ -8,9 +8,6 @@
 
 class FormForm extends xPDOSimpleObject
 {
-    const METHOD_OPEN_SSL   = 'AES-256-CBC';
-    const METHOD_MCRYPT     = MCRYPT_RIJNDAEL_256;
-
     /**
      * @access public.
      * @param String $data.
@@ -21,13 +18,13 @@ class FormForm extends xPDOSimpleObject
     {
         if ($method === 'openssl') {
             if (function_exists('openssl_encrypt')) {
-                return base64_encode(openssl_encrypt($data, self::METHOD_OPEN_SSL, md5($this->getEncryptKey()), 0, $this->getEncryptKeyIv()));
+                return base64_encode(openssl_encrypt($data, 'AES-256-CBC', md5($this->getEncryptKey()), 0, $this->getEncryptKeyIv()));
             }
 
             $this->xpdo->log(modX::LOG_LEVEL_ERROR, '[Form.encrypt] openssl_encrypt is not available.');
         } else if ($method === 'mcrypt') {
             if (function_exists('mcrypt_encrypt')) {
-                return base64_encode(mcrypt_encrypt(self::METHOD_MCRYPT, md5($this->getEncryptkey()), $data, MCRYPT_MODE_CBC, md5(md5($this->getEncryptkey()))));
+                return base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, md5($this->getEncryptkey()), $data, MCRYPT_MODE_CBC, md5(md5($this->getEncryptkey()))));
             }
 
             $this->xpdo->log(modX::LOG_LEVEL_ERROR, '[Form.encrypt] mcrypt_encrypt is not available.');
@@ -46,13 +43,13 @@ class FormForm extends xPDOSimpleObject
     {
         if ($method === 'openssl') {
             if (function_exists('openssl_encrypt')) {
-                return openssl_decrypt(base64_decode($data), self::METHOD_OPEN_SSL, md5($this->getEncryptKey()), 0, $this->getEncryptKeyIv());
+                return openssl_decrypt(base64_decode($data), 'AES-256-CBC', md5($this->getEncryptKey()), 0, $this->getEncryptKeyIv());
             }
 
             $this->xpdo->log(modX::LOG_LEVEL_ERROR, '[Form.encrypt] openssl_encrypt is not available.');
         } else if ($method === 'mcrypt') {
             if (function_exists('mcrypt_encrypt')) {
-                return rtrim(mcrypt_decrypt(self::METHOD_MCRYPT, md5($this->getEncryptKey()), base64_decode($data), MCRYPT_MODE_CBC, md5(md5($this->getEncryptKey()))), "\0");
+                return rtrim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, md5($this->getEncryptKey()), base64_decode($data), MCRYPT_MODE_CBC, md5(md5($this->getEncryptKey()))), "\0");
             }
 
             $this->xpdo->log(modX::LOG_LEVEL_ERROR, '[Form.encrypt] mcrypt_encrypt is not available.');

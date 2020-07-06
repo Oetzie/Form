@@ -134,15 +134,21 @@ class FormFormsGetListProcessor extends modObjectGetListProcessor
         if ($array['data']) {
             $array['data_formatted'] = implode(', ', array_map(function($value) {
                 if (is_array($value['value'])) {
-                    $output = [];
+                    if (isset($value['value']['name'], $value['value']['tmp_name'])) {
+                        $output = $value['value']['name'];
+                    } else {
+                        $output = [];
 
-                    foreach ($value['value'] as $key) {
-                        if (isset($value['values'][$key])) {
-                            $output[] = $value['values'][$key];
+                        foreach (array_filter($value['value']) as $key) {
+                            if (isset($value['values'][$key])) {
+                                $output[] = $value['values'][$key];
+                            } else {
+                                $output[] = $key;
+                            }
                         }
-                    }
 
-                    $output = implode(', ', $output);
+                        $output = implode(', ', $output);
+                    }
                 } else if (isset($value['values'][$value['value']])) {
                     $output = $value['values'][$value['value']];
                 } else {
