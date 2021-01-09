@@ -50,7 +50,7 @@ class Form
             'css_url'               => $assetsUrl . 'css/',
             'assets_url'            => $assetsUrl,
             'connector_url'         => $assetsUrl . 'connector.php',
-            'version'               => '1.5.0',
+            'version'               => '1.6.0',
             'branding_url'          => $this->modx->getOption('form.branding_url', null, ''),
             'branding_help_url'     => $this->modx->getOption('form.branding_url_help', null, ''),
             'clean_days'            => $this->modx->getOption('form.clean_days', null, 30),

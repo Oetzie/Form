@@ -71,31 +71,22 @@ class FormSnippetForm extends FormSnippets
     {
         $this->setProperties($this->getFormattedProperties($properties));
 
+        $tpl            = $this->getProperty('tpl');
+        $placeholders   = [];
+
         if (!empty($this->getProperty('retriever'))) {
             $values = $this->getFormCache();
 
             if ($values) {
-                $tpl = $this->getProperty('tpl');
-
-                $this->modx->toPlaceholders([
-                    'values' => $values
-                ], rtrim($this->getProperty('prefix'), '.'));
-
-                if (!empty($tpl)) {
-                    return $this->getChunk($tpl, [
-                        'values' => $values
-                    ]);
-                }
+                $placeholders['values'] = $values;
             } else {
-                $failure = $this->getFailure();
-
-                if ($failure) {
-                    $this->modx->sendRedirect($failure);
+                if (!$this->handleFailure()) {
+                    if (!empty($this->getProperty('tplFailure'))) {
+                        $tpl = $this->getProperty('tplFailure');
+                    }
                 }
             }
         } else {
-            $tpl = $this->getProperty('tpl');
-
             $this->getEvents()->setPlugins($this->getProperty('plugins'));
             $this->getValidator()->setRules($this->getProperty('validator'));
 
@@ -132,10 +123,10 @@ class FormSnippetForm extends FormSnippets
                 if ($this->getValidator()->isValid()) {
                     $this->setFormCache($this->getCollection()->getValues());
 
-                    $success = $this->getSuccess();
-
-                    if ($success) {
-                        $this->modx->sendRedirect($success);
+                    if (!$this->handleSuccess()) {
+                        if (!empty($this->getProperty('tplSuccess'))) {
+                            $tpl = $this->getProperty('tplSuccess');
+                        }
                     }
 
                     if (!empty($this->getProperty('tplSuccess'))) {
@@ -147,15 +138,9 @@ class FormSnippetForm extends FormSnippets
                     if (!empty($this->getProperty('tplErrorMessage'))) {
                         $error = $this->getValidator()->getError('error_message');
 
-                        if ($error === null) {
-                            $placeholders['error_message'] = $this->getChunk($this->getProperty('tplErrorMessage'), [
-                                'error' => $this->modx->lexicon('form.form_invalid')
-                            ]);
-                        } else {
-                            $placeholders['error_message'] = $this->getChunk($this->getProperty('tplErrorMessage'), [
-                                'error' => $error[0]['error']
-                            ]);
-                        }
+                        $placeholders['error_message'] = $this->getChunk($this->getProperty('tplErrorMessage'), [
+                            'error' => $error === null ? $this->modx->lexicon('form.form_invalid') : $error[0]['error']
+                        ]);
                     }
 
                     if (!empty($this->getProperty('tplFailure'))) {
@@ -165,6 +150,16 @@ class FormSnippetForm extends FormSnippets
             } else {
                 $placeholders['values'] = $this->getCollection()->getValues();
                 $placeholders['errors'] = $this->formatValidationErrors($this->getValidator()->getErrors());
+
+                if (!empty($this->getProperty('tplErrorMessage'))) {
+                    $error = $this->getValidator()->getError('error_message');
+
+                    if ($error) {
+                        $placeholders['error_message'] = $this->getChunk($this->getProperty('tplErrorMessage'), [
+                            'error' => $error[0]['error']
+                        ]);
+                    }
+                }
             }
 
             $this->modx->toPlaceholders($placeholders, rtrim($this->getProperty('prefix'), '.'));
@@ -308,6 +303,23 @@ class FormSnippetForm extends FormSnippets
 
     /**
      * @access public.
+     * @return Boolean.
+     */
+    public function handleSuccess()
+    {
+        $success = $this->getSuccess();
+
+        if ($success) {
+            $this->modx->sendRedirect($success);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @access public.
      * @return Null|String
      */
     public function getSuccess()
@@ -335,6 +347,23 @@ class FormSnippetForm extends FormSnippets
         }
 
         return null;
+    }
+
+    /**
+     * @access public.
+     * @return Boolean.
+     */
+    public function handleFailure()
+    {
+        $failure = $this->getFailure();
+
+        if ($failure) {
+            $this->modx->sendRedirect($failure);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**

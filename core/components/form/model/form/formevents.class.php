@@ -245,6 +245,8 @@ class FormEvents
             ]);
         }
 
+        $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.' . $plugin . '.' . $event . '] could not load plugin.');
+
         return false;
     }
 
@@ -260,7 +262,7 @@ class FormEvents
             $publicKey = $this->form->getOption('recaptcha_site_key');
 
             if (empty($publicKey)) {
-                $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.recaptcha.' . $event .'] could not init recaptcha, site key not set.');
+                $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.recaptcha.' . $event . '] could not init recaptcha, site key not set.');
 
                 return false;
             }
@@ -275,9 +277,9 @@ class FormEvents
 
             if ($event === self::BEFORE_POST) {
                 if ($properties['version'] === 'v3') {
-                    $output = '<script src="https://www.google.com/recaptcha/api.js?render=' . $publicKey .'"></script>
+                    $output = '<script src="https://www.google.com/recaptcha/api.js?render=' . $publicKey . '"></script>
                     <input type="hidden" name="' . $actionKey . '" value="' . str_replace('-', '_', $actionKey) . '">
-                    <input type="hidden" name="' . $responseKey .'" id="' . $responseKey . '" />
+                    <input type="hidden" name="' . $responseKey . '" id="' . $responseKey . '" />
                     <script type="text/javascript">
                         grecaptcha.ready(function() {
                             grecaptcha.execute(\'' . $publicKey . '\', {action: \'' . str_replace('-', '_', $actionKey) . '\'}).then(function(token) {
@@ -299,7 +301,7 @@ class FormEvents
                 $secretKey  = $this->form->getOption('recaptcha_secret_key');
 
                 if (empty($publicKey)) {
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.recaptcha.' . $event .'] could not init recaptcha, secret key not set.');
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.recaptcha.' . $event . '] could not init recaptcha, secret key not set.');
 
                     return false;
                 }
@@ -349,7 +351,7 @@ class FormEvents
         if ($event === self::AFTER_POST) {
             if ($this->form->getValidator()->isValid() || $this->form->getOption('form_save_invalid')) {
                 if (!isset($properties['fields'])) {
-                    $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.save.' . $event .'] could not init save, fields.');
+                    $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.save.' . $event . '] could not init save, fields.');
 
                     return false;
                 }
@@ -418,7 +420,7 @@ class FormEvents
             $mailer = $this->modx->getService('mail', 'mail.modPHPMailer');
 
             if ($mailer === null) {
-                $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event .'] could not init email, could not load mail.modPHPMailer.');
+                $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event . '] could not init email, could not load mail.modPHPMailer.');
             }
 
             $placeholders = $this->form->getCollection()->getFormattedValues();
@@ -440,7 +442,7 @@ class FormEvents
             }
 
             if (empty($properties['body'])) {
-                $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event .'] could not init email, body empty.');
+                $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event . '] could not init email, body empty.');
 
                 return false;
             }
@@ -515,7 +517,7 @@ class FormEvents
                     if (file_exists($attachment)) {
                         $mailer->mailer->addAttachment($attachment, $filename, 'base64', 'application/octet-stream');
                     } else {
-                        $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event .'] could not find attachment "' . $attachment . '".');
+                        $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event . '] could not find attachment "' . $attachment . '".');
                     }
                 }
             }
@@ -531,7 +533,7 @@ class FormEvents
                     if (isset($attachment['tmp_name'], $attachment['error']) && $attachment['error'] === UPLOAD_ERR_OK) {
                         $mailer->mailer->addAttachment($attachment['tmp_name'], $attachment['name'], 'base64', $attachment['type'] ?: 'application/octet-stream');
                     } else {
-                        $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event .'] could not find attachment from field "' . $attachmentField . '".');
+                        $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event . '] could not find attachment from field "' . $attachmentField . '".');
                     }
                 }
             }
@@ -539,7 +541,7 @@ class FormEvents
             if (!$mailer->send()) {
                 $this->form->getValidator()->setError('send_mail', 'send_mail');
 
-                $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event .'] could not send email because "' . $mailer->mailer->ErrorInfo . '".');
+                $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event . '] could not send email because "' . $mailer->mailer->ErrorInfo . '".');
 
                 return false;
             }
@@ -568,7 +570,7 @@ class FormEvents
 
                         if (!is_dir($path)) {
                             if (!mkdir($path, 0755, true)) {
-                                $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.uploads.' . $event .'] could not create upload path "' . $path . '".');
+                                $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.uploads.' . $event . '] could not create upload path "' . $path . '".');
                             }
                         }
 
@@ -579,7 +581,7 @@ class FormEvents
                             $file       = str_replace([' ', '-'], '_', strtolower($name)) . '-' . date('Y_m_d_H_i') . '.' . $extension;
 
                             if (!move_uploaded_file($value['tmp_name'], $path . $file)) {
-                                $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.uploads.' . $event .'] could not move upload file "' . $path . $file . '".');
+                                $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.uploads.' . $event . '] could not move upload file "' . $path . $file . '".');
 
                                 $status = false;
                             }

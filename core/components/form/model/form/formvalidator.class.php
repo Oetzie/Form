@@ -93,6 +93,7 @@ class FormValidator
     }
 
     /**
+     * @access public.
      * @return Array.
      */
     public function getRules()
@@ -105,7 +106,7 @@ class FormValidator
      * @param String $key.
      * @param String $error.
      * @param Mixed $properties.
-     * @param String  $message.
+     * @param String $message.
      */
     public function setError($key, $error, $properties = null, $message = null)
     {
@@ -178,13 +179,13 @@ class FormValidator
     public function validate(array $values = [])
     {
         foreach ($this->getRules() as $key => $rule) {
-            $value = $values[$key] ?: '';
+            $value = isset($values[$key]) ? $values[$key] : '';
 
             foreach ((array) $rule as $type) {
                 list($type, $properties) = array_values($type);
 
                 if (method_exists($this, $type)) {
-                    $valid = $this->{$type}($value, $properties, $values);
+                    $valid = $this->{$type}($value, $properties, $values, $key);
 
                     if ($type === 'validateIf') {
                         if ($valid) {
@@ -221,27 +222,52 @@ class FormValidator
     /**
      * @access public.
      * @param Mixed $value.
-     * @param Mixed $properties.
+     * @param Array $properties.
      * @param Array $values.
+     * @param String $key.
      * @return Boolean.
      */
-    public function validateIf($value, $properties, array $values = [])
+    public function validateIf($value, array $properties = [], array $values = [], $key)
     {
-        $validate = true;
+        if (count($properties) >= 2 && isset($properties['validator'])) {
+            $validate = false;
 
-        if (is_string($properties)) {
-            $properties = explode(',', $properties);
-        }
+            foreach ($properties as $validation => $rules) {
+                if (!$validate && $validation !== 'validator') {
+                    $validator = new self($this->modx, $this->form);
 
-        foreach ($properties as $field) {
-            $value = $values[$field] ?: '';
+                    if ($validator) {
+                        $validator->setRules([
+                            $validation => $rules
+                        ]);
 
-            if ($this->required($value) && !$this->hasError($field)) {
-                $validate = false;
+                        $validate = !$validator->validate($values);
+                    }
+                }
+            }
+
+            if ($validate) {
+                $validator = new self($this->modx, $this->form);
+
+                if ($validator) {
+                    $validator->setRules([
+                        $key => $properties['validator']
+                    ]);
+
+                    if (!$validator->validate($values)) {
+                        if ($errors = $validator->getError($key)) {
+                            foreach ($errors as $error) {
+                                $this->setError($error['key'], $error['error'], $error['properties'], $error['message']);
+                            }
+                        }
+
+                        return false;
+                    }
+                }
             }
         }
 
-        return $validate;
+        return true;
     }
 
     /**
@@ -308,7 +334,7 @@ class FormValidator
      * @param Array $values.
      * @return Boolean.
      */
-    public function equalsTo($value, &$properties, array $values = [])
+    public function equalsTo($value, $properties, array $values = [])
     {
         if (!empty($value)) {
             $properties = $values[$properties] ?: '';

@@ -3,7 +3,7 @@
     "lowCaseName": "form",
     "description": "A form solution for MODX Revolution.",
     "author": "Oetzie.nl",
-    "version": "1.5.0-pl",
+    "version": "1.6.0-pl",
     "package":{
         "menus": [{
             "text": "form",
