@@ -70,6 +70,17 @@ Form is a snippet to handle forms in MODx. It will validate the form and trigger
         "age": {
             "age" : "18",
             "required": "true"
+        },
+        "license": {
+            "validateIf": {
+                "age": {
+                    "age": 18
+                },
+                "validator": {
+                    "minLength": 10,
+                    "required": true
+                }
+            }
         }
     }`
     &validatorMessages=`{
@@ -100,18 +111,18 @@ Form is a snippet to handle forms in MODx. It will validate the form and trigger
             'age'                   => 18,
             'required'              => true
         ],
-
+        
         // License field required and minLength for 8 if the age field has the minimum age of 18.
-        'license'				=> [
-        	'validateIf'			=> [
-        		'age'					=> [
-        			'age'					=> 18,
-        		],
-        		'validator'				=> [
-        			'minLength'				=> 10,
-        			'required'				=> true
-        		]
-        	]
+        'license'               => [
+            'validateIf'            => [
+                'age'                   => [
+                    'age'                   => 18
+                ],
+                'validator'             => [
+                    'minLength'             => 10,
+                    'required'              => true
+                ]
+            ]
         ]
     ],
     'validatorMessages'     => [
