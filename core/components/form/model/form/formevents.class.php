@@ -423,7 +423,13 @@ class FormEvents
                 $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event . '] could not init email, could not load mail.modPHPMailer.');
             }
 
-            $placeholders = $this->form->getCollection()->getFormattedValues();
+            $placeholders = array_merge($this->form->getCollection()->getFormattedValues(), [
+                'meta'      => $this->modx->lexicon('form.form_meta', [
+                    'ip'        => $_SERVER['REMOTE_ADDR'],
+                    'title'     => $this->modx->resource->get('pagetitle'),
+                    'url'       => $this->modx->makeUrl($this->modx->resource->get('id'), null, null, 'full')
+                ])
+            ]);
 
             if (isset($properties['placeholders'])) {
                 $placeholders = array_merge($placeholders, (array) $properties['placeholders']);
@@ -512,7 +518,6 @@ class FormEvents
 
                 foreach ($properties['attachments'] as $attachment) {
                     $filename   = trim(substr($attachment, strrpos($attachment, '/') + 1, strlen($attachment)));
-                    //$attachment = $this->form->getMediaSourceBasePath() . trim($attachment, '/');
 
                     if (file_exists($attachment)) {
                         $mailer->mailer->addAttachment($attachment, $filename, 'base64', 'application/octet-stream');
@@ -533,7 +538,7 @@ class FormEvents
                     if (isset($attachment['tmp_name'], $attachment['error']) && $attachment['error'] === UPLOAD_ERR_OK) {
                         $mailer->mailer->addAttachment($attachment['tmp_name'], $attachment['name'], 'base64', $attachment['type'] ?: 'application/octet-stream');
                     } else {
-                        $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event . '] could not find attachment from field "' . $attachmentField . '".');
+                        //$this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.email.' . $event . '] could not find attachment from field "' . $attachmentField . '".');
                     }
                 }
             }
@@ -565,30 +570,34 @@ class FormEvents
                 if (isset($file['path'])) {
                     $value = $this->form->getCollection()->getValue($field);
 
-                    if (isset($value['name'], $value['tmp_name'])) {
-                        $path = $this->form->getMediaSourceBasePath() . trim($file['path'], '/') . '/';
+                    if (isset($value['name'], $value['tmp_name'], $value['error'])) {
+                        if ($value['error'] === UPLOAD_ERR_OK) {
+                            $path = $this->form->getMediaSourceBasePath() . trim($file['path'], '/') . '/';
 
-                        if (!is_dir($path)) {
-                            if (!mkdir($path, 0755, true)) {
-                                $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.uploads.' . $event . '] could not create upload path "' . $path . '".');
-                            }
-                        }
-
-                        if ($path) {
-                            $name       = substr($value['name'], 0, strrpos($value['name'], '.'));
-                            $extension  = substr($value['name'], strrpos($value['name'], '.') + 1, strlen($value['name']));
-
-                            $file       = str_replace([' ', '-'], '_', strtolower($name)) . '-' . date('Y_m_d_H_i') . '.' . $extension;
-
-                            if (!move_uploaded_file($value['tmp_name'], $path . $file)) {
-                                $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.uploads.' . $event . '] could not move upload file "' . $path . $file . '".');
-
-                                $status = false;
+                            if (!is_dir($path)) {
+                                if (!mkdir($path, 0755, true)) {
+                                    $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.uploads.' . $event . '] could not create upload path "' . $path . '".');
+                                }
                             }
 
-                            $this->form->getCollection()->setValue($field, array_merge($value, [
-                                'tmp_name' => $path . $file
-                            ]));
+                            if ($path) {
+                                $name       = substr($value['name'], 0, strrpos($value['name'], '.'));
+                                $extension  = substr($value['name'], strrpos($value['name'], '.') + 1, strlen($value['name']));
+
+                                $file       = str_replace([' ', '-'], '_', strtolower($name)) . '-' . date('Y_m_d_H_i') . '.' . $extension;
+
+                                if (!move_uploaded_file($value['tmp_name'], $path . $file)) {
+                                    $this->modx->log(modX::LOG_LEVEL_ERROR, '[Form.uploads.' . $event . '] could not move upload file "' . $path . $file . '".');
+
+                                    $status = false;
+                                }
+
+                                $this->form->getCollection()->setValue($field, array_merge($value, [
+                                    'tmp_name' => $path . $file
+                                ]));
+                            }
+                        } else if ($value['error'] === UPLOAD_ERR_NO_FILE) {
+                            $status = false;
                         }
                     }
                 }

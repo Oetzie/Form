@@ -72,3 +72,4 @@ $_lang['form.forms_clean_desc']                                 = 'De <a href="h
 $_lang['form.forms_clean_executing']                            = 'Bezig met opruimen van formulieren';
 $_lang['form.forms_clean_success']                              = '[[+amount]] formulier(en) verwijderd.';
 $_lang['form.form_data_encrypt_error']                          = 'De data van het formulier kon niet geformatteerd worden, dit kan mogelijk aan de encryptie methode liggen.';
+$_lang['form.form_meta']                                        = 'Send by [[+ip]] on page <a href="[[+url]]" title="[[+title]]">[[+title]]</a>.';

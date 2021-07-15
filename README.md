@@ -1,5 +1,5 @@
 # MODX Form
-![Form version](https://img.shields.io/badge/version-1.6.0-blue.svg) ![MODX Extra by Oetzie.nl](https://img.shields.io/badge/checked%20by-oetzie-blue.svg) ![MODX version requirements](https://img.shields.io/badge/modx%20version%20requirement-2.4%2B-brightgreen.svg)
+![Form version](https://img.shields.io/badge/version-1.7.0-blue.svg) ![MODX Extra by Oetzie.nl](https://img.shields.io/badge/checked%20by-oetzie-blue.svg) ![MODX version requirements](https://img.shields.io/badge/modx%20version%20requirement-2.4%2B-brightgreen.svg)
 
 Form is a snippet to handle forms in MODx. It will validate the form and triggers actions like sending an email if the validation succeed. It does not generate the form, but it can repopulate it if it fails validation
 
@@ -14,6 +14,8 @@ Form is a snippet to handle forms in MODx. It will validate the form and trigger
 | prefix | The prefix of the placeholders, this prefix will used if you not work with the `tpl` parameter. Default is `form`.|
 | validator | The validation rules of the form. This must be a valid JSON. |
 | validatorMessages | The custom validation messages for the validation rules. This must be a valid JSON. If empty the default validation messages (in the `validation.inc.php` lexicon file) will be used. |
+| errorMessage | The custom error message of the global error. Default is `An error has occurred in the form, please complete the form and try again.`. |
+| successMessage | The custom success message. Default is empty. |
 | plugins | The plugins of the form. This must be a valid JSON. |
 | success | The success action of the form, if the validation is succeed the form will be redirected to this action. This can be an URL, ID of a resource, or `resource`. If set to `resource` the success action will be set to the current resource. If set to an ID of a resource or `resource` the current URL parameters will be merged in this action URL. If empty the form will not be redirected after a succeed validation. |
 | failure | The failed action of the form, if the validation is failed the form will be redirected to this action. This can be an URL, ID of a resource, or `resource`. If set to `resource` the failed action will be set to the current resource. If set to an ID of a resource or `resource` the current URL parameters will be merged in this action URL. If empty the form will not be redirected after a failed validation. |
@@ -21,7 +23,8 @@ Form is a snippet to handle forms in MODx. It will validate the form and trigger
 | tplSuccess | The template of the form if the validation succeed. This will replace the form template if not empty. |
 | tplFailure | The template of the form if the validation failed. This will replace the form template if not empty. |
 | tplError | The template of an error. Default is `@INLINE <p class="help-block">[[+error]]</p>` |
-| tplErrorMessage | The template of the bulk error. Default is `@INLINE <div class="form-group form-group--error"><p class="help-block">[[+error]]</p></div>`. The bulk error is available as the `[[+error_message]]` placeholder. |
+| tplErrorMessage | The template of the global error. Default is `@INLINE <div class="form-group form-group--error"><p class="help-block">[[+error]]</p></div>`. The bulk error is available as the `[[+error_message]]` placeholder. |
+| tplSuccessMessage | The template of the success message. Default is empty. |
 | usePdoTools | If `true` pdoTool will be used for the tpl's (Fenom is also available). `@FILE` and `@INLINE` are also available without PdoTools. Default is `false`. |
 | usePdoElementsPath | If `true` pdoTools will use the `pdotools_elements_path` setting to locate the `@FILE` tpl's, otherwise the `core/components/form/` will be used as directory. Default is `false`. |
 
@@ -310,7 +313,9 @@ To display the first occurred error of the field `[[+values.FIELD_NAME.error]]`.
 | action | The action of the form, this is an URL. |
 | method | The method of the form, this can be `POST` or `GET`. |
 | active | The state of the form, if the form is submitted the state is `true` otherwise `false`. |
+| valid | The validation state of the form, if the form is valid the state is `true` otherwise `false`. |
 | error_message | A global error message if the form validation is failed. |
+| success_message | A global success message if the form validation is succeed. |
 | errors | All the error of the form if the form validation is failed. |
 | values | All the values of the form. |
 | submit | The submit value of the form. |

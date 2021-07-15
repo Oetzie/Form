@@ -72,3 +72,4 @@ $_lang['form.forms_clean_desc']                                 = 'The European 
 $_lang['form.forms_clean_executing']                            = 'Cleaning up forms';
 $_lang['form.forms_clean_success']                              = '[[+amount]] form(s) removed.';
 $_lang['form.form_data_encrypt_error']                          = 'The data of the forms could not be formatted, this may be due to the encryption method.';
+$_lang['form.form_meta']                                        = 'Send by [[+ip]] on page <a href="[[+url]]" title="[[+title]]">[[+title]]</a>.';
