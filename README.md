@@ -52,10 +52,11 @@ Form is a snippet to handle forms in MODx. It will validate the form and trigger
 | betweenValue | The minimum and maximum value (or checkboxes). |
 | regex | A custom regex to validate the field. |
 | email | The field needs to be a valid email adress. |
-| domain | The field needs to be a valid domain (without a path/segments). |
-| url | The field needs to be a valid URL. |
+| phone | The field needs to be a valid phone number. The domain will be validated by a regex that can be changed with the `form.validator.phone.regex` system setting. |
+| domain | The field needs to be a valid domain (without a path/segments). The domain will be validated by a regex that can be changed with the `form.validator.domain.regex` system setting. |
+| url | The field needs to be a valid URL. The URL will be validated by a regex that can be changed with the `form.validator.url.regex` system setting. |
 | ip | The field needs to be a valid IP. |
-| iban | The field needs to be a valid IBAN. |
+| iban | The field needs to be a valid IBAN. The IBAN will be validated by a regex that can be changed with the `form.validator.iban.regex` system setting. |
 | number | The field can only contain 0-9 characters (also , and . are allowed). |
 | alpha | The field can only contain a-z characters. |
 | alphaNumeric | Combination of number and alpha characters. |
