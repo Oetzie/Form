@@ -10,7 +10,7 @@ Form is a snippet to handle forms in MODx. It will validate the form and trigger
 | form.encrypt | If yes the forms will be saved encrypted. |
 | form.encrypt_key | The encryption key to save forms encrypted. Default is "Yes". |
 | form.encrypt_method| The encryption method to save forms encrypted. Default is "openssl". |
-| form.use_pdotools | If yes and pdoTool is installed all chunks will be parsed by pdoTools. |
+| form.use_pdotools | If yes and pdoTools is installed all chunks will be parsed by pdoTools. |
 
 ## Snippet parameters
 
@@ -120,9 +120,9 @@ Each plugin will be triggered multiple times:
 * `onValidatePost`, gets triggered during the form validation (after the validation rules).
 * `onValidateFailed`, gets triggered after a failed form validation.
 * `onValidateSuccess`, gets triggered after a succeed form validation.
-* `onAfterPost`, get triggered after form validation (doesn't check if the form validation is valid).
+* `onAfterPost`, gets triggered after form validation (doesn't check if the form validation is valid).
 
-### Build-in plugins
+### Build-in plugins/hooks
 
 | Plugin                     | Description                                                                  |
 |----------------------------|------------------------------------------------------------------------------|
@@ -131,7 +131,7 @@ Each plugin will be triggered multiple times:
 | email | Sent the form data by email to specified emails (multiple emails supported, email to administrator, email to client etc). |
 | uploads | This will handle uploads, it will move the uploads to a media source (and will prefix the uploads with the current upload time). |
 
-**Example ReCaptcha plugin with pdoTools/Fenom:**
+**Example ReCaptcha plugin/hook with pdoTools/Fenom:**
 
 ```
 {'!Form' | snippet : [
@@ -143,7 +143,7 @@ Each plugin will be triggered multiple times:
 ]}
 ```
 
-**Example email plugin with pdoTools/Fenom:**
+**Example email plugin/hook with pdoTools/Fenom:**
 
 ```
 {'!Form' | snippet : [
@@ -256,7 +256,7 @@ The following code is an example how to use a snippet as plugin. The key in the 
         $email = $form->getCollection()->getValue('email');
         
         if (empty($email)) {
-            $form->getValidator()->setError('email', 'E-mailaddress is required.');
+            $form->getValidators()->setError('email', 'E-mailaddress is required.');
             
             return false;
         }
@@ -270,7 +270,7 @@ The following code is an example how to use a snippet as plugin. The key in the 
         $state = curl...
         
         if (!$state) {
-            $form->getValidator()->setError('email', 'An error has occurred during the MailChimp api call.');
+            $form->getValidators()->setError('email', 'An error has occurred during the MailChimp api call.');
             
             return false;
         }
