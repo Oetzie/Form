@@ -8,7 +8,7 @@
 
 require_once dirname(__DIR__) . '/formsnippets.class.php';
 require_once dirname(__DIR__) . '/formcollection.class.php';
-require_once dirname(__DIR__) . '/formvalidator.class.php';
+require_once dirname(__DIR__) . '/formvalidators.class.php';
 require_once dirname(__DIR__) . '/formevents.class.php';
 
 class FormSnippetForm extends FormSnippets
@@ -23,7 +23,7 @@ class FormSnippetForm extends FormSnippets
      * @access public.
      * @var Object.
      */
-    public $validator = null;
+    public $validators = null;
 
     /**
      * @access public.
@@ -60,10 +60,7 @@ class FormSnippetForm extends FormSnippets
         'tplErrorMessage'       => '@INLINE <div class="form-group form-group--error">
             <p class="error">[[+error]]</p>
         </div>',
-        'tplSuccessMessage'     => '',
-
-        'usePdoTools'           => false,
-        'usePdoElementsPath'    => false
+        'tplSuccessMessage'     => ''
     ];
 
     /**
@@ -74,6 +71,8 @@ class FormSnippetForm extends FormSnippets
     public function run(array $properties = [])
     {
         $this->setProperties($this->getFormattedProperties($properties));
+
+        $this->modx->invokeEvent('onFormHandle', $this->getProperties());
 
         $tpl            = $this->getProperty('tpl');
         $placeholders   = [];
@@ -92,7 +91,7 @@ class FormSnippetForm extends FormSnippets
             }
         } else {
             $this->getEvents()->setPlugins($this->getProperty('plugins'));
-            $this->getValidator()->setRules($this->getProperty('validator'));
+            $this->getValidators()->setRules($this->getProperty('validator'));
 
             $this->getEvents()->invokeEvent('onBeforePost');
 
@@ -109,11 +108,11 @@ class FormSnippetForm extends FormSnippets
             if ($this->isMethod($this->getProperty('method'))) {
                 $placeholders['state'] = 'active';
 
-                $this->getValidator()->validate($this->getCollection()->getValues());
+                $this->getValidators()->validate($this->getCollection()->getValues());
 
                 $this->getEvents()->invokeEvent('onValidatePost');
 
-                if ($this->getValidator()->isValid()) {
+                if ($this->getValidators()->isValid()) {
                     $this->getEvents()->invokeEvent('onValidateSuccess');
                 } else {
                     $this->getEvents()->invokeEvent('onValidateFailed');
@@ -124,7 +123,7 @@ class FormSnippetForm extends FormSnippets
                 $placeholders['values'] = $this->getCollection()->getValues();
                 $placeholders['plugins'] = $this->getEvents()->getValues();
 
-                if ($this->getValidator()->isValid()) {
+                if ($this->getValidators()->isValid()) {
                     $placeholders['valid'] = true;
 
                     $this->setFormCache($this->getCollection()->getValues());
@@ -153,11 +152,11 @@ class FormSnippetForm extends FormSnippets
                 } else {
                     $placeholders['valid'] = false;
 
-                    $placeholders['errors'] = $this->formatValidationErrors($this->getValidator()->getErrors());
+                    $placeholders['errors'] = $this->formatValidationErrors($this->getValidators()->getErrors());
 
                     $message = $this->getProperty('errorMessage');
 
-                    if ($error = $this->getValidator()->getError('error_message')) {
+                    if ($error = $this->getValidators()->getError('error_message')) {
                         $message = $error[0]['error'];
                     }
 
@@ -176,12 +175,12 @@ class FormSnippetForm extends FormSnippets
             } else {
                 $placeholders['values'] = $this->getCollection()->getValues();
 
-                if (!$this->getValidator()->isValid()) {
-                    $placeholders['errors'] = $this->formatValidationErrors($this->getValidator()->getErrors());
+                if (!$this->getValidators()->isValid()) {
+                    $placeholders['errors'] = $this->formatValidationErrors($this->getValidators()->getErrors());
 
                     $message = $this->getProperty('errorMessage');
 
-                    if ($error = $this->getValidator()->getError('error_message')) {
+                    if ($error = $this->getValidators()->getError('error_message')) {
                         $message = $error[0]['error'];
                     }
 
@@ -248,22 +247,22 @@ class FormSnippetForm extends FormSnippets
     /**
      * @access public.
      */
-    public function setValidator()
+    public function setValidators()
     {
-        $this->validator = new FormValidator($this->modx, $this);
+        $this->validators = new FormValidators($this->modx, $this);
     }
 
     /**
      * @access public.
      * @return Null|Object.
      */
-    public function getValidator()
+    public function getValidators()
     {
-        if ($this->validator === null) {
-            $this->setValidator();
+        if ($this->validators === null) {
+            $this->setValidators();
         }
 
-        return $this->validator;
+        return $this->validators;
     }
 
     /**

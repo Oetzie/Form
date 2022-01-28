@@ -1,7 +1,16 @@
 # MODX Form
-![Form version](https://img.shields.io/badge/version-1.7.0-blue.svg) ![MODX Extra by Oetzie.nl](https://img.shields.io/badge/checked%20by-oetzie-blue.svg) ![MODX version requirements](https://img.shields.io/badge/modx%20version%20requirement-2.4%2B-brightgreen.svg)
+![Form version](https://img.shields.io/badge/version-1.8.0-blue.svg) ![MODX Extra by Oetzie.nl](https://img.shields.io/badge/checked%20by-oetzie-blue.svg) ![MODX version requirements](https://img.shields.io/badge/modx%20version%20requirement-2.4%2B-brightgreen.svg)
 
 Form is a snippet to handle forms in MODx. It will validate the form and triggers actions like sending an email if the validation succeed. It does not generate the form, but it can repopulate it if it fails validation
+
+## System settings
+
+| Setting                  | Description                                                                  |
+|----------------------------|------------------------------------------------------------------------------|
+| form.encrypt | If yes the forms will be saved encrypted. |
+| form.encrypt_key | The encryption key to save forms encrypted. Default is "Yes". |
+| form.encrypt_method| The encryption method to save forms encrypted. Default is "openssl". |
+| form.use_pdotools | If yes and pdoTool is installed all chunks will be parsed by pdoTools. |
 
 ## Snippet parameters
 
@@ -25,8 +34,6 @@ Form is a snippet to handle forms in MODx. It will validate the form and trigger
 | tplError | The template of an error. Default is `@INLINE <p class="help-block">[[+error]]</p>` |
 | tplErrorMessage | The template of the global error. Default is `@INLINE <div class="form-group form-group--error"><p class="help-block">[[+error]]</p></div>`. The bulk error is available as the `[[+error_message]]` placeholder. |
 | tplSuccessMessage | The template of the success message. Default is empty. |
-| usePdoTools | If `true` pdoTool will be used for the tpl's (Fenom is also available). `@FILE` and `@INLINE` are also available without PdoTools. Default is `false`. |
-| usePdoElementsPath | If `true` pdoTools will use the `pdotools_elements_path` setting to locate the `@FILE` tpl's, otherwise the `core/components/form/` will be used as directory. Default is `false`. |
 
 ## Build-in validators
 
@@ -60,37 +67,6 @@ Form is a snippet to handle forms in MODx. It will validate the form and trigger
 | fileExtension | The valid need to have a valid upload with a specified extension. |
 | fileSize | The valid need to have a valid upload with a specified file size. |
 | age | The field needs to have a valid date and calculates the age that needs to be older then a specified age. |
-
-**Example validation parameter plain MODX:**
-
-```
-[[!Form?
-    &validator=`{
-        "name": "required",
-        "phone": ["phone", "required"],
-        "email": ["email", "required"],
-        "content: "required",
-        "age": {
-            "age" : "18",
-            "required": "true"
-        },
-        "license": {
-            "validateIf": {
-                "age": {
-                    "age": 18
-                },
-                "validator": {
-                    "minLength": 10,
-                    "required": true
-                }
-            }
-        }
-    }`
-    &validatorMessages=`{
-        "required": "This field is required"
-    }`
-]]
-```
 
 **Example validation parameter with pdoTools/Fenom:**
 
@@ -134,7 +110,7 @@ Form is a snippet to handle forms in MODx. It will validate the form and trigger
 ]}
 ```
 
-## Plugins
+## Plugins (Hooks)
 
 A form can handle plugin/events, in FormIt know as hooks.
 
@@ -155,18 +131,6 @@ Each plugin will be triggered multiple times:
 | email | Sent the form data by email to specified emails (multiple emails supported, email to administrator, email to client etc). |
 | uploads | This will handle uploads, it will move the uploads to a media source (and will prefix the uploads with the current upload time). |
 
-**Example ReCaptcha plugin plain MODX:**
-
-```
-[[!Form?
-    &plugins=`{
-        "recaptcha": {
-            "version": "v3"
-        }
-    }`
-]]
-```
-
 **Example ReCaptcha plugin with pdoTools/Fenom:**
 
 ```
@@ -177,22 +141,6 @@ Each plugin will be triggered multiple times:
         ]
     ]
 ]}
-```
-
-**Example email plugin with plain MODX:**
-
-```
-[[!Form?
-    &plugins=`{
-        "email": {
-            "subject": "Title of the email.",
-            "emailTo": "The e-mailadress to sent the email to.",
-            "emailToField": "The name of the field to get the e-mailadress to sent the email to.",
-            "emailFrom": "The e-mailadress to sent from.",
-            "tpl": "The template of the email."
-        }
-    }`
-]]
 ```
 
 **Example email plugin with pdoTools/Fenom:**
@@ -211,27 +159,67 @@ Each plugin will be triggered multiple times:
 ]}
 ```
 
+## Custom plugins or validators
+
+You can make class based plugins or validators. To load them you can create a plugin that will be fired on the `onHandelForm` event.
+
+**Example**
+
+```
+<?php
+
+if ($modx->event->name === 'onFormHandle') {
+    include_once MODX_CORE_PATH . 'components/site/elements/form/testformplugin.php';
+    include_once MODX_CORE_PATH . 'components/site/elements/form/testformvalidator.php';
+}
+```
+
+```
+<?php
+
+class TestFormPlugin extends DefaultFormPlugin
+{
+    /**
+     * @access public.
+     * @return Boolean.
+     */
+    public function onValidatePost()
+    {
+        // This test plugin will fired on the onValidatePost form event.
+
+        return false;
+    }
+}
+```
+
+```
+<?php
+
+class TestFormValidator extends DefaultFormValidator
+{
+    /**
+     * @access public.
+     * @param Mixed $value.
+     * @param Mixed $properties.
+     * @param Array $values.
+     * @return Boolean|String.
+     */
+    public function validate($value, &$properties = null, array $values = [])
+    {
+        // This test validator will fired when validating a form.
+
+        return false;
+    }
+}
+```
+
 ### Custom plugins
 
 **Example custom plugin:**
 
 The following code is an example how to use a snippet as plugin. The key in the `plugins` array is the name of the snippet thats needs to be triggerd. The value of the key are the properties that are parsed to the snippet. The name of the snippet will be prepended with `form`, in this case the name of the snippet will be `formMailChimp`.
 
-**Plain MODX:**
-
-```
-[[!Form?
-    &plugins=`{
-        "mailchimp": {
-            "list_id": "The id of the MailChimp list",
-            "double_optin": "true"
-        }
-    }`
-]]
-```
-
 **With pdoTools/Fenom:**
-
 
 ```
 {'!Form' | snippet : [
@@ -320,60 +308,6 @@ To display the first occurred error of the field `[[+values.FIELD_NAME.error]]`.
 | values | All the values of the form. |
 | submit | The submit value of the form. |
 | plugins | The output of the plugins (for example rendering the Recaptcha HTML). |
-
-**Example chunk plain MODx:**
-
-```
-<form novalidate action="[[+action]]" method="[[+method]]" class="form [[+active:notempty=`form-active`]]">
-    [[+error_message]]
-    
-    <!-- Name field -->
-    <div class="form-group required [[+errors.name.error:notempty=`form-group--error`]]">
-        <label for="name">Name *</label>
-        <div class="form-control-wrapper">
-            <input type="text" name="name" id="name" class="form-control" value="[[+values.name]]" /> [[+errors.name.error]]
-        </div>
-    </div>
-    
-    <!-- Phone field -->
-    <div class="form-group required [[+errors.phone.error:notempty=`form-group--error`]]">
-        <label for="phone">Phone *</label>
-        <div class="form-control-wrapper">
-            <input type="tel" name="phone" id="phone" class="form-control" value="[[+values.phone]]" /> [[+errors.phone.error]]
-        </div>
-    </div>
-    
-    <!-- Email field -->
-    <div class="form-group required [[+errors.email.error:notempty=`form-group--error`]]">
-        <label for="email">E-mail *</label>
-        <div class="form-element-wrapper">
-            <input type="email" name="email" id="email" class="form-control" value="[[+values.email]]" /> [[+errors.email.error]]
-        </div>
-    </div>
-    
-    <!-- Content field -->
-    <div class="form-group required [[+errors.content.error:notempty=`form-group--error`]]">
-        <label for="content">Question *</label>
-        <div class="form-control-wrapper">
-            <textarea name="content" id="content" class="form-control form-control--textarea">[[+values.content]]</textarea> [[+errors.content.error]]
-        </div>
-    </div>
-    
-    <!-- Recaptcha plugin output -->
-    <div class="form-group [[+errors.recaptcha.error:notempty=`form-group--error`]]">
-        <div class="form-control-wrapper">
-            [[+plugins.recaptcha.output]] [[+errors.recaptcha.error]]
-        </div>
-    </div>
-    
-    <!-- Submit button -->
-    <div class="form-group">
-        <div class="form-control-wrapper">
-            <button type="submit" class="btn" name="[[+submit]]" title="Submit">Submit</button>
-        </div>
-    </div>
-</form>
-```
 
 **Example chunk with pdoTools/Fenom:**
 

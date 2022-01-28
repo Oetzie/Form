@@ -3,6 +3,13 @@ Form
 ----------------------
 
 ----------------------
+Version: 1.8.0
+Released: 2022-01-29
+----------------------
+- Bug fixes
+- Class based validators and plugins
+
+----------------------
 Version: 1.7.0
 Released: 2021-07-14
 ----------------------

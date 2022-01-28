@@ -3,7 +3,7 @@
     "lowCaseName": "form",
     "description": "A form solution for MODX Revolution.",
     "author": "Oetzie.nl",
-    "version": "1.7.0-pl",
+    "version": "1.8.0-pl",
     "package":{
         "menus": [{
             "text": "form",
@@ -25,6 +25,11 @@
         },{
             "key": "branding_url_help",
             "value": "//www.oetzie.nl",
+            "area": "form"
+        },{
+            "type": "combo-boolean",
+            "key": "use_pdotools",
+            "value": "0",
             "area": "form"
         },{
             "key": "clean_days",

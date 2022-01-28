@@ -74,26 +74,6 @@ class FormSnippets extends Form
             }
         }
 
-        foreach (['usePdoTools', 'usePdoElementsPath'] as $key) {
-            if (isset($properties[$key]) && !is_bool($properties[$key])) {
-                $properties[$key] = $properties[$key] === 'true' || $properties[$key] === '1';
-            }
-        }
-
         return $properties;
-    }
-
-    /**
-     * @access public.
-     * @param String $name.
-     * @param Array $properties.
-     * @return String.
-     */
-    public function getChunk($name, array $properties = [])
-    {
-        $usePdoTools        = (bool) $this->getProperty('usePdoTools', false);
-        $usePdoElementsPath = (bool) !$this->getProperty('usePdoElementsPath', false);
-
-        return parent::getChunkTemplate($name, $properties, $usePdoTools, $usePdoElementsPath);
     }
 }

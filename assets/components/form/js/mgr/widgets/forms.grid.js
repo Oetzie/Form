@@ -406,7 +406,7 @@ Ext.extend(Form.window.ViewForm, MODx.Window, {
                     break;
                 default:
                     if (typeof element.value === 'object') {
-                        if (element.value.name && element.value.tmp_name) {
+                        if (element.value.name !== undefined && element.value.tmp_name !== undefined) {
                             element.value = element.value.name;
                         } else {
                             element.value = element.value.join(', ');
