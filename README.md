@@ -159,6 +159,37 @@ Each plugin will be triggered multiple times:
 ]}
 ```
 
+You can send multiple emails by by add a number (or `reply`) to the email. For example `email`, `email2`, `email3` or `emailReply`. So the default `email` you can send to the
+administrator of the website, and `email2` or `emailReply` you can use to send a reply email to the visitor.
+
+```
+{'!Form' | snippet : [
+    'plugins'               => [
+        'email'                => [
+            'subject'               => 'Title of the email.',
+            'emailTo'               => 'The e-mailadress to sent the email to.',
+            'emailToField'          => 'The name of the field to get the e-mailadress to sent the email to.',
+            'emailFrom'             => 'The e-mailadress to sent from.',
+            'tpl'                   => 'The template of the email.'
+        ],
+        'email2'                => [
+            'subject'               => 'Title of the second email.',
+            'emailTo'               => 'The e-mailadress to sent the second email to.',
+            'emailToField'          => 'The name of the field to get the e-mailadress to sent the second email to.',
+            'emailFrom'             => 'The e-mailadress to sent from.',
+            'tpl'                   => 'The template of the second email.'
+        ],
+        'email3'                => [
+            'subject'               => 'Title of the third email.',
+            'emailTo'               => 'The e-mailadress to sent the third email to.',
+            'emailToField'          => 'The name of the field to get the e-mailadress to sent the third email to.',
+            'emailFrom'             => 'The e-mailadress to sent from.',
+            'tpl'                   => 'The template of the third email.'
+        ]
+    ]
+]}
+```
+
 ## Custom plugins/hooks or validators
 
 You can make class based plugins or validators. To load them you can create a plugin that will be fired on the `onHandelForm` event.
