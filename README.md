@@ -163,8 +163,8 @@ Each plugin will be triggered multiple times:
 
 You can make class based plugins or validators. To load them you can create a plugin that will be fired on the `onHandelForm` event.
 
-Form adds `FormPlugin` to the plugin/hook classname call. For example, `ExampleFormPlugin` or `TestFormPlugin`.
-Form adds `FormValidator` to the validator classname call. For example, `ExampleFormValidator` or `TestFormValidator`.
+* Form adds `FormPlugin` to the plugin/hook classname call. For example, `ExampleFormPlugin` or `TestFormPlugin`.
+* Form adds `FormValidator` to the validator classname call. For example, `ExampleFormValidator` or `TestFormValidator`.
 
 **Example**
 
