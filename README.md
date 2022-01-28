@@ -159,11 +159,36 @@ Each plugin will be triggered multiple times:
 ]}
 ```
 
-## Custom plugins or validators
+## Custom plugins/hooks or validators
 
 You can make class based plugins or validators. To load them you can create a plugin that will be fired on the `onHandelForm` event.
 
+Form adds `FormPlugin` to the plugin/hook classname call. For example, `ExampleFormPlugin` or `TestFormPlugin`.
+Form adds `FormValidator` to the validator classname call. For example, `ExampleFormValidator` or `TestFormValidator`.
+
 **Example**
+
+```
+{'!Form' | snippet : [
+    'validator'             => [
+        'name'                  => [
+            'test'                  => [ // Classname will be called TestFormValidator
+                'option_1'              => 'value 1',
+                'option_2'              => 'value 2',
+                'option_3'              => 'value 3',
+            ]
+        ]
+    ],
+    
+    'plugins'               => [
+        'test'                  => [ // Classname will be called TestFormPlugin
+            'option_1'              => 'value 1',
+            'option_2'              => 'value 2',
+            'option_3'              => 'value 3'
+        ]
+    ],
+]}
+```
 
 ```
 <?php
